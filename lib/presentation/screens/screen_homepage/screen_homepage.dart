@@ -1,15 +1,16 @@
-import 'dart:developer';
-
+import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
-import 'package:dream_carz/presentation/screen_homepage/widgets/carosal_widget.dart';
-import 'package:dream_carz/presentation/screen_homepage/widgets/date_time_selectionwidget.dart';
-import 'package:dream_carz/presentation/screen_searchresultscreen.dart/widgets/screen_searchresultpage.dart';
+import 'package:dream_carz/presentation/screens/screen_homepage/widgets/carosal_widget.dart';
+import 'package:dream_carz/presentation/screens/screen_homepage/widgets/date_time_selectionwidget.dart';
+import 'package:dream_carz/presentation/screens/screen_searchresultscreen.dart/screen_searchresultpage.dart';
+import 'package:dream_carz/widgets/custom_drawer.dart';
 
 //import 'package:dream_carz/widgets/custom_appbar.dart';
 import 'package:dream_carz/widgets/custom_elevatedbutton.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class ScreenHomepage extends StatefulWidget {
   const ScreenHomepage({super.key});
@@ -19,6 +20,7 @@ class ScreenHomepage extends StatefulWidget {
 }
 
 class _ScreenSearchPageState extends State<ScreenHomepage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   DateTime? fromDate;
   TimeOfDay? fromTime;
   DateTime? toDate;
@@ -44,41 +46,29 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: const Color.fromARGB(255, 237, 235, 235),
       // appBar: const CustomAppBar(),
-      // drawer: const CustomDrawer(),
+      drawer: const CustomDrawer(),
       body: Stack(
         children: [
           // Top Section with Carousel
           Column(
             children: [
               Container(
-                height:
-                    MediaQuery.of(context).size.height *
-                    0.47, // 55% of screen height
+                height: MediaQuery.of(context).size.height * 0.6,
                 width: double.infinity,
                 decoration: const BoxDecoration(color: Appcolors.kblackcolor),
-                child: Stack(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Carousel Widget
-                    const CarCarouselWidget(),
-                    // Gradient Overlay
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withAlpha(77),
-                            Colors.black.withAlpha(150),
-                          ],
-                        ),
+                    // 🔹 TOP BAR (Icon + Text)
+                    Padding(
+                      padding: EdgeInsets.only(
+                        top: ResponsiveUtils.hp(5),
+                        left: ResponsiveUtils.wp(3),
+                        right: ResponsiveUtils.wp(3),
                       ),
-                    ),
-                    // Text Content
-                    Positioned(
-                      top: ResponsiveUtils.hp(5),
-                      left: ResponsiveUtils.wp(1),
                       child: Row(
                         children: [
                           IconButton(
@@ -87,7 +77,7 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                               color: Appcolors.kprimarycolor,
                             ),
                             onPressed: () {
-                              // Scaffold.of(context).openDrawer();
+                              _scaffoldKey.currentState?.openDrawer();
                             },
                           ),
                           ResponsiveSizedBox.width10,
@@ -98,6 +88,62 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                         ],
                       ),
                     ),
+
+                    const SizedBox(height: 10),
+
+                    // 🔹 CAROUSEL AS CARD
+                    SizedBox(
+                      height: ResponsiveUtils.hp(25),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: ResponsiveUtils.wp(3),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Card(
+                            elevation: 6,
+                            margin: EdgeInsets.zero,
+                            clipBehavior: Clip.antiAlias,
+                            child: const CarCarouselWidget(), // ✅ No overlay
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // SizedBox(
+                    //   height: ResponsiveUtils.hp(25),
+                    //   child: Padding(
+                    //     padding: EdgeInsets.symmetric(
+                    //       horizontal: ResponsiveUtils.wp(3),
+                    //     ),
+                    //     child: ClipRRect(
+                    //       borderRadius: BorderRadius.circular(20),
+                    //       child: Card(
+                    //         elevation: 6,
+                    //         margin: EdgeInsets.zero,
+                    //         clipBehavior: Clip.antiAlias,
+                    //         child: Stack(
+                    //           children: [
+                    //             const CarCarouselWidget(),
+                    //             // Optional gradient overlay to make text/icons readable
+                    //             Container(
+                    //               decoration: BoxDecoration(
+                    //                 gradient: LinearGradient(
+                    //                   begin: Alignment.topCenter,
+                    //                   end: Alignment.bottomCenter,
+                    //                   colors: [
+                    //                     Colors.black.withAlpha(77),
+                    //                     Colors.black.withAlpha(150),
+                    //                   ],
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -106,7 +152,7 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
 
           // Search Container
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.35,
+            top: MediaQuery.of(context).size.height * 0.4,
             left: 0,
             right: 0,
             child: Padding(
@@ -298,7 +344,7 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                       child: Column(
                         children: [
                           // From Date/Time
-                          _buildDateTimeSection('From', Icons.departure_board, (
+                          _buildDateTimeSection('From', Appconstants.dateIcon, (
                             date,
                             time,
                           ) {
@@ -310,11 +356,11 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
 
                           ResponsiveSizedBox.height15,
                           Divider(thickness: .5),
-    
+
                           ResponsiveSizedBox.height5,
 
                           // To Date/Time
-                          _buildDateTimeSection('To', Icons.assignment_return, (
+                          _buildDateTimeSection('To', Appconstants.dateIcon, (
                             date,
                             time,
                           ) {
@@ -331,12 +377,12 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
 
                     CustomElevatedButton(
                       onpress: () {
-//                        Navigator.push(
-//   context,
-//   MaterialPageRoute(
-//     builder: (context) => CarBookingScreen(), // <- target screen widget
-//   ),
-// );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CarBookingScreen(),
+                          ),
+                        );
                         // if (selectedCity != null &&
                         //     fromDate != null &&
                         //     fromTime != null &&
@@ -383,8 +429,6 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
               ),
             ),
           ),
-
-
         ],
       ),
     );
@@ -406,17 +450,35 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
 
   Widget _buildDateTimeSection(
     String label,
-    IconData icon,
+    String svgAssetPath, // instead of IconData
     Function(DateTime?, TimeOfDay?) onChanged,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle(label, icon),
+        Row(
+          children: [
+            SvgPicture.asset(
+              svgAssetPath,
+              width: ResponsiveUtils.sp(4.5),
+              height: ResponsiveUtils.sp(4.5),
+              colorFilter: const ColorFilter.mode(
+                Color(0xFFE74C3C), // red color
+                BlendMode.srcIn,
+              ),
+            ),
+            const SizedBox(width: 8),
+            ResponsiveText(
+              label,
+              sizeFactor: 0.9,
+              weight: FontWeight.w600,
+              color: Appcolors.kblackcolor,
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            // color: Appcolors.kwhitecolor,
             borderRadius: BorderRadiusStyles.kradius10(),
             boxShadow: [
               BoxShadow(

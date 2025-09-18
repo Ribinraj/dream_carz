@@ -1,9 +1,5 @@
-
-
 import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:flutter/material.dart';
-
-
 
 class ResponsiveText extends StatelessWidget {
   final String text;
@@ -27,6 +23,7 @@ class ResponsiveText extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
+        overflow: TextOverflow.ellipsis,
         fontSize: sizeFactor != null ? baseSize * sizeFactor! : baseSize,
         fontWeight: weight ?? FontWeight.normal,
         color: color ?? Colors.black,
@@ -37,8 +34,11 @@ class ResponsiveText extends StatelessWidget {
 
 // Optional: Predefined text styles
 class TextStyles {
-  static ResponsiveText headline(
-      {String? text, FontWeight? weight, Color? color}) {
+  static ResponsiveText headline({
+    String? text,
+    FontWeight? weight,
+    Color? color,
+  }) {
     return ResponsiveText(
       text ?? '',
       sizeFactor: 1.5, // 50% larger than base size
@@ -47,8 +47,11 @@ class TextStyles {
     );
   }
 
-  static ResponsiveText subheadline(
-      {String? text, FontWeight? weight, Color? color}) {
+  static ResponsiveText subheadline({
+    String? text,
+    FontWeight? weight,
+    Color? color,
+  }) {
     return ResponsiveText(
       text ?? '',
       sizeFactor: 1.22,
@@ -66,8 +69,11 @@ class TextStyles {
     );
   }
 
-  static ResponsiveText medium(
-      {String? text, FontWeight? weight, Color? color}) {
+  static ResponsiveText medium({
+    String? text,
+    FontWeight? weight,
+    Color? color,
+  }) {
     return ResponsiveText(
       text ?? '',
       sizeFactor: .82, // base size
@@ -76,8 +82,11 @@ class TextStyles {
     );
   }
 
-  static ResponsiveText caption(
-      {String? text, FontWeight? weight, Color? color}) {
+  static ResponsiveText caption({
+    String? text,
+    FontWeight? weight,
+    Color? color,
+  }) {
     return ResponsiveText(
       text ?? '',
       sizeFactor: 0.74, // 25% smaller than base size
@@ -189,10 +198,10 @@ class ResponsiveSizedBox {
   // Height constants
   static SizedBox height5 = SizedBox(height: ResponsiveUtils.hp(0.5));
   static SizedBox height10 = SizedBox(height: ResponsiveUtils.hp(1));
-    static SizedBox height15 = SizedBox(height: ResponsiveUtils.hp(1.5));
+  static SizedBox height15 = SizedBox(height: ResponsiveUtils.hp(1.5));
   static SizedBox height20 = SizedBox(height: ResponsiveUtils.hp(2));
   static SizedBox height30 = SizedBox(height: ResponsiveUtils.hp(3));
-    static SizedBox height40 = SizedBox(height: ResponsiveUtils.hp(4));
+  static SizedBox height40 = SizedBox(height: ResponsiveUtils.hp(4));
   static SizedBox height50 = SizedBox(height: ResponsiveUtils.hp(5));
 
   // Width constants
@@ -213,4 +222,3 @@ class ResponsiveSizedBox {
 }
 
 //////////---------------//////////////
-

@@ -1,6 +1,10 @@
+import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
-import 'package:dream_carz/presentation/screen_homepage/screen_homepage.dart';
+
+import 'package:dream_carz/presentation/screens/sreen_splashpage/screen_splashpage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -16,10 +20,20 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: ScreenHomepage(),
+               theme: ThemeData(
+                  appBarTheme: const AppBarTheme(
+          systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.light,
+            statusBarBrightness: Brightness.dark, 
+          ),
+        ),
+            fontFamily: 'Helvetica',
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            scaffoldBackgroundColor: Appcolors.kbackgroundcolor,
+          ),
+      home: SplashScreen(),
     );
   }
 }
