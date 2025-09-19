@@ -1,7 +1,12 @@
+import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
+import 'package:dream_carz/presentation/screens/screen_mybookingspage/screen_mybookingpage.dart';
+import 'package:dream_carz/presentation/screens/screen_mydocuments/screen_mydocuments.dart';
+import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
+import 'package:flutter_svg/svg.dart';
 
 class ScreenProfilpage extends StatelessWidget {
   const ScreenProfilpage({super.key});
@@ -11,15 +16,20 @@ class ScreenProfilpage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Appcolors.kbackgroundcolor,
       appBar: AppBar(
-           leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-        ),
-        backgroundColor: Appcolors.kprimarycolor,
+        backgroundColor: Colors.white,
         elevation: 0,
-        title: TextStyles.headline(
+
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(
+            Icons.chevron_left,
+            size: ResponsiveUtils.wp(8),
+            color: Colors.black,
+          ),
+        ),
+        title: TextStyles.subheadline(
           text: 'Profile',
-          color: Appcolors.kwhitecolor,
+          color: const Color(0xFF1A365D),
         ),
         centerTitle: true,
       ),
@@ -49,28 +59,18 @@ class ScreenProfilpage extends StatelessWidget {
               child: Column(
                 children: [
                   // Profile Picture
-                  Container(
-                    width: ResponsiveUtils.wp(25),
-                    height: ResponsiveUtils.wp(25),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Appcolors.kprimarycolor,
-                        width: 3,
-                      ),
-                    ),
-                    child: ClipOval(
-                      child: Container(
-                        color: Appcolors.ksecondarycolor.withOpacity(0.1),
-                        child: Icon(
-                          Icons.person,
-                          size: ResponsiveUtils.wp(12),
-                          color: Appcolors.kprimarycolor,
-                        ),
-                      ),
+                  Center(
+                    child: SvgPicture.asset(
+                      Appconstants.profileIcon,
+                      width: ResponsiveUtils.wp(23),
+                      height: ResponsiveUtils.wp(23),
+                      // colorFilter: ColorFilter.mode(
+                      //   Appcolors.kprimarycolor,
+                      //   BlendMode.srcIn,
+                      // ),
                     ),
                   ),
-                  ResponsiveSizedBox.height20,
+                  ResponsiveSizedBox.height30,
 
                   // User Info
                   _buildInfoRow(
@@ -150,7 +150,10 @@ class ScreenProfilpage extends StatelessWidget {
                     title: 'My Bookings',
                     subtitle: 'View your booking history',
                     onTap: () {
-                      Navigator.pushNamed(context, '/bookings');
+                      CustomNavigation.pushWithTransition(
+                        context,
+                        ScreenMybookingpage(),
+                      );
                     },
                   ),
                   Divider(height: 1, color: Colors.grey[200]),
@@ -160,7 +163,7 @@ class ScreenProfilpage extends StatelessWidget {
                     title: 'Documents',
                     subtitle: 'Manage your documents',
                     onTap: () {
-                      Navigator.pushNamed(context, '/documents');
+                      CustomNavigation.pushWithTransition(context, MyDocumentsPage());
                     },
                   ),
                 ],
