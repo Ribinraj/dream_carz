@@ -3,6 +3,7 @@ import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/widgets/customtextfield.dart';
 import 'package:flutter/material.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
+import 'package:flutter/services.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -108,6 +109,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+                SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark, // White icons
+        statusBarBrightness: Brightness.dark, // iOS
+      ),
+    );
     return Scaffold(
       backgroundColor: Appcolors.kwhitecolor,
       body: SafeArea(

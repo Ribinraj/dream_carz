@@ -1,6 +1,7 @@
 import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
+import 'package:dream_carz/presentation/screens/screen_editprofilepage/screen_editprofilepage.dart';
 import 'package:dream_carz/presentation/screens/screen_mybookingspage/screen_mybookingpage.dart';
 import 'package:dream_carz/presentation/screens/screen_mydocuments/screen_mydocuments.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
@@ -99,7 +100,10 @@ class ScreenProfilpage extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/edit-profile');
+                        CustomNavigation.pushWithTransition(
+                          context,
+                          ScreenEditprofilepage(),
+                        );
                       },
                       icon: Icon(
                         Icons.edit,
@@ -163,7 +167,10 @@ class ScreenProfilpage extends StatelessWidget {
                     title: 'Documents',
                     subtitle: 'Manage your documents',
                     onTap: () {
-                      CustomNavigation.pushWithTransition(context, MyDocumentsPage());
+                      CustomNavigation.pushWithTransition(
+                        context,
+                        MyDocumentsPage(),
+                      );
                     },
                   ),
                 ],

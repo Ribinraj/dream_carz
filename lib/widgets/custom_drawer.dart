@@ -1,3 +1,4 @@
+import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
@@ -18,46 +19,56 @@ class CustomDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            decoration: const BoxDecoration(color: Appcolors.kprimarycolor),
+            decoration: const BoxDecoration(color: Appcolors.kwhitecolor),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: ResponsiveUtils.wp(20),
-                  height: ResponsiveUtils.hp(10),
-                  // child: Image.asset(Appconstants.logo, fit: BoxFit.contain),
+                  //width: ResponsiveUtils.wp(20),
+                  height: ResponsiveUtils.hp(16),
+                  child: Image.asset(Appconstants.applogo, fit: BoxFit.contain),
                 ),
-                TextStyles.body(text: 'Dream carx', weight: FontWeight.w600),
-                TextStyles.caption(text: 'https://dreamcarz.com/'),
               ],
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.people_outlined),
+            leading: const Icon(
+              Icons.person_outline_outlined,
+              color: Appcolors.kprimarycolor,
+            ),
             title: TextStyles.body(text: 'Profile', weight: FontWeight.w600),
             onTap: () {
               CustomNavigation.pushWithTransition(context, ScreenProfilpage());
             },
           ),
           ListTile(
-            leading: const Icon(Icons.add_ic_call_outlined),
-            title: TextStyles.body(text: 'Our Tariff', weight: FontWeight.w600),
+            leading: const Icon(
+              Icons.privacy_tip_outlined,
+              color: Appcolors.kprimarycolor,
+            ),
+            title: TextStyles.body(
+              text: 'Privacy Policies',
+              weight: FontWeight.w600,
+            ),
             onTap: () {},
           ),
           ListTile(
-            leading: const Icon(Icons.add_ic_call_outlined),
+            leading: const Icon(
+              Icons.phone_android,
+              color: Appcolors.kprimarycolor,
+            ),
             title: TextStyles.body(text: 'Contact us', weight: FontWeight.w600),
             onTap: () {},
           ),
-          const Divider(),
+          //  const Divider(),
           Column(
             children: [
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: TextStyles.body(text: 'Logout', weight: FontWeight.w600),
-                onTap: () {},
-              ),
-              SizedBox(height: ResponsiveUtils.hp(7)),
+              // ListTile(
+              //   leading: const Icon(Icons.logout),
+              //   title: TextStyles.body(text: 'Logout', weight: FontWeight.w600),
+              //   onTap: () {},
+              // ),
+              SizedBox(height: ResponsiveUtils.hp(40)),
               TextStyles.caption(text: 'Designed & Developed by'),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

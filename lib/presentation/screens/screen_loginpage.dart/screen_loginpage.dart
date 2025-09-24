@@ -1,12 +1,18 @@
 import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
-import 'package:dream_carz/presentation/screens/screen_homepage/screen_homepage.dart';
+import 'package:dream_carz/presentation/blocs/send_otp_bloc/send_otp_bloc.dart';
+
+
 import 'package:dream_carz/presentation/screens/screen_registerpage/screen_registerpage.dart';
+
 import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:dream_carz/widgets/customtextfield.dart';
 import 'package:flutter/material.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,70 +23,46 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _mobileController = TextEditingController();
 
   @override
   void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
+    _mobileController.dispose();
     super.dispose();
   }
 
-  String? _validateUsername(String? value) {
+  String? _validateMobile(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter your username';
+      return 'Please enter your mobile number';
+    }
+    if (value.length != 10) {
+      return 'Please enter a valid 10-digit mobile number';
+    }
+    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+      return 'Mobile number should contain only digits';
     }
     return null;
   }
 
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter your password';
-    }
-    return null;
-  }
-
-  void _handleLogin() {
+  void _handleSendOtp() {
     if (_formKey.currentState!.validate()) {
-      // Add your login logic here
-      print('Username: ${_usernameController.text}');
-      print('Password: ${_passwordController.text}');
-
-      // Navigate to next screen or show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login Successful!'),
-          backgroundColor: Appcolors.kprimarycolor,
-        ),
+      // Trigger the SendOtpBloc event
+      context.read<SendOtpBloc>().add(
+        SendOtpButtonClickEvent(mobileNumber: _mobileController.text),
       );
     }
   }
 
-  void _handleForgotPassword() {
-    // Add forgot password logic here
-    print('Forgot password tapped');
-
-    // You can navigate to forgot password screen or show dialog
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Forgot Password'),
-        content: const Text(
-          'Forgot password functionality will be implemented here.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.dark,
+      ),
+    );
+
     return Scaffold(
       backgroundColor: Appcolors.kwhitecolor,
       body: SafeArea(
@@ -103,14 +85,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         // Logo Image
                         SizedBox(
                           height: ResponsiveUtils.hp(25),
-
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(
                               ResponsiveUtils.borderRadius(4),
                             ),
                             child: Image.asset(
-                              Appconstants
-                                  .applogo, // Replace with your logo path
+                              Appconstants.applogo,
                               fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
@@ -130,15 +110,22 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-
                         SizedBox(height: ResponsiveUtils.hp(2)),
-
                         Text(
                           'Welcome Back',
                           style: TextStyle(
                             fontSize: ResponsiveUtils.sp(4),
                             fontWeight: FontWeight.w500,
                             color: Appcolors.kblackcolor,
+                          ),
+                        ),
+                        SizedBox(height: ResponsiveUtils.hp(1)),
+                        Text(
+                          'Enter your mobile number to continue',
+                          style: TextStyle(
+                            fontSize: ResponsiveUtils.sp(3.2),
+                            fontWeight: FontWeight.w400,
+                            color: Colors.grey[600],
                           ),
                         ),
                       ],
@@ -164,79 +151,80 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Column(
                       children: [
-                        // Username Field
+                        // Mobile Number Field
                         CustomTextField(
-                          hintText: 'Enter your username',
-                          labelText: 'Username',
-                          prefixIcon: Icons.person_outline,
-                          controller: _usernameController,
-                          validator: _validateUsername,
-                          keyboardType: TextInputType.text,
+                          hintText: 'Enter your mobile number',
+                          labelText: 'Mobile Number',
+                          prefixIcon: Icons.phone_outlined,
+                          controller: _mobileController,
+                          validator: _validateMobile,
+                          keyboardType: TextInputType.phone,
+                          // inputFormatters: [
+                          //   FilteringTextInputFormatter.digitsOnly,
+                          //   LengthLimitingTextInputFormatter(10),
+                          // ],
                         ),
 
-                        SizedBox(height: ResponsiveUtils.hp(2)),
+                        SizedBox(height: ResponsiveUtils.hp(4)),
 
-                        // Password Field
-                        CustomTextField(
-                          hintText: 'Enter your password',
-                          labelText: 'Password',
-                          prefixIcon: Icons.lock_outline,
-                          controller: _passwordController,
-                          validator: _validatePassword,
-                          isPassword: true,
-                          keyboardType: TextInputType.text,
-                        ),
-
-                        // SizedBox(height: ResponsiveUtils.hp(.5)),
-
-                        // Forgot Password
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: _handleForgotPassword,
-                            child: Text(
-                              'Forgot Password?',
-                              style: TextStyle(
-                                fontSize: ResponsiveUtils.sp(3.2),
-                                color: Appcolors.kprimarycolor,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: ResponsiveUtils.hp(3)),
-
-                        // Login Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: ResponsiveUtils.hp(6.5),
-                          child: ElevatedButton(
-                            // onPressed: _handleLogin,
-                            onPressed: () {
-                              CustomNavigation.pushWithTransition(
-                                context,
-                                ScreenHomepage(),
+                        // Send OTP Button with BlocConsumer
+                        BlocConsumer<SendOtpBloc, SendOtpState>(
+                          listener: (context, state) {
+                            if (state is SendOtpSuccessState) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('OTP sent successfully!'),
+                                  backgroundColor: Appcolors.kprimarycolor,
+                                ),
                               );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Appcolors.kprimarycolor,
-                              foregroundColor: Appcolors.kwhitecolor,
-                              elevation: 5,
-                              shadowColor: Appcolors.kprimarycolor.withAlpha(
-                                77,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  ResponsiveUtils.borderRadius(3),
+
+                              // CustomNavigation.pushWithTransition(
+                              //   context,
+                              //   OtpVerificationPage(
+                              //     customerId: state.customerId,
+                              //     mobileNumber: _mobileController.text,
+                              //   ),
+                              // );
+                            } else if (state is SendOtpErrorState) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(state.message),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                          builder: (context, state) {
+                            // if (state is SendOtpLoadingState) {
+                            //   return CustomSqureLoadingButton(
+                            //     loading: SpinKitWave(),
+                            //     color: Appcolors.kwhitecolor,
+                            //   );
+                            // }
+                            return SizedBox(
+                              width: double.infinity,
+                              height: ResponsiveUtils.hp(6.5),
+                              child: ElevatedButton(
+                                onPressed: _handleSendOtp,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Appcolors.kprimarycolor,
+                                  foregroundColor: Appcolors.kwhitecolor,
+                                  elevation: 5,
+                                  shadowColor: Appcolors.kprimarycolor
+                                      .withAlpha(77),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      ResponsiveUtils.borderRadius(3),
+                                    ),
+                                  ),
+                                ),
+                                child: TextStyles.body(
+                                  text: 'SEND OTP',
+                                  color: Appcolors.kwhitecolor,
                                 ),
                               ),
-                            ),
-                            child: TextStyles.body(
-                              text: 'LOGIN',
-                              color: Appcolors.kwhitecolor,
-                            ),
-                          ),
+                            );
+                          },
                         ),
                       ],
                     ),

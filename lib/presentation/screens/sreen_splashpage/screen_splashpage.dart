@@ -5,6 +5,7 @@ import 'package:dream_carz/presentation/screens/screen_loginpage.dart/screen_log
 import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -104,6 +105,13 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+            SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light, // White icons
+        statusBarBrightness: Brightness.dark, // iOS
+      ),
+    );
     return Scaffold(
       backgroundColor: Appcolors.kprimarycolor,
       body: SizedBox(
@@ -120,7 +128,7 @@ class _SplashScreenState extends State<SplashScreen>
               ]),
               builder: (context, child) {
                 return Transform.scale(
-                  scale: _scaleAnimation.value,
+                  scale: _scaleAnimation.value, 
                   child: Transform.rotate(
                     angle: _rotationAnimation.value,
                     child: Container(

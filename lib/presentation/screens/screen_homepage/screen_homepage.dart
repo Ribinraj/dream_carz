@@ -10,6 +10,7 @@ import 'package:dream_carz/widgets/custom_drawer.dart';
 //import 'package:dream_carz/widgets/custom_appbar.dart';
 import 'package:dream_carz/widgets/custom_elevatedbutton.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ScreenHomepage extends StatefulWidget {
@@ -45,6 +46,13 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light, // White icons
+        statusBarBrightness: Brightness.dark, // iOS
+      ),
+    );
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: const Color.fromARGB(255, 237, 235, 235),
