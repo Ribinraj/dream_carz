@@ -1,6 +1,10 @@
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
+import 'package:dream_carz/domain/apprepo.dart';
 import 'package:dream_carz/domain/loginrepo.dart';
+import 'package:dream_carz/presentation/blocs/fetch_cars/fetch_cars_bloc.dart';
+import 'package:dream_carz/presentation/blocs/fetch_categories_bloc/fetch_categories_bloc.dart';
+import 'package:dream_carz/presentation/blocs/fetch_cities_bloc/fetch_cities_bloc.dart';
 import 'package:dream_carz/presentation/blocs/resend_otp_bloc/resend_otp_bloc.dart';
 import 'package:dream_carz/presentation/blocs/send_otp_bloc/send_otp_bloc.dart';
 import 'package:dream_carz/presentation/blocs/verify_otp_bloc/verify_otp_bloc.dart';
@@ -22,12 +26,21 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     ResponsiveUtils().init(context);
     final loginrepo = Loginrepo();
+    final apprepo = Apprepo();
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => SendOtpBloc(repository: loginrepo)),
         BlocProvider(create: (context) => VerifyOtpBloc(repository: loginrepo)),
-         BlocProvider(create: (context) => ResendOtpBloc(repository: loginrepo)),
-
+        BlocProvider(create: (context) => ResendOtpBloc(repository: loginrepo)),
+        BlocProvider(
+          create: (context) => FetchCitiesBloc(repository: apprepo),
+        ),
+           BlocProvider(
+          create: (context) => FetchCarsBloc(repository: apprepo),
+        ),
+                BlocProvider(
+          create: (context) => FetchCategoriesBloc(repository: apprepo),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

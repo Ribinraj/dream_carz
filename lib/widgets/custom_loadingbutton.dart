@@ -16,12 +16,12 @@ class CustomSqureLoadingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: ResponsiveUtils.hp(5.5),
+        height: ResponsiveUtils.hp(6.5),
       width: ResponsiveUtils.screenWidth,
       padding: EdgeInsets.symmetric(vertical: ResponsiveUtils.wp(1.5)),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(width: .5, color: Appcolors.kprimarycolor),
       ),
       child: Center(

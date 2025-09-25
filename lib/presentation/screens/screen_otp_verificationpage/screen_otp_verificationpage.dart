@@ -1,26 +1,33 @@
 import 'dart:async';
 
-
+import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:dream_carz/presentation/blocs/resend_otp_bloc/resend_otp_bloc.dart';
 import 'package:dream_carz/presentation/blocs/verify_otp_bloc/verify_otp_bloc.dart';
+import 'package:dream_carz/presentation/screens/screen_homepage/screen_homepage.dart';
 import 'package:dream_carz/widgets/custom_loadingbutton.dart';
+import 'package:dream_carz/widgets/custom_navigation.dart';
+import 'package:dream_carz/widgets/custom_snackbar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-
 
 class OtpVerificationPage extends StatefulWidget {
   final String customerId;
 
   final String mobileNumber;
-  const OtpVerificationPage(
-      {super.key, required this.customerId, required this.mobileNumber});
+  const OtpVerificationPage({
+    super.key,
+    required this.customerId,
+    required this.mobileNumber,
+  });
 
   @override
   State<OtpVerificationPage> createState() => _OtpVerificationPageState();
@@ -97,9 +104,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     _resetResendTimer();
 
     // Call resend OTP API
-    context
-        .read<ResendOtpBloc>()
-        .add(ResendOtpClickEvent(customerId: widget.customerId));
+    context.read<ResendOtpBloc>().add(
+      ResendOtpClickEvent(customerId: widget.customerId),
+    );
   }
 
   @override
@@ -118,38 +125,65 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    height: ResponsiveUtils.hp(30),
-                    width: ResponsiveUtils.wp(70),
-                    'assets/images/6c383540-91e2-467d-becf-10efcb5a8bda-removebg-preview.png',
-                    fit: BoxFit.contain,
-                  ),
                   Center(
                     child: Container(
                       color: Colors.transparent,
                       padding: const EdgeInsets.all(5),
                       child: Center(
-                        child: Image.asset(
-                          'assets/images/logo white.png',
-                          height: ResponsiveUtils.hp(10),
+                        child: SvgPicture.asset(
+                          Appconstants.splashlogo,
+                          colorFilter: const ColorFilter.mode(
+                            Appcolors.kwhitecolor,
+                            BlendMode.srcIn,
+                          ),
+                          width: ResponsiveUtils.wp(35),
+                          height: ResponsiveUtils.wp(35),
                           fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(
-                              child: Text(
-                                'YOUR LOGO',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF667eea),
-                                  letterSpacing: 2,
-                                ),
-                              ),
-                            );
-                          },
+                          placeholderBuilder: (context) => Container(
+                            width: ResponsiveUtils.wp(35),
+                            height: ResponsiveUtils.wp(35),
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Appcolors.kprimarycolor,
+                            ),
+                            child: Icon(
+                              Icons.drive_eta_rounded,
+                              size: ResponsiveUtils.sp(18),
+                              color: Appcolors.kwhitecolor,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  )
+                  ),
+                  Text(
+                    'DREAMCARZ',
+                    style: GoogleFonts.ebGaramond(
+                      fontSize: ResponsiveUtils.sp(8),
+                      fontWeight: FontWeight.bold,
+                      color: Appcolors.kwhitecolor,
+                      letterSpacing: 1,
+                      shadows: [
+                        Shadow(
+                          color: Appcolors.kprimarycolor.withAlpha(102),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: ResponsiveUtils.hp(.5)),
+
+                  Text(
+                    'Feel Your Drive',
+                    style: GoogleFonts.dancingScript(
+                      fontSize: ResponsiveUtils.sp(4.5),
+                      fontWeight: FontWeight.w500,
+                      color: Appcolors.kwhitecolor,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -158,14 +192,13 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextStyles.headline(
-                    text: 'Verification Code',
-                  ),
+                  TextStyles.headline(text: 'Verification Code'),
                   ResponsiveSizedBox.height10,
                   TextStyles.body(
-                      text:
-                          'We have sent a verification code to ${widget.mobileNumber}',
-                      weight: FontWeight.w500),
+                    text:
+                        'We have sent a verification code to ${widget.mobileNumber}',
+                    weight: FontWeight.w500,
+                  ),
                   ResponsiveSizedBox.height20,
                   PinCodeTextField(
                     appContext: context,
@@ -193,9 +226,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     animationDuration: const Duration(milliseconds: 300),
                     enableActiveFill: true,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onCompleted: (value) {
                       if (!mounted) return;
                       setState(() {
@@ -228,31 +259,42 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       builder: (context, state) {
                         if (state is VerifyOtpLoadingState) {
                           return CustomSqureLoadingButton(
-                              loading: SpinKitCircle(
-                                size: 15,
-                                color: Appcolors.kgreencolor,
-                              ),
-                              color: Appcolors.kwhitecolor);
+                            loading: SpinKitCircle(
+                              size: 15,
+                              color: Appcolors.kredcolor,
+                            ),
+                            color: Appcolors.kwhitecolor,
+                          );
                         }
                         return ElevatedButton(
-                          onPressed: _isButtonEnabled
-                              ? () async {
-                                 // final pushtoken = await getPushToken();
-                                  if (_currentOtp.length == 6) {
-                                    context.read<VerifyOtpBloc>().add(
-                                     VerifyOtpButtonclickEvent(customerId: widget.customerId, otp: _currentOtp));
-                                  } else {
-                                    SnackBar(
-                                      content: Text('Please enter valid OTP'),
-                                    );
-                                  }
-                                }
-                              : null,
+                          onPressed: (){
+                                    CustomNavigation.pushWithTransition(
+                              context,
+                              ScreenHomepage(),
+                            );
+                          },
+                          // onPressed: _isButtonEnabled
+                          //     ? () async {
+                          //         // final pushtoken = await getPushToken();
+                          //         if (_currentOtp.length == 6) {
+                          //           context.read<VerifyOtpBloc>().add(
+                          //             VerifyOtpButtonclickEvent(
+                          //               customerId: widget.customerId,
+                          //               otp: _currentOtp,
+                          //             ),
+                          //           );
+                          //         } else {
+                          //           SnackBar(
+                          //             content: Text('Please enter valid OTP'),
+                          //           );
+                          //         }
+                          //       }
+                          //     : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Appcolors.kgreencolor,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           child: const Text(
@@ -280,17 +322,24 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       BlocConsumer<ResendOtpBloc, ResendOtpState>(
                         listener: (context, state) {
                           if (state is ResendOtpSuccessState) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("OTP sent successfully")),
+                            CustomSnackbar.show(
+                              context,
+                              message: 'OTP sent successfully',
+                              type: SnackbarType.success,
                             );
+                            // CustomNavigation.pushWithTransition(
+                            //   context,
+                            //   ScreenHomepage(),
+                            // );
                           } else if (state is ResendOtpErrorState) {
                             SnackBar(content: Text(state.message));
                           }
                         },
                         builder: (context, state) {
                           return TextButton(
-                            onPressed:
-                                _resendTimer == 0 ? () => _resendOtp() : null,
+                            onPressed: _resendTimer == 0
+                                ? () => _resendOtp()
+                                : null,
                             child: TextStyles.body(
                               text: _resendTimer > 0
                                   ? 'Resend in $_resendTimer seconds'

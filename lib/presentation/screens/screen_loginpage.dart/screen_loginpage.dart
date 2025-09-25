@@ -2,17 +2,19 @@ import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/presentation/blocs/send_otp_bloc/send_otp_bloc.dart';
-
+import 'package:dream_carz/presentation/screens/screen_otp_verificationpage/screen_otp_verificationpage.dart';
 
 import 'package:dream_carz/presentation/screens/screen_registerpage/screen_registerpage.dart';
+import 'package:dream_carz/widgets/custom_loadingbutton.dart';
 
 import 'package:dream_carz/widgets/custom_navigation.dart';
+import 'package:dream_carz/widgets/custom_snackbar.dart';
 import 'package:dream_carz/widgets/customtextfield.dart';
 import 'package:flutter/material.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -171,36 +173,28 @@ class _LoginScreenState extends State<LoginScreen> {
                         BlocConsumer<SendOtpBloc, SendOtpState>(
                           listener: (context, state) {
                             if (state is SendOtpSuccessState) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('OTP sent successfully!'),
-                                  backgroundColor: Appcolors.kprimarycolor,
+                              CustomNavigation.pushWithTransition(
+                                context,
+                                OtpVerificationPage(
+                                  customerId: state.customerId,
+                                  mobileNumber: _mobileController.text,
                                 ),
                               );
-
-                              // CustomNavigation.pushWithTransition(
-                              //   context,
-                              //   OtpVerificationPage(
-                              //     customerId: state.customerId,
-                              //     mobileNumber: _mobileController.text,
-                              //   ),
-                              // );
                             } else if (state is SendOtpErrorState) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(state.message),
-                                  backgroundColor: Colors.red,
-                                ),
+                              CustomSnackbar.show(
+                                context,
+                                message: state.message,
+                                type: SnackbarType.error,
                               );
                             }
                           },
                           builder: (context, state) {
-                            // if (state is SendOtpLoadingState) {
-                            //   return CustomSqureLoadingButton(
-                            //     loading: SpinKitWave(),
-                            //     color: Appcolors.kwhitecolor,
-                            //   );
-                            // }
+                            if (state is SendOtpLoadingState) {
+                              return CustomSqureLoadingButton(
+                                loading:SpinKitCircle(size: 20,color: Appcolors.kwhitecolor,),
+                                color: Appcolors.kredcolor,
+                              );
+                            }
                             return SizedBox(
                               width: double.infinity,
                               height: ResponsiveUtils.hp(6.5),
@@ -232,38 +226,38 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   SizedBox(height: ResponsiveUtils.hp(4)),
 
-                  // Register Section
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "New User? ",
-                        style: TextStyle(
-                          fontSize: ResponsiveUtils.sp(3.5),
-                          color: Appcolors.kblackcolor,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          CustomNavigation.pushWithTransition(
-                            context,
-                            RegisterScreen(),
-                          );
-                        },
-                        child: Text(
-                          "Register",
-                          style: TextStyle(
-                            fontSize: ResponsiveUtils.sp(3.5),
-                            color: Appcolors.kprimarycolor,
-                            fontWeight: FontWeight.w600,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Appcolors.kprimarycolor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  // // Register Section
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     Text(
+                  //       "New User? ",
+                  //       style: TextStyle(
+                  //         fontSize: ResponsiveUtils.sp(3.5),
+                  //         color: Appcolors.kblackcolor,
+                  //         fontWeight: FontWeight.w400,
+                  //       ),
+                  //     ),
+                  //     GestureDetector(
+                  //       onTap: () {
+                  //         CustomNavigation.pushWithTransition(
+                  //           context,
+                  //           RegisterScreen(),
+                  //         );
+                  //       },
+                  //       child: Text(
+                  //         "Register",
+                  //         style: TextStyle(
+                  //           fontSize: ResponsiveUtils.sp(3.5),
+                  //           color: Appcolors.kprimarycolor,
+                  //           fontWeight: FontWeight.w600,
+                  //           decoration: TextDecoration.underline,
+                  //           decorationColor: Appcolors.kprimarycolor,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
 
                   SizedBox(height: ResponsiveUtils.hp(2)),
                 ],
