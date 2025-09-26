@@ -5,6 +5,7 @@ import 'package:dream_carz/core/urls.dart';
 import 'package:dream_carz/data/cars_model.dart';
 import 'package:dream_carz/data/categories_model.dart';
 import 'package:dream_carz/data/city_model.dart';
+import 'package:dream_carz/data/km_model.dart';
 import 'package:dream_carz/data/search_model.dart';
 
 import 'package:flutter/material.dart';
@@ -134,6 +135,46 @@ class Apprepo {
             .toList();
         return ApiResponse(
           data: fetchcategories,
+          message: responseData['messages'] ?? 'Success',
+          error: false,
+          status: responseData["status"],
+        );
+      } else {
+        return ApiResponse(
+          data: null,
+          message: responseData['messages'] ?? 'Something went wrong',
+          error: true,
+          status: responseData["status"],
+        );
+      }
+    } on DioException catch (e) {
+      debugPrint(e.message);
+
+      log(e.toString());
+      return ApiResponse(
+        data: null,
+        message: 'Network or server error occurred',
+        error: true,
+        status: 500,
+      );
+    }
+  }
+    //   //////////------------fetchcategories-----------/////////////////
+  Future<ApiResponse<List<KmModel>>>fetchkmplans() async {
+    // log('pushtoken when login ${user.pushToken}');
+    try {
+      Response response = await dio.post(Endpoints.kmplans);
+      final responseData = response.data;
+      // log('responsestatus${responseData}');
+      // log('responsestatus${responseData['status']}');
+
+      if (!responseData["error"] && responseData["status"] == 200) {
+        final List<dynamic> kms = responseData['data'];
+        List<KmModel> fetchkms = kms
+            .map((km) => KmModel.fromJson(km))
+            .toList();
+        return ApiResponse(
+          data: fetchkms,
           message: responseData['messages'] ?? 'Success',
           error: false,
           status: responseData["status"],

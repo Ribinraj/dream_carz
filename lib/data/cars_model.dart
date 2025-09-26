@@ -1,21 +1,6 @@
 
 
-// class CarsModel {
-//   final List<CarsModel> data;
 
-//   CarsModel({required this.data});
-
-//   factory CarsModel.fromJson(Map<String, dynamic> json) {
-//     final list = (json['data'] as List<dynamic>?) ?? [];
-//     return CarsModel(
-//       data: list.map((e) => CarsModel.fromJson(e as Map<String, dynamic>)).toList(),
-//     );
-//   }
-
-//   Map<String, dynamic> toJson() => {
-//         'data': data.map((e) => e.toJson()).toList(),
-//       };
-// }
 
 class CarsModel {
   final int? modelId;

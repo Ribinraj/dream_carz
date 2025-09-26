@@ -6,7 +6,7 @@ import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:dream_carz/data/city_model.dart';
 import 'package:dream_carz/data/search_model.dart';
-import 'package:dream_carz/presentation/blocs/fetch_cars/fetch_cars_bloc.dart';
+import 'package:dream_carz/presentation/blocs/fetch_cars_bloc/fetch_cars_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_cities_bloc/fetch_cities_bloc.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/widgets/carosal_widget.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/widgets/date_time_selectionwidget.dart';
@@ -382,27 +382,7 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                     ),
 
                     ResponsiveSizedBox.height20,
-
-                    BlocConsumer<FetchCarsBloc, FetchCarsState>(
-                      listener: (context, state) {
-                        if (state is FetchCarsSuccessState) {
-                          CustomNavigation.pushWithTransition(
-                            context,
-                            ScreenSearchresultpage(fromDate: fromDate!, fromTime: fromTime!, toDate: toDate!, toTime: toTime!, selectedCityId: selectedCity!),
-                          );
-                        }
-                      },
-                      builder: (context, state) {
-                        if (state is FetchCarsLoadingState) {
-                          return CustomSqureLoadingButton(
-                            loading: SpinKitWave(
-                              size: 25,
-                              color: Appcolors.kredcolor,
-                            ),
-                            color: Appcolors.kprimarycolor,
-                          );
-                        }
-                        return CustomElevatedButton(
+                        CustomElevatedButton(
                           onpress: () {
                             if (selectedCity != null &&
                                 fromDate != null &&
@@ -460,7 +440,10 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                               );
 
                               // ✅ 5. Navigate if needed
-                              // navigatePush(context, const ScreenSearchResult());
+                                     CustomNavigation.pushWithTransition(
+                            context,
+                           ScreenSearchresultpage(fromDate: fromDate!, fromTime: fromTime!, toDate: toDate!, toTime: toTime!, selectedCityId: selectedCity!),
+                          );
                             } else {
                               CustomSnackbar.show(
                                 context,
@@ -472,9 +455,99 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                           },
 
                           text: 'Find Carz',
-                        );
-                      },
-                    ),
+                        )
+                    // BlocConsumer<FetchCarsBloc, FetchCarsState>(
+                    //   listener: (context, state) {
+                    //     if (state is FetchCarsSuccessState) {
+                    //       CustomNavigation.pushWithTransition(
+                    //         context,
+                    //         ScreenSearchresultpage(fromDate: fromDate!, fromTime: fromTime!, toDate: toDate!, toTime: toTime!, selectedCityId: selectedCity!),
+                    //       );
+                    //     }
+                    //   },
+                    //   builder: (context, state) {
+                    //     if (state is FetchCarsLoadingState) {
+                    //       return CustomSqureLoadingButton(
+                    //         loading: SpinKitWave(
+                    //           size: 25,
+                    //           color: Appcolors.kredcolor,
+                    //         ),
+                    //         color: Appcolors.kprimarycolor,
+                    //       );
+                    //     }
+                    //     return CustomElevatedButton(
+                    //       onpress: () {
+                    //         if (selectedCity != null &&
+                    //             fromDate != null &&
+                    //             fromTime != null &&
+                    //             toDate != null &&
+                    //             toTime != null) {
+                    //           // ✅ 1. Merge Date & Time into DateTime objects
+                    //           final DateTime fromDateTime = DateTime(
+                    //             fromDate!.year,
+                    //             fromDate!.month,
+                    //             fromDate!.day,
+                    //             fromTime!.hour,
+                    //             fromTime!.minute,
+                    //           );
+
+                    //           final DateTime toDateTime = DateTime(
+                    //             toDate!.year,
+                    //             toDate!.month,
+                    //             toDate!.day,
+                    //             toTime!.hour,
+                    //             toTime!.minute,
+                    //           );
+
+                    //           // ✅ 2. Format into "YYYY-MM-DD HH:mm:ss"
+                    //           String formatDateTime(DateTime dt) {
+                    //             return "${dt.year.toString().padLeft(4, '0')}-"
+                    //                 "${dt.month.toString().padLeft(2, '0')}-"
+                    //                 "${dt.day.toString().padLeft(2, '0')} "
+                    //                 "${dt.hour.toString().padLeft(2, '0')}:"
+                    //                 "${dt.minute.toString().padLeft(2, '0')}:00";
+                    //           }
+
+                    //           final String bookingFrom = formatDateTime(
+                    //             fromDateTime,
+                    //           );
+                    //           final String bookingTo = formatDateTime(
+                    //             toDateTime,
+                    //           );
+
+                    //           // ✅ 3. Create SearchModel (only required params)
+                    //           final search = SearchModel(
+                    //             bookingFrom: bookingFrom,
+                    //             bookingTo: bookingTo,
+                    //             cityId: int.parse(
+                    //               selectedCity!,
+                    //             ), // assuming selectedCityId is stored as String
+                    //           );
+
+                    //           // Debug logs
+                    //           log('Search JSON: ${search.toJson()}');
+
+                    //           // ✅ 4. Dispatch Bloc event
+                    //           context.read<FetchCarsBloc>().add(
+                    //             FetchCarsButtonClickEvent(search: search),
+                    //           );
+
+                    //           // ✅ 5. Navigate if needed
+                    //           // navigatePush(context, const ScreenSearchResult());
+                    //         } else {
+                    //           CustomSnackbar.show(
+                    //             context,
+                    //             message:
+                    //                 'Please complete all fields to continue',
+                    //             type: SnackbarType.error,
+                    //           );
+                    //         }
+                    //       },
+
+                    //       text: 'Find Carz',
+                    //     );
+                    //   },
+                    // ),
                   ],
                 ),
               ),

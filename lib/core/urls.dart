@@ -6,4 +6,5 @@ class Endpoints {
   static const fetchcities = 'masters/city';
   static const searchcars = 'search/availability';
   static const categories = 'masters/fleetCategories';
+  static const kmplans = 'masters/kmPlan';
 }

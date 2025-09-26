@@ -2,9 +2,10 @@ import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:dream_carz/domain/apprepo.dart';
 import 'package:dream_carz/domain/loginrepo.dart';
-import 'package:dream_carz/presentation/blocs/fetch_cars/fetch_cars_bloc.dart';
+import 'package:dream_carz/presentation/blocs/fetch_cars_bloc/fetch_cars_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_categories_bloc/fetch_categories_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_cities_bloc/fetch_cities_bloc.dart';
+import 'package:dream_carz/presentation/blocs/fetch_kmplans_bloc/fetch_kmplans_bloc.dart';
 import 'package:dream_carz/presentation/blocs/resend_otp_bloc/resend_otp_bloc.dart';
 import 'package:dream_carz/presentation/blocs/send_otp_bloc/send_otp_bloc.dart';
 import 'package:dream_carz/presentation/blocs/verify_otp_bloc/verify_otp_bloc.dart';
@@ -40,6 +41,9 @@ class MyApp extends StatelessWidget {
         ),
                 BlocProvider(
           create: (context) => FetchCategoriesBloc(repository: apprepo),
+        ),
+                    BlocProvider(
+          create: (context) => FetchKmplansBloc(repository: apprepo),
         ),
       ],
       child: MaterialApp(
