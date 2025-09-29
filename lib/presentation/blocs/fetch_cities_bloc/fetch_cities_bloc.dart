@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:dream_carz/data/city_model.dart';
-import 'package:dream_carz/domain/apprepo.dart';
+import 'package:dream_carz/domain/repositories/apprepo.dart';
 import 'package:meta/meta.dart';
 
 part 'fetch_cities_event.dart';

@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
-import 'package:dream_carz/domain/apprepo.dart';
-import 'package:dream_carz/domain/loginrepo.dart';
+import 'package:dream_carz/domain/controllers/pushnotification_controller.dart';
+import 'package:dream_carz/domain/repositories/apprepo.dart';
+import 'package:dream_carz/domain/repositories/loginrepo.dart';
 import 'package:dream_carz/presentation/blocs/fetch_cars_bloc/fetch_cars_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_categories_bloc/fetch_categories_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_cities_bloc/fetch_cities_bloc.dart';
@@ -11,11 +14,44 @@ import 'package:dream_carz/presentation/blocs/send_otp_bloc/send_otp_bloc.dart';
 import 'package:dream_carz/presentation/blocs/verify_otp_bloc/verify_otp_bloc.dart';
 
 import 'package:dream_carz/presentation/screens/sreen_splashpage/screen_splashpage.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-void main() {
+// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+//   // Optional: initialize firebase here if you need (only if you use Firebase in background)
+//   // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+//   await PushNotifications.backgroundMessageHandler(message);
+// }
+
+// // Global navigator key so we can navigate from notification handlers
+// final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+void main()async {
+    WidgetsFlutterBinding.ensureInitialized();
+  //     // Initialize Firebase
+  // await Firebase.initializeApp(
+  //   //options: DefaultFirebaseOptions.currentPlatform,
+  // );
+
+  // // Register FCM background handler BEFORE runApp
+  // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // // Initialize PushNotifications helper (this will request permissions, create channel, etc.)
+  // // It's okay to await this so notifications are ready by the time the app runs.
+  // await PushNotifications.instance.init();
+
+  // // Optional: request permissions again for iOS if you want explicit control here
+  // if (Platform.isIOS) {
+  //   await FirebaseMessaging.instance.requestPermission(
+  //     alert: true,
+  //     badge: true,
+  //     sound: true,
+  //     provisional: false,
+  //   );
+  // }
+
   runApp(const MyApp());
 }
 

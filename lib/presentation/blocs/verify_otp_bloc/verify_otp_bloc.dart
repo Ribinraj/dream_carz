@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
-import 'package:dream_carz/domain/loginrepo.dart';
+import 'package:dream_carz/domain/repositories/loginrepo.dart';
 
 import 'package:meta/meta.dart';
 

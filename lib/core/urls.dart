@@ -7,4 +7,6 @@ class Endpoints {
   static const searchcars = 'search/availability';
   static const categories = 'masters/fleetCategories';
   static const kmplans = 'masters/kmPlan';
+  static const settoken = 'login/settoken';
+  static const fetchprofile = 'login/profile';
 }
