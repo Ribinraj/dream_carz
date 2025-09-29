@@ -259,16 +259,14 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       builder: (context, state) {
                         if (state is VerifyOtpLoadingState) {
                           return CustomSqureLoadingButton(
-                            loading: SpinKitCircle(
-                              size: 15,
-                              color: Appcolors.kredcolor,
-                            ),
-                            color: Appcolors.kwhitecolor,
+                                 loading:SpinKitCircle(size: 20,color: Appcolors.kwhitecolor,),
+                                color: Appcolors.kredcolor,
+                           
                           );
                         }
                         return ElevatedButton(
-                          onPressed: (){
-                                    CustomNavigation.pushWithTransition(
+                          onPressed: () {
+                            CustomNavigation.pushWithTransition(
                               context,
                               ScreenHomepage(),
                             );
@@ -291,7 +289,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           //       }
                           //     : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Appcolors.kgreencolor,
+                            backgroundColor: Appcolors.kredcolor,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),

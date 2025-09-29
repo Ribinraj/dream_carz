@@ -1,4 +1,3 @@
-
 // //////////////////////////////////////////////////////////import 'package:dream_carz/core/appconstants.dart';
 // import 'package:dream_carz/core/appconstants.dart';
 // import 'package:dream_carz/core/colors.dart';
@@ -124,7 +123,7 @@
 //   @override
 //   void initState() {
 //     super.initState();
-    
+
 //   // set initial id from the incoming param
 //   selectedCityId = widget.selectedCityId;
 //   pickupDate = widget.fromDate;
@@ -340,9 +339,6 @@
 //     },
 //   );
 // }
-
-
-
 
 //   @override
 //   Widget build(BuildContext context) {
@@ -573,7 +569,6 @@
 //   ),
 // ),
 
-
 //                     ResponsiveSizedBox.height10,
 
 //                  // Inline City options (show when showCityOptions is true)
@@ -608,8 +603,6 @@
 //     ),
 //   ),
 
-
-
 //                     // Inline CarType options
 //               if (showCarTypeOptions)
 //   SizedBox(
@@ -642,7 +635,6 @@
 //       ),
 //     ),
 //   ),
-
 
 //                     // KM plan label + horizontal chips
 //                     ResponsiveText(
@@ -835,7 +827,6 @@
 //     );
 //   }
 
- 
 //   Widget _buildCarCard(CarModel car) {
 //     final bool available = car.isAvailable;
 //     // remove padding when unavailable so overlay covers the full card
@@ -1119,6 +1110,8 @@ import 'package:dream_carz/presentation/blocs/fetch_cities_bloc/fetch_cities_blo
 import 'package:dream_carz/presentation/blocs/fetch_kmplans_bloc/fetch_kmplans_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_cars_bloc/fetch_cars_bloc.dart'; // Import FetchCarsBloc
 import 'package:dream_carz/presentation/screens/screen_bookingdetailspage/screen_bookingdetailpage.dart';
+import 'package:dream_carz/presentation/screens/screen_homepage/widgets/date_time_selectionwidget.dart';
+import 'package:dream_carz/presentation/screens/screen_searchresultscreen.dart/widgets/customloading.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:dream_carz/widgets/custom_snackbar.dart';
 import 'package:flutter/material.dart';
@@ -1129,24 +1122,20 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 
-// IMPORTANT: use your existing DateTimeSelectionWidget (do NOT modify it).
-// Adjust this import path to where your widget actually lives.
-import 'package:dream_carz/presentation/screens/screen_homepage/widgets/date_time_selectionwidget.dart';
-
 class ScreenSearchresultpage extends StatefulWidget {
   final DateTime fromDate;
   final TimeOfDay fromTime;
   final DateTime toDate;
   final TimeOfDay toTime;
   final String selectedCityId;
-  
+
   const ScreenSearchresultpage({
-    super.key, 
-    required this.fromDate, 
-    required this.fromTime, 
-    required this.toDate, 
-    required this.toTime, 
-    required this.selectedCityId
+    super.key,
+    required this.fromDate,
+    required this.fromTime,
+    required this.toDate,
+    required this.toTime,
+    required this.selectedCityId,
   });
 
   @override
@@ -1165,10 +1154,10 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
   bool showCarTypeOptions = false;
 
   // displayed pickup/drop values
-  DateTime pickupDate = DateTime(2025, 9, 16);
-  TimeOfDay pickupTime = const TimeOfDay(hour: 20, minute: 30);
-  DateTime dropDate = DateTime(2025, 9, 18);
-  TimeOfDay dropTime = const TimeOfDay(hour: 14, minute: 30);
+  late DateTime pickupDate;
+  late TimeOfDay pickupTime;
+  late DateTime dropDate;
+  late TimeOfDay dropTime;
 
   List<CityModel> fetchedCities = [];
   List<CategoriesModel> fetchedCategories = [];
@@ -1177,7 +1166,7 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
   @override
   void initState() {
     super.initState();
-    
+
     // Set initial values from widget params
     selectedCityId = widget.selectedCityId;
     pickupDate = widget.fromDate;
@@ -1189,10 +1178,12 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
     Future.microtask(() {
       context.read<FetchCitiesBloc>().add(FetchcitiesInitialEvent());
       context.read<FetchKmplansBloc>().add(FetchKmplansInitialEvent());
-      context.read<FetchCategoriesBloc>().add(FetchCategoreisInitailfetchingEvent());
-      
+      context.read<FetchCategoriesBloc>().add(
+        FetchCategoreisInitailfetchingEvent(),
+      );
+
       // Initial car search with current parameters
-      // _searchCars();
+      _searchCars();
     });
 
     SystemChrome.setSystemUIOverlayStyle(
@@ -1206,17 +1197,25 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
 
   // Method to search cars with current filters
   void _searchCars() {
-    if (selectedCityId == null) return;
+    // 🔐 Guard 1: city selected
+    if (selectedCityId == null || selectedCityId!.isEmpty) {
+      CustomSnackbar.show(
+        context,
+        message: 'Please select a city before searching',
+        type: SnackbarType.error,
+      );
+      return;
+    }
 
-    final DateTime fromDateTime = DateTime(
+    // Build DateTimes from the current state
+    final fromDateTime = DateTime(
       pickupDate.year,
       pickupDate.month,
       pickupDate.day,
       pickupTime.hour,
       pickupTime.minute,
     );
-
-    final DateTime toDateTime = DateTime(
+    final toDateTime = DateTime(
       dropDate.year,
       dropDate.month,
       dropDate.day,
@@ -1224,23 +1223,36 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
       dropTime.minute,
     );
 
-    String formatDateTime(DateTime dt) {
-      return "${dt.year.toString().padLeft(4, '0')}-"
-          "${dt.month.toString().padLeft(2, '0')}-"
-          "${dt.day.toString().padLeft(2, '0')} "
-          "${dt.hour.toString().padLeft(2, '0')}:"
-          "${dt.minute.toString().padLeft(2, '0')}:00";
+    // 🔐 Guard 2: drop after pickup
+    if (!toDateTime.isAfter(fromDateTime)) {
+      CustomSnackbar.show(
+        context,
+        message: 'Drop date/time must be after pickup date/time',
+        type: SnackbarType.error,
+      );
+      return;
     }
+
+    String formatDateTime(DateTime dt) =>
+        "${dt.year.toString().padLeft(4, '0')}-"
+        "${dt.month.toString().padLeft(2, '0')}-"
+        "${dt.day.toString().padLeft(2, '0')} "
+        "${dt.hour.toString().padLeft(2, '0')}:"
+        "${dt.minute.toString().padLeft(2, '0')}:00";
 
     final search = SearchModel(
       bookingFrom: formatDateTime(fromDateTime),
       bookingTo: formatDateTime(toDateTime),
       cityId: int.parse(selectedCityId!),
-      categoryId: selectedCategoryId != null ? int.tryParse(selectedCategoryId!) : null,
+      categoryId: selectedCategoryId != null
+          ? int.tryParse(selectedCategoryId!)
+          : null,
       kmId: selectedKmId != null ? int.tryParse(selectedKmId!) : null,
     );
 
-    context.read<FetchCarsBloc>().add(FetchCarsButtonClickEvent(search: search));
+    context.read<FetchCarsBloc>().add(
+      FetchCarsButtonClickEvent(search: search),
+    );
   }
 
   void _toggleCityOptions() {
@@ -1310,7 +1322,10 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                   children: [
                     Row(
                       children: [
-                        ResponsiveText('Edit Pickup & Drop', weight: FontWeight.w700),
+                        ResponsiveText(
+                          'Edit Pickup & Drop',
+                          weight: FontWeight.w700,
+                        ),
                         const Spacer(),
                         IconButton(
                           padding: EdgeInsets.zero,
@@ -1320,7 +1335,10 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                       ],
                     ),
                     ResponsiveSizedBox.height10,
-                    Align(alignment: Alignment.centerLeft, child: ResponsiveText('From', weight: FontWeight.w600)),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: ResponsiveText('From', weight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     DateTimeSelectionWidget(
                       key: ValueKey('from_picker'),
@@ -1334,7 +1352,10 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                     ResponsiveSizedBox.height10,
                     Divider(thickness: 1),
                     ResponsiveSizedBox.height10,
-                    Align(alignment: Alignment.centerLeft, child: ResponsiveText('To', weight: FontWeight.w600)),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: ResponsiveText('To', weight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     DateTimeSelectionWidget(
                       key: ValueKey('to_picker'),
@@ -1357,7 +1378,9 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Appcolors.kblackcolor,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadiusStyles.kradius10()),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadiusStyles.kradius10(),
+                            ),
                           ),
                           onPressed: () {
                             final DateTime fromDt = DateTime(
@@ -1378,7 +1401,8 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                             if (!toDt.isAfter(fromDt)) {
                               CustomSnackbar.show(
                                 context,
-                                message: 'Drop date/time must be after pickup date/time',
+                                message:
+                                    'Drop date/time must be after pickup date/time',
                                 type: SnackbarType.error,
                               );
                               return;
@@ -1392,11 +1416,14 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                             });
 
                             Navigator.of(ctx).pop();
-                            
+
                             // Trigger new search with updated dates
                             _searchCars();
                           },
-                          child: TextStyles.body(text: 'Submit', color: Appcolors.kwhitecolor),
+                          child: TextStyles.body(
+                            text: 'Submit',
+                            color: Appcolors.kwhitecolor,
+                          ),
                         ),
                       ],
                     ),
@@ -1409,8 +1436,10 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
       },
       transitionBuilder: (ctx, anim, secAnim, child) {
         return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero)
-              .animate(CurvedAnimation(parent: anim, curve: Curves.easeOut)),
+          position: Tween<Offset>(
+            begin: const Offset(0, -1),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOut)),
           child: FadeTransition(opacity: anim, child: child),
         );
       },
@@ -1474,7 +1503,9 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                                 InkWell(
                                   onTap: _openDateTimeTopSheet,
                                   child: ResponsiveText(
-                                    DateFormat('dd MMM yyyy').format(pickupDate) +
+                                    DateFormat(
+                                          'dd MMM yyyy',
+                                        ).format(pickupDate) +
                                         '  ' +
                                         _formatTimeOfDay(pickupTime),
                                     sizeFactor: 0.8,
@@ -1512,109 +1543,130 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: BlocBuilder<FetchCitiesBloc, FetchCitiesState>(
-                              builder: (context, state) {
-                                if (state is FetchCitiesLoadingState) {
-                                  return _buildSelectionButton(
-                                    title: 'Loading...',
-                                    icon: Icons.location_city,
-                                    onTap: () {},
-                                  );
-                                }
-
-                                if (state is FetchCitiesSuccessState) {
-                                  fetchedCities = state.cities
-                                      .where((c) => c.status.toLowerCase() == 'active')
-                                      .toList();
-
-                                  if (selectedCityId != null && selectedCityName == 'Select City') {
-                                    final found = fetchedCities.firstWhere(
-                                      (c) => c.cityId == selectedCityId,
-                                      orElse: () => fetchedCities.isNotEmpty
-                                          ? fetchedCities.first
-                                          : CityModel(
-                                              cityId: '',
-                                              name: 'Select City',
-                                              status: '',
-                                              createdAt: '',
-                                              modifiedAt: '',
-                                            ),
-                                    );
-                                    if (found.cityId.isNotEmpty) {
-                                      selectedCityName = found.name;
+                            child:
+                                BlocBuilder<FetchCitiesBloc, FetchCitiesState>(
+                                  builder: (context, state) {
+                                    if (state is FetchCitiesLoadingState) {
+                                      return _buildSelectionButton(
+                                        title: 'Loading...',
+                                        icon: Icons.location_city,
+                                        onTap: () {},
+                                      );
                                     }
-                                  }
 
-                                  return _buildSelectionButton(
-                                    title: selectedCityName,
-                                    icon: Icons.location_city,
-                                    onTap: _toggleCityOptions,
-                                  );
-                                }
+                                    if (state is FetchCitiesSuccessState) {
+                                      fetchedCities = state.cities
+                                          .where(
+                                            (c) =>
+                                                c.status.toLowerCase() ==
+                                                'active',
+                                          )
+                                          .toList();
 
-                                return _buildSelectionButton(
-                                  title: selectedCityName,
-                                  icon: Icons.location_city,
-                                  onTap: _toggleCityOptions,
-                                );
-                              },
-                            ),
+                                      if (selectedCityId != null &&
+                                          selectedCityName == 'Select City') {
+                                        final found = fetchedCities.firstWhere(
+                                          (c) => c.cityId == selectedCityId,
+                                          orElse: () => fetchedCities.isNotEmpty
+                                              ? fetchedCities.first
+                                              : CityModel(
+                                                  cityId: '',
+                                                  name: 'Select City',
+                                                  status: '',
+                                                  createdAt: '',
+                                                  modifiedAt: '',
+                                                ),
+                                        );
+                                        if (found.cityId.isNotEmpty) {
+                                          selectedCityName = found.name;
+                                        }
+                                      }
+
+                                      return _buildSelectionButton(
+                                        title: selectedCityName,
+                                        icon: Icons.location_city,
+                                        onTap: _toggleCityOptions,
+                                      );
+                                    }
+
+                                    return _buildSelectionButton(
+                                      title: selectedCityName,
+                                      icon: Icons.location_city,
+                                      onTap: _toggleCityOptions,
+                                    );
+                                  },
+                                ),
                           ),
 
                           ResponsiveSizedBox.width10,
 
                           Expanded(
-                            child: BlocBuilder<FetchCategoriesBloc, FetchCategoriesState>(
-                              builder: (context, state) {
-                                if (state is FetchCategoriesLoadingState) {
-                                  return _buildSelectionButton(
-                                    title: 'Loading...',
-                                    icon: Icons.directions_car,
-                                    onTap: () {},
-                                  );
-                                }
-
-                                if (state is FetchCategoriesSuccessState) {
-                                  fetchedCategories = state.categories;
-
-                                  if (selectedCategoryId != null && selectedCategoryName == 'Select Car Type') {
-                                    final found = fetchedCategories.firstWhere(
-                                      (c) => c.categoryId == selectedCategoryId,
-                                      orElse: () => CategoriesModel(
-                                        categoryId: '',
-                                        fleetTypeId: '',
-                                        categoryName: 'Select Car Type',
-                                        status: '',
-                                        createdAt: '',
-                                        modifiedAt: '',
-                                      ),
-                                    );
-                                    if (found.categoryId.isNotEmpty) {
-                                      selectedCategoryName = found.categoryName;
+                            child:
+                                BlocBuilder<
+                                  FetchCategoriesBloc,
+                                  FetchCategoriesState
+                                >(
+                                  builder: (context, state) {
+                                    if (state is FetchCategoriesLoadingState) {
+                                      return _buildSelectionButton(
+                                        title: 'Loading...',
+                                        icon: Icons.directions_car,
+                                        onTap: () {},
+                                      );
                                     }
-                                  }
 
-                                  return _buildSelectionButton(
-                                    title: selectedCategoryName,
-                                    icon: Icons.directions_car,
-                                    onTap: () {
-                                      setState(() {
-                                        showCarTypeOptions = !showCarTypeOptions;
-                                        if (showCarTypeOptions) showCityOptions = false;
-                                      });
-                                    },
-                                  );
-                                }
+                                    if (state is FetchCategoriesSuccessState) {
+                                      fetchedCategories = state.categories;
 
-                                return _buildSelectionButton(
-                                  title: selectedCategoryName,
-                                  icon: Icons.directions_car,
-                                  onTap: () {
-                                    setState(() => showCarTypeOptions = !showCarTypeOptions);
+                                      if (selectedCategoryId != null &&
+                                          selectedCategoryName ==
+                                              'Select Car Type') {
+                                        final found = fetchedCategories
+                                            .firstWhere(
+                                              (c) =>
+                                                  c.categoryId ==
+                                                  selectedCategoryId,
+                                              orElse: () => CategoriesModel(
+                                                categoryId: '',
+                                                fleetTypeId: '',
+                                                categoryName: 'Select Car Type',
+                                                status: '',
+                                                createdAt: '',
+                                                modifiedAt: '',
+                                              ),
+                                            );
+                                        if (found.categoryId.isNotEmpty) {
+                                          selectedCategoryName =
+                                              found.categoryName;
+                                        }
+                                      }
+
+                                      return _buildSelectionButton(
+                                        title: selectedCategoryName,
+                                        icon: Icons.directions_car,
+                                        onTap: () {
+                                          setState(() {
+                                            showCarTypeOptions =
+                                                !showCarTypeOptions;
+                                            if (showCarTypeOptions)
+                                              showCityOptions = false;
+                                          });
+                                        },
+                                      );
+                                    }
+
+                                    return _buildSelectionButton(
+                                      title: selectedCategoryName,
+                                      icon: Icons.directions_car,
+                                      onTap: () {
+                                        setState(
+                                          () => showCarTypeOptions =
+                                              !showCarTypeOptions,
+                                        );
+                                      },
+                                    );
                                   },
-                                );
-                              },
-                            ),
+                                ),
                           ),
                         ],
                       ),
@@ -1629,12 +1681,17 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Padding(
-                            padding: EdgeInsets.only(right: ResponsiveUtils.wp(4)),
+                            padding: EdgeInsets.only(
+                              right: ResponsiveUtils.wp(4),
+                            ),
                             child: Row(
                               children: fetchedCities.map((city) {
-                                final bool isSelected = city.cityId == selectedCityId;
+                                final bool isSelected =
+                                    city.cityId == selectedCityId;
                                 return Padding(
-                                  padding: EdgeInsets.only(right: ResponsiveUtils.wp(2)),
+                                  padding: EdgeInsets.only(
+                                    right: ResponsiveUtils.wp(2),
+                                  ),
                                   child: _buildOptionChip(
                                     text: city.name,
                                     width: _chipWidthForFourAcross(context),
@@ -1663,12 +1720,17 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Padding(
-                            padding: EdgeInsets.only(right: ResponsiveUtils.wp(4)),
+                            padding: EdgeInsets.only(
+                              right: ResponsiveUtils.wp(4),
+                            ),
                             child: Row(
                               children: fetchedCategories.map((cat) {
-                                final bool isSelected = cat.categoryId == selectedCategoryId;
+                                final bool isSelected =
+                                    cat.categoryId == selectedCategoryId;
                                 return Padding(
-                                  padding: EdgeInsets.only(right: ResponsiveUtils.wp(2)),
+                                  padding: EdgeInsets.only(
+                                    right: ResponsiveUtils.wp(2),
+                                  ),
                                   child: _buildOptionChip(
                                     text: cat.categoryName,
                                     width: _chipWidthForFourAcross(context),
@@ -1714,7 +1776,9 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
 
                           if (state is FetchKmplansSuccessState) {
                             fetchedKmPlans = state.kmplans
-                                .where((k) => k.status.toLowerCase() == 'active')
+                                .where(
+                                  (k) => k.status.toLowerCase() == 'active',
+                                )
                                 .toList();
 
                             if (fetchedKmPlans.isEmpty) {
@@ -1723,12 +1787,16 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
 
                             return ListView.separated(
                               scrollDirection: Axis.horizontal,
-                              padding: EdgeInsets.only(right: ResponsiveUtils.wp(4)),
+                              padding: EdgeInsets.only(
+                                right: ResponsiveUtils.wp(4),
+                              ),
                               itemCount: fetchedKmPlans.length,
-                              separatorBuilder: (_, __) => SizedBox(width: ResponsiveUtils.wp(2)),
+                              separatorBuilder: (_, __) =>
+                                  SizedBox(width: ResponsiveUtils.wp(2)),
                               itemBuilder: (context, index) {
                                 final km = fetchedKmPlans[index];
-                                final kmLimitText = km.kmLimit?.toString() ?? km.kmId;
+                                final kmLimitText =
+                                    km.kmLimit?.toString() ?? km.kmId;
                                 final bool isSelected = km.kmId == selectedKmId;
 
                                 return GestureDetector(
@@ -1747,25 +1815,35 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                                       horizontal: ResponsiveUtils.wp(1),
                                     ),
                                     decoration: BoxDecoration(
-                                      color: isSelected ? const Color(0xFF2C3E50) : Colors.white,
-                                      borderRadius: BorderRadiusStyles.kradius5(),
+                                      color: isSelected
+                                          ? const Color(0xFF2C3E50)
+                                          : Colors.white,
+                                      borderRadius:
+                                          BorderRadiusStyles.kradius5(),
                                       border: Border.all(
-                                        color: isSelected ? const Color(0xFF2C3E50) : Colors.grey.shade300,
+                                        color: isSelected
+                                            ? const Color(0xFF2C3E50)
+                                            : Colors.grey.shade300,
                                       ),
                                     ),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         ResponsiveText(
                                           kmLimitText,
                                           sizeFactor: .8,
                                           weight: FontWeight.bold,
-                                          color: isSelected ? Colors.white : Colors.black,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : Colors.black,
                                         ),
                                         ResponsiveText(
                                           'KM',
                                           sizeFactor: 0.6,
-                                          color: isSelected ? Colors.white : Colors.black,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : Colors.black,
                                         ),
                                       ],
                                     ),
@@ -1785,77 +1863,156 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
               ),
 
               // Cars list from API
-              Expanded(
-                child: BlocBuilder<FetchCarsBloc, FetchCarsState>(
-                  builder: (context, state) {
-                    if (state is FetchCarsLoadingState) {
-                      return Center(
-                        child: SpinKitFadingCircle(
-                          size: ResponsiveUtils.wp(15),
-                          color: Appcolors.kprimarycolor,
-                        ),
-                      );
-                    }
+              // --- Replace your current "Cars list from API" RefreshIndicator block with this ---
 
-                    if (state is FetchCarsSuccessState) {
-                      if (state.cars.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.directions_car_outlined,
-                                size: ResponsiveUtils.sp(15),
-                                color: Colors.grey,
-                              ),
-                              ResponsiveSizedBox.height10,
-                              ResponsiveText(
-                                'No cars available for selected criteria',
-                                color: Colors.grey,
-                                weight: FontWeight.w500,
-                              ),
-                            ],
+              // Cars list from API
+              Expanded(
+                child: RefreshIndicator(
+                  // Replace your current onRefresh callback with this:
+                  onRefresh: () async {
+                    final DateTime fromDateTimeRefresh = DateTime(
+                      pickupDate.year,
+                      pickupDate.month,
+                      pickupDate.day,
+                      pickupTime.hour,
+                      pickupTime.minute,
+                    );
+                    final DateTime toDateTimeRefresh = DateTime(
+                      dropDate.year,
+                      dropDate.month,
+                      dropDate.day,
+                      dropTime.hour,
+                      dropTime.minute,
+                    );
+
+                    String formatDateTime(DateTime dt) =>
+                        "${dt.year.toString().padLeft(4, '0')}-"
+                        "${dt.month.toString().padLeft(2, '0')}-"
+                        "${dt.day.toString().padLeft(2, '0')} "
+                        "${dt.hour.toString().padLeft(2, '0')}:"
+                        "${dt.minute.toString().padLeft(2, '0')}:00";
+
+                    // Reset UI state variables before making the search
+                    setState(() {
+                      selectedCategoryId = null;
+                      selectedCategoryName = 'Select Car Type';
+                      selectedKmId = null;
+                      selectedKmLimit = null;
+                      showCarTypeOptions = false;
+                    });
+
+                    final searchRefresh = SearchModel(
+                      bookingFrom: formatDateTime(fromDateTimeRefresh),
+                      bookingTo: formatDateTime(toDateTimeRefresh),
+                      cityId: int.parse(
+                        selectedCityId ?? widget.selectedCityId,
+                      ),
+                      categoryId: null,
+                      kmId: null,
+                    );
+
+                    context.read<FetchCarsBloc>().add(
+                      FetchCarsButtonClickEvent(search: searchRefresh),
+                    );
+                    await Future.delayed(const Duration(milliseconds: 200));
+                  },
+                  child: BlocBuilder<FetchCarsBloc, FetchCarsState>(
+                    builder: (context, state) {
+                      // Loading -> show a scrollable with spinner so RefreshIndicator works
+                      if (state is FetchCarsLoadingState) {
+                        return Container(
+                          color: Appcolors.kwhitecolor, // Full red background
+                          child: Center(
+                            child: RotatingSteeringWheel(
+                              size: ResponsiveUtils.wp(
+                                30,
+                              ), // Adjust size as needed
+                              steeringWheelAssetPath:
+                                  Appconstants.splashlogo, // Your SVG path
+                            ),
                           ),
                         );
                       }
 
-                      return ListView.builder(
-                        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.wp(4)),
-                        itemCount: state.cars.length,
-                        itemBuilder: (context, index) {
-                          return _buildCarCard(state.cars[index]);
-                        },
-                      );
-                    }
+                      // Success with empty result -> scrollable message
+                      if (state is FetchCarsSuccessState) {
+                        if (state.cars.isEmpty) {
+                          return ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: ResponsiveUtils.wp(4),
+                            ),
+                            children: [
+                              SizedBox(height: ResponsiveUtils.hp(20)),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.directions_car_outlined,
+                                    size: ResponsiveUtils.sp(15),
+                                    color: Colors.grey,
+                                  ),
+                                  ResponsiveSizedBox.height10,
+                                  ResponsiveText(
+                                    'No cars available for selected criteria',
+                                    color: Colors.grey,
+                                    weight: FontWeight.w500,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        }
 
-                    if (state is FetchCarsErrorState) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        // Normal list
+                        return ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: ResponsiveUtils.wp(4),
+                          ),
+                          itemCount: state.cars.length,
+                          itemBuilder: (context, index) =>
+                              _buildCarCard(state.cars[index]),
+                        );
+                      }
+
+                      // Error -> show scrollable error UI so refresh still works
+                      if (state is FetchCarsErrorState) {
+                        return ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: ResponsiveUtils.wp(4),
+                          ),
                           children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: ResponsiveUtils.sp(15),
-                              color: Colors.red,
-                            ),
-                            ResponsiveSizedBox.height10,
-                            ResponsiveText(
-                              'Failed to load cars',
-                              color: Colors.red,
-                              weight: FontWeight.w500,
-                            ),
-                            ResponsiveSizedBox.height10,
-                            ElevatedButton(
-                              onPressed: _searchCars,
-                              child: ResponsiveText('Retry'),
+                            SizedBox(height: ResponsiveUtils.hp(20)),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  size: ResponsiveUtils.sp(15),
+                                  color: Colors.red,
+                                ),
+                                ResponsiveSizedBox.height10,
+                                ResponsiveText(
+                                  'Failed to load cars',
+                                  color: Colors.red,
+                                  weight: FontWeight.w500,
+                                ),
+                                ResponsiveSizedBox.height10,
+                                ElevatedButton(
+                                  onPressed: _searchCars,
+                                  child: ResponsiveText('Retry'),
+                                ),
+                              ],
                             ),
                           ],
-                        ),
-                      );
-                    }
+                        );
+                      }
 
-                    return SizedBox.shrink();
-                  },
+                      return SizedBox.shrink();
+                    },
+                  ),
                 ),
               ),
             ],
@@ -1964,7 +2121,12 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 221, 214, 214).withAlpha(220),
+                  color: const Color.fromARGB(
+                    255,
+                    221,
+                    214,
+                    214,
+                  ).withAlpha(220),
                   borderRadius: BorderRadiusStyles.kradius10(),
                 ),
               ),
@@ -2055,7 +2217,7 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                                   onTap: () {
                                     CustomNavigation.pushWithTransition(
                                       context,
-                                      ScreenBookingdetailpage(),
+                                      ScreenBookingdetailpage(car: car, pickupDate: pickupDate, pickupTime: pickupTime, dropDate: dropDate, dropTime: dropTime)
                                     );
                                   },
                                   child: Container(
@@ -2065,7 +2227,8 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                                     ),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFE74C3C),
-                                      borderRadius: BorderRadiusStyles.kradius5(),
+                                      borderRadius:
+                                          BorderRadiusStyles.kradius5(),
                                     ),
                                     child: ResponsiveText(
                                       'BOOK',
@@ -2152,13 +2315,13 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                     ),
                     ResponsiveSizedBox.width20,
                     _buildFeatureItem(
-                      Appconstants.gearIcon, 
-                      car.transmission ?? 'Unknown'
+                      Appconstants.gearIcon,
+                      car.transmission ?? 'Unknown',
                     ),
                     ResponsiveSizedBox.width20,
                     _buildFeatureItem(
-                      Appconstants.petrolIcon, 
-                      car.fuelType ?? 'Unknown'
+                      Appconstants.petrolIcon,
+                      car.fuelType ?? 'Unknown',
                     ),
                     ResponsiveSizedBox.width10,
                   ],

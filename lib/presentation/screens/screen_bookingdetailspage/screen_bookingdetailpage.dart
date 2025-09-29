@@ -3,15 +3,22 @@ import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
+import 'package:dream_carz/data/cars_model.dart';
 import 'package:dream_carz/presentation/screens/screen_bookingdetailspage/widgets/locationselection_widget.dart';
 import 'package:dream_carz/presentation/screens/screen_checkoutpage/screen_checkoutpage.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 
 class ScreenBookingdetailpage extends StatefulWidget {
-  const ScreenBookingdetailpage({super.key});
+   final DateTime pickupDate;
+  final TimeOfDay pickupTime;
+  final DateTime dropDate;
+  final TimeOfDay dropTime;
+  final CarsModel car;
+  const ScreenBookingdetailpage({super.key, required this.car, required this.pickupDate, required this.pickupTime, required this.dropDate, required this.dropTime, });
 
   @override
   State<ScreenBookingdetailpage> createState() =>
@@ -44,7 +51,36 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
     selectedPickupLocation = pickupLocations.first;
     locationController.text = ''; // will show selected place/address
   }
+  // Combine a DateTime (date) and TimeOfDay (time) into a single DateTime
+DateTime _combineDateAndTime(DateTime date, TimeOfDay time) {
+  return DateTime(date.year, date.month, date.day, time.hour, time.minute);
+}
 
+// Build a nicely formatted trip duration like "1 day 2 hrs 30 mins"
+String _formatTripDuration() {
+  final start = _combineDateAndTime(widget.pickupDate, widget.pickupTime);
+  final end   = _combineDateAndTime(widget.dropDate, widget.dropTime);
+
+  // If end is before start, clamp to zero (or you could swap, depending on your UX)
+  final diff = end.isAfter(start) ? end.difference(start) : Duration.zero;
+
+  final days = diff.inDays;
+  final hours = diff.inHours.remainder(24);
+  final mins = diff.inMinutes.remainder(60);
+
+  final parts = <String>[];
+  if (days > 0) parts.add('$days ${days == 1 ? "day" : "days"}');
+  if (hours > 0) parts.add('$hours ${hours == 1 ? "hr" : "hrs"}');
+  if (mins > 0 || parts.isEmpty) parts.add('$mins ${mins == 1 ? "min" : "mins"}');
+
+  return parts.join(' ');
+}
+
+  String _formatTimeOfDay(TimeOfDay t) {
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, t.hour, t.minute);
+    return DateFormat('h:mm a').format(dt);
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,9 +168,9 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
                     ),
 
                     child: Image.network(
-                      'https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=2070&q=80',
+                      widget.car.image!,
 
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                       loadingBuilder: (context, child, progress) {
                         if (progress == null) return child;
                         return Center(
@@ -164,7 +200,7 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextStyles.subheadline(
-                      text: 'KUV100 K4',
+                      text: widget.car.modelName,
                       color: Colors.black,
                     ),
                     ResponsiveSizedBox.height5,
@@ -175,7 +211,7 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
                           color: Colors.grey[600],
                         ),
                         TextStyles.medium(
-                          text: '105.0',
+                          text: (widget.car.freeKms ?? 0).toString(),
                           color: Colors.red,
                           weight: FontWeight.w600,
                         ),
@@ -185,7 +221,8 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
                           color: Colors.grey[600],
                         ),
                         TextStyles.medium(
-                          text: '₹8.0/Km',
+                          text:
+                              '₹ ${(widget.car.additionalPerKm ?? 0).toStringAsFixed(1)}/Km',
                           color: Colors.red,
                           weight: FontWeight.w600,
                         ),
@@ -202,19 +239,27 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildFeatureItem(Appconstants.seatIcon, '6 Seater'),
-              _buildFeatureItem(Appconstants.gearIcon, 'Manual'),
-              _buildFeatureItem(Appconstants.petrolIcon, 'Diesel'),
+              _buildFeatureItem(Appconstants.seatIcon,   '${widget.car.seater ?? 0} Seater'),
+              _buildFeatureItem(Appconstants.gearIcon,  widget.car.transmission ?? 'Unknown'),
+              _buildFeatureItem(Appconstants.petrolIcon,  widget. car.fuelType ?? 'Unknown'),
             ],
           ),
           ResponsiveSizedBox.height20,
 
           // Booking Details
-          _buildBookingDetailRow('Start Date', '17 Sep 2025 07:00 PM'),
+          _buildBookingDetailRow('Start Date',    DateFormat(
+                                          'dd MMM yyyy',
+                                        ).format(widget.pickupDate) +
+                                        '  ' +
+                                        _formatTimeOfDay(widget.pickupTime)),
           ResponsiveSizedBox.height10,
-          _buildBookingDetailRow('End Date', '18 Sep 2025 01:00 PM'),
+          _buildBookingDetailRow('End Date',  DateFormat(
+                                          'dd MMM yyyy',
+                                        ).format(widget.dropDate) +
+                                        '  ' +
+                                        _formatTimeOfDay(widget.dropTime)),
           ResponsiveSizedBox.height10,
-          _buildBookingDetailRow('Trip Duration', '18.0 hrs'),
+          _buildBookingDetailRow('Trip Duration',_formatTripDuration()),
           ResponsiveSizedBox.height10,
           Row(
             children: [
