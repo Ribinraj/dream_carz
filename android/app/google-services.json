@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "725218041421",
+    "project_id": "dream-carz-7f743",
+    "storage_bucket": "dream-carz-7f743.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:725218041421:android:11cec72709f9c61ce5c604",
+        "android_client_info": {
+          "package_name": "com.crisant.dreamcarz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7sOoB2-22qUfPen5BqkJ_Vza5YdNiJdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
