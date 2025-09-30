@@ -9,4 +9,5 @@ class Endpoints {
   static const kmplans = 'masters/kmPlan';
   static const settoken = 'login/settoken';
   static const fetchprofile = 'login/profile';
+  static const editprofile = 'login/updateprofile';
 }

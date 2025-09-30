@@ -1,12 +1,16 @@
 import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
+import 'package:dream_carz/presentation/blocs/fetch_profile_bloc/fetch_profile_bloc.dart';
 import 'package:dream_carz/presentation/screens/screen_editprofilepage/screen_editprofilepage.dart';
 import 'package:dream_carz/presentation/screens/screen_mybookingspage/screen_mybookingpage.dart';
 import 'package:dream_carz/presentation/screens/screen_mydocuments/screen_mydocuments.dart';
+import 'package:dream_carz/presentation/screens/screen_searchresultscreen.dart/widgets/customloading.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
+import 'package:dream_carz/widgets/logout_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ScreenProfilpage extends StatelessWidget {
@@ -42,92 +46,117 @@ class ScreenProfilpage extends StatelessWidget {
         child: Column(
           children: [
             // Profile Header Section
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(ResponsiveUtils.wp(6)),
-              decoration: BoxDecoration(
-                color: Appcolors.kwhitecolor,
-                borderRadius: BorderRadiusStyles.kradius15(),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 2,
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  // Profile Picture
-                  Center(
-                    child: SvgPicture.asset(
-                      Appconstants.profileIcon,
-                      width: ResponsiveUtils.wp(23),
-                      height: ResponsiveUtils.wp(23),
-                      // colorFilter: ColorFilter.mode(
-                      //   Appcolors.kprimarycolor,
-                      //   BlendMode.srcIn,
-                      // ),
+            BlocBuilder<FetchProfileBloc, FetchProfileState>(
+              builder: (context, state) {
+                if (state is FetchProfileLoadingState) {
+                  return Container(
+                    padding: EdgeInsets.all(ResponsiveUtils.wp(10)),
+                    child: Center(
+                      child: RotatingSteeringWheel(
+                        size: ResponsiveUtils.wp(20), // Adjust size as needed
+                        steeringWheelAssetPath:
+                            Appconstants.splashlogo, // Your SVG path
+                      ),
                     ),
-                  ),
-                  ResponsiveSizedBox.height30,
-
-                  // User Info
-                  _buildInfoRow(
-                    icon: Icons.person_outline,
-                    label: 'Username',
-                    value: 'john_doe_123',
-                  ),
-                  ResponsiveSizedBox.height15,
-
-                  _buildInfoRow(
-                    icon: Icons.email_outlined,
-                    label: 'Email',
-                    value: 'john.doe@example.com',
-                  ),
-                  ResponsiveSizedBox.height15,
-
-                  _buildInfoRow(
-                    icon: Icons.phone_outlined,
-                    label: 'Mobile Number',
-                    value: '+1 234 567 8900',
-                  ),
-                  ResponsiveSizedBox.height20,
-
-                  // Edit Profile Button
-                  SizedBox(
+                  );
+                }
+                if (state is FetchProfileSuccessState) {
+                  return Container(
                     width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        CustomNavigation.pushWithTransition(
-                          context,
-                          ScreenEditprofilepage(),
-                        );
-                      },
-                      icon: Icon(
-                        Icons.edit,
-                        size: ResponsiveUtils.sp(4),
-                        color: Appcolors.kwhitecolor,
-                      ),
-                      label: TextStyles.body(
-                        text: 'Edit Profile',
-                        color: Appcolors.kwhitecolor,
-                        weight: FontWeight.w600,
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Appcolors.kprimarycolor,
-                        padding: EdgeInsets.symmetric(
-                          vertical: ResponsiveUtils.hp(1.5),
+                    padding: EdgeInsets.all(ResponsiveUtils.wp(6)),
+                    decoration: BoxDecoration(
+                      color: Appcolors.kwhitecolor,
+                      borderRadius: BorderRadiusStyles.kradius15(),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          spreadRadius: 2,
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusStyles.kradius10(),
-                        ),
-                      ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
+                    child: Column(
+                      children: [
+                        // Profile Picture
+                        Center(
+                          child: SvgPicture.asset(
+                            Appconstants.profileIcon,
+                            width: ResponsiveUtils.wp(23),
+                            height: ResponsiveUtils.wp(23),
+                            // colorFilter: ColorFilter.mode(
+                            //   Appcolors.kprimarycolor,
+                            //   BlendMode.srcIn,
+                            // ),
+                          ),
+                        ),
+                        ResponsiveSizedBox.height30,
+
+                        // User Info
+                        _buildInfoRow(
+                          icon: Icons.person_outline,
+                          label: 'Username',
+                          value: state.profile.fullName,
+                        ),
+                        ResponsiveSizedBox.height15,
+
+                        _buildInfoRow(
+                          icon: Icons.email_outlined,
+                          label: 'Email',
+                          value: state.profile.emailAddress,
+                        ),
+                        ResponsiveSizedBox.height15,
+
+                        _buildInfoRow(
+                          icon: Icons.phone_outlined,
+                          label: 'Mobile Number',
+                          value: state.profile.mobileNumber,
+                        ),
+                        ResponsiveSizedBox.height20,
+
+                        // Edit Profile Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              CustomNavigation.pushWithTransition(
+                                context,
+                                ScreenEditprofilepage(
+                                  username: state.profile.fullName,
+                                  emailAdress: state.profile.emailAddress,
+                                ),
+                              );
+                            },
+                            icon: Icon(
+                              Icons.edit,
+                              size: ResponsiveUtils.sp(4),
+                              color: Appcolors.kwhitecolor,
+                            ),
+                            label: TextStyles.body(
+                              text: 'Edit Profile',
+                              color: Appcolors.kwhitecolor,
+                              weight: FontWeight.w600,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Appcolors.kprimarycolor,
+                              padding: EdgeInsets.symmetric(
+                                vertical: ResponsiveUtils.hp(1.5),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusStyles.kradius10(),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (state is FetchProfileErrorState) {
+                  return Center(child: Text(state.message));
+                } else {
+                  return SizedBox.shrink();
+                }
+              },
             ),
 
             ResponsiveSizedBox.height30,
@@ -315,58 +344,51 @@ class ScreenProfilpage extends StatelessWidget {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadiusStyles.kradius15(),
+void _showLogoutDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadiusStyles.kradius15(),
+        ),
+        title: TextStyles.subheadline(
+          text: 'Logout',
+          color: Appcolors.kblackcolor,
+        ),
+        content: TextStyles.body(
+          text: 'Are you sure you want to logout?',
+          color: Colors.grey[700],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: TextStyles.body(
+              text: 'Cancel',
+              color: Colors.grey[600],
+              weight: FontWeight.w600,
+            ),
           ),
-          title: TextStyles.subheadline(
-            text: 'Logout',
-            color: Appcolors.kblackcolor,
-          ),
-          content: TextStyles.body(
-            text: 'Are you sure you want to logout?',
-            color: Colors.grey[700],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: TextStyles.body(
-                text: 'Cancel',
-                color: Colors.grey[600],
-                weight: FontWeight.w600,
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(dialogContext); // Close dialog
+              AuthUtils.handleLogout(context); // Use parent context
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[600],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadiusStyles.kradius10(),
               ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Add your logout logic here
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login',
-                  (route) => false,
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red[600],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusStyles.kradius10(),
-                ),
-              ),
-              child: TextStyles.body(
-                text: 'Logout',
-                color: Appcolors.kwhitecolor,
-                weight: FontWeight.w600,
-              ),
+            child: TextStyles.body(
+              text: 'Logout',
+              color: Appcolors.kwhitecolor,
+              weight: FontWeight.w600,
             ),
-          ],
-        );
-      },
-    );
-  }
+          ),
+        ],
+      );
+    },
+  );
+}
 }

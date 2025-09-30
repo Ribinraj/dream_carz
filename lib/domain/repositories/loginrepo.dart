@@ -2,10 +2,12 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:dream_carz/core/urls.dart';
+import 'package:dream_carz/data/edit_profile_model.dart';
 import 'package:dream_carz/data/profile_model.dart';
 import 'package:dream_carz/widgets/shared_preferences.dart';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class ApiResponse<T> {
@@ -66,16 +68,16 @@ class Loginrepo {
    // log('pushtoken when login ${user.pushToken}');
     try {
       Response response = await dio.post(Endpoints.verifyotp, data:{
-    "customerId": 1,
-    "otp": "123456"
+    "customerId": customerId,
+    "otp": otp
 });
       final responseData = response.data;
       log('responsestatus${responseData}');
       log('responsestatus${responseData['status']}');
 
       if (!responseData["error"] && responseData["status"] == 200) {
-       // SharedPreferences preferences = await SharedPreferences.getInstance();
-       // preferences..setString('USER_TOKEN', responseData["data"]["token"]);
+       SharedPreferences preferences = await SharedPreferences.getInstance();
+       preferences.setString('USER_TOKEN', responseData["data"]["token"]);
         return ApiResponse(
           data: null,
           message: responseData['messages'] ?? 'Success',
@@ -154,7 +156,7 @@ class Loginrepo {
       //   await preferences.remove('USER_TOKEN');
       //   // await preferences.clear();
       // }
-      if (!responseData["error"] && responseData["status"] == 200) {
+      if ( responseData["status"] == 200) {
         final user = ProfileModel.fromJson(responseData["data"]);
 
         //SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -198,51 +200,51 @@ class Loginrepo {
   }
 
 //   /////////////---------------updateprofile----------/////////////
-//   Future<ApiResponse> updateprofile(
-//       {required UpdateProfilemodel profile}) async {
-//     try {
-//       final token = await getUserToken();
+  Future<ApiResponse> updateprofile(
+      {required EditProfileModel profile}) async {
+    try {
+      final token = await getUserToken();
 
-//       Response response = await dio.post(Endpoints.updateprofile,
-//           options: Options(headers: {'Authorization': token}), data: profile);
+      Response response = await dio.post(Endpoints.editprofile,
+          options: Options(headers: {'Authorization': token}), data: profile);
 
-//       final responseData = response.data;
+      final responseData = response.data;
 
-//       if (!responseData["error"] && responseData["status"] == 200) {
-//         return ApiResponse(
-//           data: null,
-//           message: responseData['message'] ?? 'Success',
-//           error: false,
-//           status: responseData["status"],
-//         );
-//       } else {
-//         return ApiResponse(
-//           data: null,
-//           message: responseData['message'] ?? 'Something went wrong',
-//           error: true,
-//           status: responseData["status"],
-//         );
-//       }
-//     } on DioException catch (e) {
-//       debugPrint(e.message);
-//       log(e.toString());
-//       return ApiResponse(
-//         data: null,
-//         message: 'Network or server error occurred',
-//         error: true,
-//         status: 500,
-//       );
-//     } catch (e) {
-//       // Add a general catch block for other exceptions
-//       log("Unexpected error: $e");
-//       return ApiResponse(
-//         data: null,
-//         message: 'Unexpected error: $e',
-//         error: true,
-//         status: 500,
-//       );
-//     }
-//   }
+      if (!responseData["error"] && responseData["status"] == 200) {
+        return ApiResponse(
+          data: null,
+          message: responseData['message'] ?? 'Success',
+          error: false,
+          status: responseData["status"],
+        );
+      } else {
+        return ApiResponse(
+          data: null,
+          message: responseData['message'] ?? 'Something went wrong',
+          error: true,
+          status: responseData["status"],
+        );
+      }
+    } on DioException catch (e) {
+      debugPrint(e.message);
+      log(e.toString());
+      return ApiResponse(
+        data: null,
+        message: 'Network or server error occurred',
+        error: true,
+        status: 500,
+      );
+    } catch (e) {
+      // Add a general catch block for other exceptions
+      log("Unexpected error: $e");
+      return ApiResponse(
+        data: null,
+        message: 'Unexpected error: $e',
+        error: true,
+        status: 500,
+      );
+    }
+  }
 
 //   ///////////////update token/////////////////
 Future<void> updatetoken({required String token}) async {

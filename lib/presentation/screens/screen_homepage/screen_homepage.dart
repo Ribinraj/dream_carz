@@ -10,6 +10,7 @@ import 'package:dream_carz/presentation/blocs/fetch_cars_bloc/fetch_cars_bloc.da
 import 'package:dream_carz/presentation/blocs/fetch_cities_bloc/fetch_cities_bloc.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/widgets/carosal_widget.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/widgets/date_time_selectionwidget.dart';
+import 'package:dream_carz/presentation/screens/screen_notificationpage/screen_notification.dart';
 import 'package:dream_carz/presentation/screens/screen_searchresultscreen.dart/screen_searchresultpage.dart';
 import 'package:dream_carz/widgets/custom_drawer.dart';
 
@@ -98,7 +99,12 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                           Spacer(),
 
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              CustomNavigation.pushWithTransition(
+                                context,
+                                NotificationPage(),
+                              );
+                            },
                             icon: Icon(
                               Icons.notifications,
                               color: Appcolors.kredcolor,

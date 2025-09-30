@@ -4,6 +4,7 @@ import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
+import 'package:dream_carz/domain/controllers/pushnotification_controller.dart';
 import 'package:dream_carz/presentation/blocs/resend_otp_bloc/resend_otp_bloc.dart';
 import 'package:dream_carz/presentation/blocs/verify_otp_bloc/verify_otp_bloc.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/screen_homepage.dart';
@@ -250,8 +251,11 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       listener: (context, state) {
                         if (state is VerifyOtpSuccessState) {
                           // log('success');
-                          // CustomNavigation.pushReplaceWithTransition(
-                          //     context, ScreenMainPage());
+                          CustomNavigation.pushReplaceWithTransition(
+                            context,
+                            ScreenHomepage(),
+                          );
+                          PushNotifications().sendTokenToServer();
                         } else if (state is VerifyOtpErrorState) {
                           SnackBar(content: Text(state.message));
                         }
@@ -259,35 +263,36 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       builder: (context, state) {
                         if (state is VerifyOtpLoadingState) {
                           return CustomSqureLoadingButton(
-                                 loading:SpinKitCircle(size: 20,color: Appcolors.kwhitecolor,),
-                                color: Appcolors.kredcolor,
-                           
+                            loading: SpinKitCircle(
+                              size: 20,
+                              color: Appcolors.kwhitecolor,
+                            ),
+                            color: Appcolors.kredcolor,
                           );
                         }
                         return ElevatedButton(
-                          onPressed: () {
-                            CustomNavigation.pushWithTransition(
-                              context,
-                              ScreenHomepage(),
-                            );
-                          },
-                          // onPressed: _isButtonEnabled
-                          //     ? () async {
-                          //         // final pushtoken = await getPushToken();
-                          //         if (_currentOtp.length == 6) {
-                          //           context.read<VerifyOtpBloc>().add(
-                          //             VerifyOtpButtonclickEvent(
-                          //               customerId: widget.customerId,
-                          //               otp: _currentOtp,
-                          //             ),
-                          //           );
-                          //         } else {
-                          //           SnackBar(
-                          //             content: Text('Please enter valid OTP'),
-                          //           );
-                          //         }
-                          //       }
-                          //     : null,
+                          // onPressed: () {
+                          //   CustomNavigation.pushWithTransition(
+                          //     context,
+                          //     ScreenHomepage(),
+                          //   );
+                          // },
+                          onPressed: _isButtonEnabled
+                              ? () {
+                                  if (_currentOtp.length == 6) {
+                                    context.read<VerifyOtpBloc>().add(
+                                      VerifyOtpButtonclickEvent(
+                                        customerId: widget.customerId,
+                                        otp: _currentOtp,
+                                      ),
+                                    );
+                                  } else {
+                                    SnackBar(
+                                      content: Text('Please enter valid OTP'),
+                                    );
+                                  }
+                                }
+                              : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Appcolors.kredcolor,
                             foregroundColor: Colors.white,

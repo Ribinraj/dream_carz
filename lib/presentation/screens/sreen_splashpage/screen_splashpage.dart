@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
+import 'package:dream_carz/presentation/screens/screen_homepage/screen_homepage.dart';
 import 'package:dream_carz/presentation/screens/screen_loginpage.dart/screen_loginpage.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:flutter/material.dart';
@@ -87,12 +88,12 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeController.forward();
 
     // Navigate to next screen after total duration
-    await Future.delayed(const Duration(milliseconds: 4000));
+    await Future.delayed(const Duration(milliseconds: 4500));
     _navigateToNextScreen();
   }
 
   void _navigateToNextScreen() {
-    CustomNavigation.pushWithTransition(context, LoginScreen());
+    CustomNavigation.pushWithTransition(context, ScreenHomepage());
   }
 
   @override

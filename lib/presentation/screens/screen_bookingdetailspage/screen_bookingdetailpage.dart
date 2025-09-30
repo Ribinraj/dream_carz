@@ -4,21 +4,32 @@ import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:dream_carz/data/cars_model.dart';
+import 'package:dream_carz/presentation/blocs/fetch_profile_bloc/fetch_profile_bloc.dart';
 import 'package:dream_carz/presentation/screens/screen_bookingdetailspage/widgets/locationselection_widget.dart';
 import 'package:dream_carz/presentation/screens/screen_checkoutpage/screen_checkoutpage.dart';
+import 'package:dream_carz/presentation/screens/screen_loginpage.dart/screen_loginpage.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ScreenBookingdetailpage extends StatefulWidget {
-   final DateTime pickupDate;
+  final DateTime pickupDate;
   final TimeOfDay pickupTime;
   final DateTime dropDate;
   final TimeOfDay dropTime;
   final CarsModel car;
-  const ScreenBookingdetailpage({super.key, required this.car, required this.pickupDate, required this.pickupTime, required this.dropDate, required this.dropTime, });
+  const ScreenBookingdetailpage({
+    super.key,
+    required this.car,
+    required this.pickupDate,
+    required this.pickupTime,
+    required this.dropDate,
+    required this.dropTime,
+  });
 
   @override
   State<ScreenBookingdetailpage> createState() =>
@@ -43,6 +54,80 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
   double? selectedDeliveryLat;
   double? selectedDeliveryLng;
   String? selectedDeliveryAddress;
+  Future<bool> _checkTokenExists() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String token = preferences.getString('USER_TOKEN') ?? '';
+    return token.isNotEmpty;
+  }
+
+  // Handle checkout navigation with token check
+  Future<void> _handleCheckoutNavigation(BuildContext context) async {
+    // Check if token exists
+    bool hasToken = await _checkTokenExists();
+
+    if (!hasToken) {
+      // No token, navigate to login
+      CustomNavigation.pushWithTransition(
+        context,
+        LoginScreen(), // Replace with your actual login screen
+      );
+      return;
+    }
+
+    // Token exists, fetch profile and validate
+    context.read<FetchProfileBloc>().add(FetchProfileInitialEvent());
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    // Use a one-time listener
+    context
+        .read<FetchProfileBloc>()
+        .stream
+        .firstWhere((state) {
+          return state is FetchProfileSuccessState ||
+              state is FetchProfileErrorState;
+        })
+        .then((state) {
+          // Check if widget is still mounted
+          if (!context.mounted) return;
+
+          // Close loading dialog
+          Navigator.pop(context);
+
+          if (state is FetchProfileErrorState) {
+            // Check if token expired
+            if (state.message.toLowerCase().contains('expired') ||
+                state.message == 'expiredtoken') {
+              // Token expired, navigate to login
+              CustomNavigation.pushWithTransition(context, LoginScreen());
+            } else {
+              CustomNavigation.pushWithTransition(
+                context,
+                ScreenCheckoutpage(),
+              );
+            }
+          }
+        })
+        .timeout(
+          const Duration(seconds: 10),
+          onTimeout: () {
+            // Handle timeout
+            if (context.mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Request timeout. Please try again.'),
+                ),
+              );
+            }
+          },
+        );
+  }
 
   @override
   void initState() {
@@ -51,36 +136,39 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
     selectedPickupLocation = pickupLocations.first;
     locationController.text = ''; // will show selected place/address
   }
+
   // Combine a DateTime (date) and TimeOfDay (time) into a single DateTime
-DateTime _combineDateAndTime(DateTime date, TimeOfDay time) {
-  return DateTime(date.year, date.month, date.day, time.hour, time.minute);
-}
+  DateTime _combineDateAndTime(DateTime date, TimeOfDay time) {
+    return DateTime(date.year, date.month, date.day, time.hour, time.minute);
+  }
 
-// Build a nicely formatted trip duration like "1 day 2 hrs 30 mins"
-String _formatTripDuration() {
-  final start = _combineDateAndTime(widget.pickupDate, widget.pickupTime);
-  final end   = _combineDateAndTime(widget.dropDate, widget.dropTime);
+  // Build a nicely formatted trip duration like "1 day 2 hrs 30 mins"
+  String _formatTripDuration() {
+    final start = _combineDateAndTime(widget.pickupDate, widget.pickupTime);
+    final end = _combineDateAndTime(widget.dropDate, widget.dropTime);
 
-  // If end is before start, clamp to zero (or you could swap, depending on your UX)
-  final diff = end.isAfter(start) ? end.difference(start) : Duration.zero;
+    // If end is before start, clamp to zero (or you could swap, depending on your UX)
+    final diff = end.isAfter(start) ? end.difference(start) : Duration.zero;
 
-  final days = diff.inDays;
-  final hours = diff.inHours.remainder(24);
-  final mins = diff.inMinutes.remainder(60);
+    final days = diff.inDays;
+    final hours = diff.inHours.remainder(24);
+    final mins = diff.inMinutes.remainder(60);
 
-  final parts = <String>[];
-  if (days > 0) parts.add('$days ${days == 1 ? "day" : "days"}');
-  if (hours > 0) parts.add('$hours ${hours == 1 ? "hr" : "hrs"}');
-  if (mins > 0 || parts.isEmpty) parts.add('$mins ${mins == 1 ? "min" : "mins"}');
+    final parts = <String>[];
+    if (days > 0) parts.add('$days ${days == 1 ? "day" : "days"}');
+    if (hours > 0) parts.add('$hours ${hours == 1 ? "hr" : "hrs"}');
+    if (mins > 0 || parts.isEmpty)
+      parts.add('$mins ${mins == 1 ? "min" : "mins"}');
 
-  return parts.join(' ');
-}
+    return parts.join(' ');
+  }
 
   String _formatTimeOfDay(TimeOfDay t) {
     final now = DateTime.now();
     final dt = DateTime(now.year, now.month, now.day, t.hour, t.minute);
     return DateFormat('h:mm a').format(dt);
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -239,27 +327,38 @@ String _formatTripDuration() {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildFeatureItem(Appconstants.seatIcon,   '${widget.car.seater ?? 0} Seater'),
-              _buildFeatureItem(Appconstants.gearIcon,  widget.car.transmission ?? 'Unknown'),
-              _buildFeatureItem(Appconstants.petrolIcon,  widget. car.fuelType ?? 'Unknown'),
+              _buildFeatureItem(
+                Appconstants.seatIcon,
+                '${widget.car.seater ?? 0} Seater',
+              ),
+              _buildFeatureItem(
+                Appconstants.gearIcon,
+                widget.car.transmission ?? 'Unknown',
+              ),
+              _buildFeatureItem(
+                Appconstants.petrolIcon,
+                widget.car.fuelType ?? 'Unknown',
+              ),
             ],
           ),
           ResponsiveSizedBox.height20,
 
           // Booking Details
-          _buildBookingDetailRow('Start Date',    DateFormat(
-                                          'dd MMM yyyy',
-                                        ).format(widget.pickupDate) +
-                                        '  ' +
-                                        _formatTimeOfDay(widget.pickupTime)),
+          _buildBookingDetailRow(
+            'Start Date',
+            DateFormat('dd MMM yyyy').format(widget.pickupDate) +
+                '  ' +
+                _formatTimeOfDay(widget.pickupTime),
+          ),
           ResponsiveSizedBox.height10,
-          _buildBookingDetailRow('End Date',  DateFormat(
-                                          'dd MMM yyyy',
-                                        ).format(widget.dropDate) +
-                                        '  ' +
-                                        _formatTimeOfDay(widget.dropTime)),
+          _buildBookingDetailRow(
+            'End Date',
+            DateFormat('dd MMM yyyy').format(widget.dropDate) +
+                '  ' +
+                _formatTimeOfDay(widget.dropTime),
+          ),
           ResponsiveSizedBox.height10,
-          _buildBookingDetailRow('Trip Duration',_formatTripDuration()),
+          _buildBookingDetailRow('Trip Duration', _formatTripDuration()),
           ResponsiveSizedBox.height10,
           Row(
             children: [

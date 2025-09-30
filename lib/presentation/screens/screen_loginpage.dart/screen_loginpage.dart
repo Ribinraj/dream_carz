@@ -173,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         BlocConsumer<SendOtpBloc, SendOtpState>(
                           listener: (context, state) {
                             if (state is SendOtpSuccessState) {
-                              CustomNavigation.pushWithTransition(
+                              CustomNavigation.pushReplaceWithTransition(
                                 context,
                                 OtpVerificationPage(
                                   customerId: state.customerId,

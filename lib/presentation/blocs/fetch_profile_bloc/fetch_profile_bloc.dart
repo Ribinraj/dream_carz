@@ -24,7 +24,7 @@ class FetchProfileBloc extends Bloc<FetchProfileEvent, FetchProfileState> {
     emit(FetchProfileLoadingState());
     try {
       final response = await repository.fetchprofile();
-      if (!response.error && response.status == 200) {
+      if (response.status == 200) {
         emit(FetchProfileSuccessState(profile: response.data!));
       } else {
         emit(FetchProfileErrorState(message: response.message));
