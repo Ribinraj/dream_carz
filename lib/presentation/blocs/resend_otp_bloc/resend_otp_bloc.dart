@@ -22,7 +22,7 @@ class ResendOtpBloc extends Bloc<ResendOtpEvent, ResendOtpState> {
     try {
       final response = await repository.resendotp(customerId: event.customerId);
       if (!response.error && response.status == 200) {
-        emit(ResendOtpSuccessState(userId: response.data!));
+        emit(ResendOtpSuccessState(message: response.message));
       } else {
         emit(ResendOtpErrorState(message: response.message));
       }

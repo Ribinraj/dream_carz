@@ -3,8 +3,8 @@ import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/presentation/blocs/send_otp_bloc/send_otp_bloc.dart';
 import 'package:dream_carz/presentation/screens/screen_otp_verificationpage/screen_otp_verificationpage.dart';
+import 'package:dream_carz/widgets/custom_backcirclebutton.dart';
 
-import 'package:dream_carz/presentation/screens/screen_registerpage/screen_registerpage.dart';
 import 'package:dream_carz/widgets/custom_loadingbutton.dart';
 
 import 'package:dream_carz/widgets/custom_navigation.dart';
@@ -66,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     return Scaffold(
-      backgroundColor: Appcolors.kwhitecolor,
+      backgroundColor: Appcolors.kbackgroundcolor,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -76,9 +76,16 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Form(
               key: _formKey,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                // mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  ResponsiveSizedBox.height30,
+                  Row(
+                    children: [
+                      BackCircleButton(onPressed: () {}),
+                      Spacer(),
+                    ],
+                  ),
                   // Logo Section
                   Container(
                     margin: EdgeInsets.only(bottom: ResponsiveUtils.hp(4)),
@@ -133,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-
+                  ResponsiveSizedBox.height40,
                   // Form Section
                   Container(
                     width: double.infinity,
@@ -191,7 +198,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           builder: (context, state) {
                             if (state is SendOtpLoadingState) {
                               return CustomSqureLoadingButton(
-                                loading:SpinKitCircle(size: 20,color: Appcolors.kwhitecolor,),
+                                loading: SpinKitCircle(
+                                  size: 20,
+                                  color: Appcolors.kwhitecolor,
+                                ),
                                 color: Appcolors.kredcolor,
                               );
                             }
@@ -223,43 +233,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-
-                  SizedBox(height: ResponsiveUtils.hp(4)),
-
-                  // // Register Section
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: [
-                  //     Text(
-                  //       "New User? ",
-                  //       style: TextStyle(
-                  //         fontSize: ResponsiveUtils.sp(3.5),
-                  //         color: Appcolors.kblackcolor,
-                  //         fontWeight: FontWeight.w400,
-                  //       ),
-                  //     ),
-                  //     GestureDetector(
-                  //       onTap: () {
-                  //         CustomNavigation.pushWithTransition(
-                  //           context,
-                  //           RegisterScreen(),
-                  //         );
-                  //       },
-                  //       child: Text(
-                  //         "Register",
-                  //         style: TextStyle(
-                  //           fontSize: ResponsiveUtils.sp(3.5),
-                  //           color: Appcolors.kprimarycolor,
-                  //           fontWeight: FontWeight.w600,
-                  //           decoration: TextDecoration.underline,
-                  //           decorationColor: Appcolors.kprimarycolor,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-
-                  SizedBox(height: ResponsiveUtils.hp(2)),
                 ],
               ),
             ),

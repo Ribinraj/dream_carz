@@ -2,11 +2,15 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:dream_carz/core/urls.dart';
+import 'package:dream_carz/data/booking_overview_model.dart';
+import 'package:dream_carz/data/booking_requestmodel.dart';
 import 'package:dream_carz/data/cars_model.dart';
 import 'package:dream_carz/data/categories_model.dart';
 import 'package:dream_carz/data/city_model.dart';
+import 'package:dream_carz/data/coupen_model.dart';
 import 'package:dream_carz/data/km_model.dart';
 import 'package:dream_carz/data/search_model.dart';
+import 'package:dream_carz/widgets/shared_preferences.dart';
 
 import 'package:flutter/material.dart';
 
@@ -194,6 +198,99 @@ class Apprepo {
       return ApiResponse(
         data: null,
         message: 'Network or server error occurred',
+        error: true,
+        status: 500,
+      );
+    }
+  }
+    //   //////////------------fetchbookingoverview-----------/////////////////
+  Future<ApiResponse<BookingOverviewModel>>bookingoverview({required BookingRequestmodel details}) async {
+    // log('pushtoken when login ${user.pushToken}');
+    try {
+        final token = await getUserToken();
+      Response response = await dio.post(Endpoints.bookingoverview, data: details, options: Options(headers: {'Authorization': token}));
+      final responseData = response.data;
+      // log('responsestatus${responseData}');
+      // log('responsestatus${responseData['status']}');
+
+      if (!responseData["error"] && responseData["status"] == 200) {
+        final  booking = BookingOverviewModel.fromJson(responseData['data']);
+ 
+        return ApiResponse(
+          data:booking,
+          message: responseData['messages'] ?? 'Success',
+          error: false,
+          status: responseData["status"],
+        );
+      } else {
+        return ApiResponse(
+          data: null,
+          message: responseData['messages'] ?? 'Something went wrong',
+          error: true,
+          status: responseData["status"],
+        );
+      }
+    } on DioException catch (e) {
+      debugPrint(e.message);
+
+      log(e.toString());
+      return ApiResponse(
+        data: null,
+        message: 'Network or server error occurred',
+        error: true,
+        status: 500,
+      );
+    }
+  }
+  // //////////-------------------applycoupen---------------//////////////////
+  Future<ApiResponse<CouponModel>> applycoupen({required String coupencode}) async {
+    try {
+      final token = await getUserToken();
+      log(token);
+      Response response = await dio.get(
+        Endpoints.coupen,
+        options: Options(headers: {'Authorization': token}),data: {
+    "couponCode": coupencode
+}
+      );
+      log("Response received: ${response.statusCode}");
+      final responseData = response.data;
+      log("Response data: $responseData");
+ 
+      if ( responseData["status"] == 200) {
+        final coupen = CouponModel.fromJson(responseData["data"]);
+
+
+
+        return ApiResponse(
+          data:coupen,
+          message: responseData['message'] ?? 'Success',
+          error: false,
+          status: responseData["status"],
+        );
+      } else {
+        return ApiResponse(
+          data: null,
+          message: responseData['message'] ?? 'Something went wrong',
+          error: true,
+          status: responseData["status"],
+        );
+      }
+    } on DioException catch (e) {
+      debugPrint(e.message);
+      log(e.toString());
+      return ApiResponse(
+        data: null,
+        message: 'Network or server error occurred',
+        error: true,
+        status: 500,
+      );
+    } catch (e) {
+      // Add a general catch block for other exceptions
+      log("Unexpected error: $e");
+      return ApiResponse(
+        data: null,
+        message: 'Unexpected error: $e',
         error: true,
         status: 500,
       );

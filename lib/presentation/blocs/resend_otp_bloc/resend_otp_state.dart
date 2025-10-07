@@ -7,9 +7,9 @@ final class ResendOtpInitial extends ResendOtpState {}
 final class ResendOtpLoadingState extends ResendOtpState {}
 
 final class ResendOtpSuccessState extends ResendOtpState {
-  final String userId;
+  final String message;
 
-  ResendOtpSuccessState({required this.userId});
+  ResendOtpSuccessState({required this.message});
 }
 
 final class ResendOtpErrorState extends ResendOtpState {

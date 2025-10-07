@@ -1149,7 +1149,7 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
   String selectedCityName = 'Select City';
   String? selectedCategoryId;
   String selectedCategoryName = 'Select Car Type';
-
+ bool _kmInitialized = false;
   bool showCityOptions = false;
   bool showCarTypeOptions = false;
 
@@ -1282,169 +1282,214 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
     final dt = DateTime(now.year, now.month, now.day, t.hour, t.minute);
     return DateFormat('h:mm a').format(dt);
   }
+void _openDateTimeTopSheet() {
+  DateTime tempFromDate = pickupDate;
+  TimeOfDay tempFromTime = pickupTime;
+  DateTime tempToDate = dropDate;
+  TimeOfDay tempToTime = dropTime;
 
-  void _openDateTimeTopSheet() {
-    DateTime tempFromDate = pickupDate;
-    TimeOfDay tempFromTime = pickupTime;
-    DateTime tempToDate = dropDate;
-    TimeOfDay tempToTime = dropTime;
-
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Edit Date/Time',
-      transitionDuration: const Duration(milliseconds: 260),
-      pageBuilder: (ctx, anim1, anim2) {
-        return SafeArea(
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                margin: EdgeInsets.symmetric(
-                  horizontal: ResponsiveUtils.wp(4),
-                  vertical: ResponsiveUtils.hp(2),
-                ),
-                padding: EdgeInsets.all(ResponsiveUtils.wp(4)),
-                decoration: BoxDecoration(
-                  color: Appcolors.kwhitecolor,
-                  borderRadius: BorderRadiusStyles.kradius10(),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(25),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        ResponsiveText(
-                          'Edit Pickup & Drop',
-                          weight: FontWeight.w700,
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          icon: Icon(Icons.close, size: ResponsiveUtils.sp(5)),
-                          onPressed: () => Navigator.of(ctx).pop(),
-                        ),
-                      ],
-                    ),
-                    ResponsiveSizedBox.height10,
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: ResponsiveText('From', weight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 8),
-                    DateTimeSelectionWidget(
-                      key: ValueKey('from_picker'),
-                      initialDate: tempFromDate,
-                      initialTime: tempFromTime,
-                      onDateTimeChanged: (d, t) {
-                        tempFromDate = d;
-                        tempFromTime = t;
-                      },
-                    ),
-                    ResponsiveSizedBox.height10,
-                    Divider(thickness: 1),
-                    ResponsiveSizedBox.height10,
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: ResponsiveText('To', weight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 8),
-                    DateTimeSelectionWidget(
-                      key: ValueKey('to_picker'),
-                      initialDate: tempToDate,
-                      initialTime: tempToTime,
-                      onDateTimeChanged: (d, t) {
-                        tempToDate = d;
-                        tempToTime = t;
-                      },
-                    ),
-                    ResponsiveSizedBox.height15,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () => Navigator.of(ctx).pop(),
-                          child: TextStyles.body(text: 'Cancel'),
-                        ),
-                        SizedBox(width: ResponsiveUtils.wp(2)),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Appcolors.kblackcolor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusStyles.kradius10(),
-                            ),
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: 'Edit Date/Time',
+    transitionDuration: const Duration(milliseconds: 260),
+    pageBuilder: (ctx, anim1, anim2) {
+      // Use StatefulBuilder to manage state within the dialog
+      return StatefulBuilder(
+        builder: (context, setDialogState) {
+          return SafeArea(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  margin: EdgeInsets.symmetric(
+                    horizontal: ResponsiveUtils.wp(4),
+                    vertical: ResponsiveUtils.hp(2),
+                  ),
+                  padding: EdgeInsets.all(ResponsiveUtils.wp(4)),
+                  decoration: BoxDecoration(
+                    color: Appcolors.kwhitecolor,
+                    borderRadius: BorderRadiusStyles.kradius10(),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(25),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          ResponsiveText(
+                            'Edit Pickup & Drop',
+                            weight: FontWeight.w700,
                           ),
-                          onPressed: () {
-                            final DateTime fromDt = DateTime(
+                          const Spacer(),
+                          IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: Icon(Icons.close, size: ResponsiveUtils.sp(5)),
+                            onPressed: () => Navigator.of(ctx).pop(),
+                          ),
+                        ],
+                      ),
+                      ResponsiveSizedBox.height10,
+                      
+                      // FROM Section
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: ResponsiveText('From', weight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 8),
+                      FromDateTimeSelectionWidget(
+                        key: ValueKey('from_picker_${tempFromDate}_${tempFromTime}'),
+                        initialDate: tempFromDate,
+                        initialTime: tempFromTime,
+                        onDateTimeChanged: (d, t) {
+                          setDialogState(() {
+                            tempFromDate = d;
+                            tempFromTime = t;
+                            
+                            // Check if current "To" selection is still valid
+                            final fromDt = DateTime(
                               tempFromDate.year,
                               tempFromDate.month,
                               tempFromDate.day,
                               tempFromTime.hour,
                               tempFromTime.minute,
                             );
-                            final DateTime toDt = DateTime(
+                            final toDt = DateTime(
                               tempToDate.year,
                               tempToDate.month,
                               tempToDate.day,
                               tempToTime.hour,
                               tempToTime.minute,
                             );
-
-                            if (!toDt.isAfter(fromDt)) {
-                              CustomSnackbar.show(
-                                context,
-                                message:
-                                    'Drop date/time must be after pickup date/time',
-                                type: SnackbarType.error,
+                            final minAllowed = fromDt.add(const Duration(hours: 12));
+                            
+                            // If "To" is now invalid, reset it to minimum allowed
+                            if (toDt.isBefore(minAllowed)) {
+                              tempToDate = DateTime(
+                                minAllowed.year,
+                                minAllowed.month,
+                                minAllowed.day,
                               );
-                              return;
+                              tempToTime = TimeOfDay(
+                                hour: minAllowed.hour,
+                                minute: minAllowed.minute,
+                              );
                             }
-
-                            setState(() {
-                              pickupDate = tempFromDate;
-                              pickupTime = tempFromTime;
-                              dropDate = tempToDate;
-                              dropTime = tempToTime;
-                            });
-
-                            Navigator.of(ctx).pop();
-
-                            // Trigger new search with updated dates
-                            _searchCars();
-                          },
-                          child: TextStyles.body(
-                            text: 'Submit',
-                            color: Appcolors.kwhitecolor,
+                          });
+                        },
+                      ),
+                      
+                      ResponsiveSizedBox.height10,
+                      Divider(thickness: 1),
+                      ResponsiveSizedBox.height10,
+                      
+                      // TO Section
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: ResponsiveText('To', weight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 8),
+                      ToDateTimeSelectionWidget(
+                        key: ValueKey('to_picker_${tempFromDate}_${tempFromTime}_${tempToDate}_${tempToTime}'),
+                        initialDate: tempToDate,
+                        initialTime: tempToTime,
+                        minDateTime: DateTime(
+                          tempFromDate.year,
+                          tempFromDate.month,
+                          tempFromDate.day,
+                          tempFromTime.hour,
+                          tempFromTime.minute,
+                        ).add(const Duration(hours: 12)),
+                        onDateTimeChanged: (d, t) {
+                          setDialogState(() {
+                            tempToDate = d;
+                            tempToTime = t;
+                          });
+                        },
+                      ),
+                      
+                      ResponsiveSizedBox.height15,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(),
+                            child: TextStyles.body(text: 'Cancel'),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          SizedBox(width: ResponsiveUtils.wp(2)),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Appcolors.kblackcolor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusStyles.kradius10(),
+                              ),
+                            ),
+                            onPressed: () {
+                              final DateTime fromDt = DateTime(
+                                tempFromDate.year,
+                                tempFromDate.month,
+                                tempFromDate.day,
+                                tempFromTime.hour,
+                                tempFromTime.minute,
+                              );
+                              final DateTime toDt = DateTime(
+                                tempToDate.year,
+                                tempToDate.month,
+                                tempToDate.day,
+                                tempToTime.hour,
+                                tempToTime.minute,
+                              );
+
+                              // Validate 12-hour minimum gap
+                              final minAllowed = fromDt.add(const Duration(hours: 12));
+                              if (toDt.isBefore(minAllowed)) {
+                                CustomSnackbar.show(
+                                  context,
+                                  message:
+                                      'Drop date/time must be at least 12 hours after pickup',
+                                  type: SnackbarType.error,
+                                );
+                                return;
+                              }
+
+                              setState(() {
+                                pickupDate = tempFromDate;
+                                pickupTime = tempFromTime;
+                                dropDate = tempToDate;
+                                dropTime = tempToTime;
+                              });
+
+                              Navigator.of(ctx).pop();
+
+                              // Trigger new search with updated dates
+                              _searchCars();
+                            },
+                            child: TextStyles.body(
+                              text: 'Submit',
+                              color: Appcolors.kwhitecolor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
-      transitionBuilder: (ctx, anim, secAnim, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, -1),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOut)),
-          child: FadeTransition(opacity: anim, child: child),
-        );
-      },
-    );
-  }
+          );
+        },
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -1784,7 +1829,23 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                             if (fetchedKmPlans.isEmpty) {
                               return Center(child: Text('No plans available'));
                             }
+   // Initialize (only once) to the first active plan and trigger a search.
+        if (!_kmInitialized && fetchedKmPlans.isNotEmpty) {
+          // mark initialized immediately so we don't schedule multiple callbacks
+          _kmInitialized = true;
 
+          // Schedule setState & search after this frame to avoid calling setState in build
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            setState(() {
+              selectedKmId = fetchedKmPlans.first.kmId;
+              selectedKmLimit = fetchedKmPlans.first.kmLimit;
+            });
+
+            // Trigger initial search with the default KM plan
+            _searchCars();
+          });
+        }
                             return ListView.separated(
                               scrollDirection: Axis.horizontal,
                               padding: EdgeInsets.only(
@@ -2217,7 +2278,7 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                                   onTap: () {
                                     CustomNavigation.pushWithTransition(
                                       context,
-                                      ScreenBookingdetailpage(car: car, pickupDate: pickupDate, pickupTime: pickupTime, dropDate: dropDate, dropTime: dropTime)
+                                      ScreenBookingdetailpage( pickupDate: pickupDate, pickupTime: pickupTime, dropDate: dropDate, dropTime: dropTime,modelId:car.modelId ,cityId:selectedCityId ,kmId: selectedKmId,)
                                     );
                                   },
                                   child: Container(

@@ -5,7 +5,9 @@ import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:dream_carz/domain/controllers/pushnotification_controller.dart';
 import 'package:dream_carz/domain/repositories/apprepo.dart';
 import 'package:dream_carz/domain/repositories/loginrepo.dart';
+import 'package:dream_carz/presentation/blocs/coupen_bloc/coupen_bloc.dart';
 import 'package:dream_carz/presentation/blocs/edit_profile_bloc/edit_profile_bloc.dart';
+import 'package:dream_carz/presentation/blocs/fetch_booking_overview_bloc/fetch_bookingoverview_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_cars_bloc/fetch_cars_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_categories_bloc/fetch_categories_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_cities_bloc/fetch_cities_bloc.dart';
@@ -89,6 +91,13 @@ class MyApp extends StatelessWidget {
                       BlocProvider(
           create: (context) => EditProfileBloc(repository: loginrepo),
         ),
+                           BlocProvider(
+          create: (context) => FetchBookingoverviewBloc(repository:apprepo),
+        ),
+                          BlocProvider(
+          create: (context) => CoupenBloc(repository:apprepo),
+        )
+        
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

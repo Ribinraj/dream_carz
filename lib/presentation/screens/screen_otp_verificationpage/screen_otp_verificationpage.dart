@@ -8,6 +8,7 @@ import 'package:dream_carz/domain/controllers/pushnotification_controller.dart';
 import 'package:dream_carz/presentation/blocs/resend_otp_bloc/resend_otp_bloc.dart';
 import 'package:dream_carz/presentation/blocs/verify_otp_bloc/verify_otp_bloc.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/screen_homepage.dart';
+import 'package:dream_carz/widgets/custom_backcirclebutton.dart';
 import 'package:dream_carz/widgets/custom_loadingbutton.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:dream_carz/widgets/custom_snackbar.dart';
@@ -123,9 +124,20 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               height: ResponsiveUtils.hp(50),
               width: ResponsiveUtils.screenWidth,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                // mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  ResponsiveSizedBox.height40,
+                  Row(
+                    children: [
+                      BackCircleButton(
+                        onPressed: () {
+                          CustomNavigation.pop(context);
+                        },
+                      ),
+                      Spacer(),
+                    ],
+                  ),
                   Center(
                     child: Container(
                       color: Colors.transparent,
