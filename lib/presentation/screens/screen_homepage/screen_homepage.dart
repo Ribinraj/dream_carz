@@ -7,6 +7,7 @@ import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:dream_carz/data/city_model.dart';
 
 import 'package:dream_carz/presentation/blocs/fetch_cities_bloc/fetch_cities_bloc.dart';
+import 'package:dream_carz/presentation/blocs/fetch_profile_bloc/fetch_profile_bloc.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/widgets/carosal_widget.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/widgets/date_time_selectionwidget.dart';
 import 'package:dream_carz/presentation/screens/screen_notificationpage/screen_notification.dart';
@@ -44,6 +45,7 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
     // TODO: implement initState
     super.initState();
     context.read<FetchCitiesBloc>().add(FetchcitiesInitialEvent());
+  
       _initializeDefaultDateTime();
   }
   void _initializeDefaultDateTime() {

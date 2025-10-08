@@ -7,6 +7,7 @@ import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:dream_carz/domain/controllers/pushnotification_controller.dart';
 import 'package:dream_carz/presentation/blocs/resend_otp_bloc/resend_otp_bloc.dart';
 import 'package:dream_carz/presentation/blocs/verify_otp_bloc/verify_otp_bloc.dart';
+import 'package:dream_carz/presentation/screens/screen_bookingdetailspage/screen_bookingdetailpage.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/screen_homepage.dart';
 import 'package:dream_carz/widgets/custom_backcirclebutton.dart';
 import 'package:dream_carz/widgets/custom_loadingbutton.dart';
@@ -23,12 +24,20 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String customerId;
+    final String loginfrom;
+  final DateTime? pickupDate;
+  final TimeOfDay? pickupTime;
+  final DateTime? dropDate;
+  final TimeOfDay? dropTime;
+  final int? modelId;
+  final String? cityId;
+  final String? kmId;
 
   final String mobileNumber;
   const OtpVerificationPage({
     super.key,
     required this.customerId,
-    required this.mobileNumber,
+    required this.mobileNumber, required this.loginfrom, this.pickupDate, this.pickupTime, this.dropDate, this.dropTime, this.modelId, this.cityId, this.kmId,
   });
 
   @override
@@ -262,11 +271,27 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     child: BlocConsumer<VerifyOtpBloc, VerifyOtpState>(
                       listener: (context, state) {
                         if (state is VerifyOtpSuccessState) {
-                          // log('success');
-                          CustomNavigation.pushReplaceWithTransition(
+                          if (widget.loginfrom=="homepage") {
+                                  CustomNavigation.pushReplaceWithTransition(
                             context,
                             ScreenHomepage(),
                           );
+                          }else{
+                                      CustomNavigation.pushReplaceWithTransition(
+            context,
+            ScreenBookingdetailpage(
+              pickupDate:widget. pickupDate,
+              pickupTime:widget. pickupTime,
+              dropDate:widget. dropDate,
+              dropTime:widget. dropTime,
+              modelId:widget.modelId,          // <-- now valid
+              cityId:widget.cityId,
+              kmId:widget.kmId,
+            ),
+          );
+                          }
+                          // log('success');
+                    
                           PushNotifications().sendTokenToServer();
                         } else if (state is VerifyOtpErrorState) {
                           SnackBar(content: Text(state.message));

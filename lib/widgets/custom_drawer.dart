@@ -131,7 +131,7 @@ Future<void> _handleProfileNavigation() async {
     Navigator.of(context).pop(); // Close drawer
     CustomNavigation.pushWithTransition(
       context,
-      LoginScreen(),
+      LoginScreen(loginfrom: "homepage",),
     );
     return;
   }
@@ -157,11 +157,11 @@ Future<void> _handleProfileNavigation() async {
         if (state is FetchProfileErrorState) {
           // Check if token expired
           if (state.message.toLowerCase().contains('expired') ||
-              state.message == 'expiredtoken') {
+              state.message == "Expired token") {
             // Token expired, navigate to login
             CustomNavigation.pushWithTransition(
               context,
-              LoginScreen(),
+              LoginScreen(loginfrom: "homepage",),
             );
             return;
           }

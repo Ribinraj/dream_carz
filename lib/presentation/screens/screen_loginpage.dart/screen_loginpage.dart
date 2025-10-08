@@ -17,7 +17,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final String loginfrom;
+  final DateTime? pickupDate;
+  final TimeOfDay? pickupTime;
+  final DateTime? dropDate;
+  final TimeOfDay? dropTime;
+  final int? modelId;
+  final String? cityId;
+  final String? kmId;
+  
+  const LoginScreen({super.key, required this.loginfrom, this.pickupDate, this.pickupTime, this.dropDate, this.dropTime, this.modelId, this.cityId, this.kmId});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -185,6 +194,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                 OtpVerificationPage(
                                   customerId: state.customerId,
                                   mobileNumber: _mobileController.text,
+                                  loginfrom: widget.loginfrom,
+                                  pickupDate: widget.pickupDate,
+                                  pickupTime: widget.pickupTime,
+                                  dropDate: widget.dropDate,
+                                  dropTime: widget.dropTime,
+                                  cityId: widget.cityId,
+                                  kmId: widget.kmId,
+                                  modelId: widget.modelId,
                                 ),
                               );
                             } else if (state is SendOtpErrorState) {

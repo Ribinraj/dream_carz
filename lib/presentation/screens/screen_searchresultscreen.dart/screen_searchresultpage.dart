@@ -1084,6 +1084,8 @@
 //   final bool isAvailable;
 //   final String imageAsset;
 
+// ignore_for_file: use_build_context_synchronously
+
 //   CarModel({
 //     required this.name,
 //     required this.price,
@@ -1109,8 +1111,10 @@ import 'package:dream_carz/presentation/blocs/fetch_categories_bloc/fetch_catego
 import 'package:dream_carz/presentation/blocs/fetch_cities_bloc/fetch_cities_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_kmplans_bloc/fetch_kmplans_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_cars_bloc/fetch_cars_bloc.dart'; // Import FetchCarsBloc
+import 'package:dream_carz/presentation/blocs/fetch_profile_bloc/fetch_profile_bloc.dart';
 import 'package:dream_carz/presentation/screens/screen_bookingdetailspage/screen_bookingdetailpage.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/widgets/date_time_selectionwidget.dart';
+import 'package:dream_carz/presentation/screens/screen_loginpage.dart/screen_loginpage.dart';
 import 'package:dream_carz/presentation/screens/screen_searchresultscreen.dart/widgets/customloading.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:dream_carz/widgets/custom_snackbar.dart';
@@ -1121,6 +1125,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ScreenSearchresultpage extends StatefulWidget {
   final DateTime fromDate;
@@ -1149,7 +1154,7 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
   String selectedCityName = 'Select City';
   String? selectedCategoryId;
   String selectedCategoryName = 'Select Car Type';
- bool _kmInitialized = false;
+  bool _kmInitialized = false;
   bool showCityOptions = false;
   bool showCarTypeOptions = false;
 
@@ -1282,214 +1287,328 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
     final dt = DateTime(now.year, now.month, now.day, t.hour, t.minute);
     return DateFormat('h:mm a').format(dt);
   }
-void _openDateTimeTopSheet() {
-  DateTime tempFromDate = pickupDate;
-  TimeOfDay tempFromTime = pickupTime;
-  DateTime tempToDate = dropDate;
-  TimeOfDay tempToTime = dropTime;
 
-  showGeneralDialog(
-    context: context,
-    barrierDismissible: true,
-    barrierLabel: 'Edit Date/Time',
-    transitionDuration: const Duration(milliseconds: 260),
-    pageBuilder: (ctx, anim1, anim2) {
-      // Use StatefulBuilder to manage state within the dialog
-      return StatefulBuilder(
-        builder: (context, setDialogState) {
-          return SafeArea(
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  margin: EdgeInsets.symmetric(
-                    horizontal: ResponsiveUtils.wp(4),
-                    vertical: ResponsiveUtils.hp(2),
-                  ),
-                  padding: EdgeInsets.all(ResponsiveUtils.wp(4)),
-                  decoration: BoxDecoration(
-                    color: Appcolors.kwhitecolor,
-                    borderRadius: BorderRadiusStyles.kradius10(),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(25),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          ResponsiveText(
-                            'Edit Pickup & Drop',
-                            weight: FontWeight.w700,
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            padding: EdgeInsets.zero,
-                            icon: Icon(Icons.close, size: ResponsiveUtils.sp(5)),
-                            onPressed: () => Navigator.of(ctx).pop(),
-                          ),
-                        ],
-                      ),
-                      ResponsiveSizedBox.height10,
-                      
-                      // FROM Section
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: ResponsiveText('From', weight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 8),
-                      FromDateTimeSelectionWidget(
-                        key: ValueKey('from_picker_${tempFromDate}_${tempFromTime}'),
-                        initialDate: tempFromDate,
-                        initialTime: tempFromTime,
-                        onDateTimeChanged: (d, t) {
-                          setDialogState(() {
-                            tempFromDate = d;
-                            tempFromTime = t;
-                            
-                            // Check if current "To" selection is still valid
-                            final fromDt = DateTime(
-                              tempFromDate.year,
-                              tempFromDate.month,
-                              tempFromDate.day,
-                              tempFromTime.hour,
-                              tempFromTime.minute,
-                            );
-                            final toDt = DateTime(
-                              tempToDate.year,
-                              tempToDate.month,
-                              tempToDate.day,
-                              tempToTime.hour,
-                              tempToTime.minute,
-                            );
-                            final minAllowed = fromDt.add(const Duration(hours: 12));
-                            
-                            // If "To" is now invalid, reset it to minimum allowed
-                            if (toDt.isBefore(minAllowed)) {
-                              tempToDate = DateTime(
-                                minAllowed.year,
-                                minAllowed.month,
-                                minAllowed.day,
-                              );
-                              tempToTime = TimeOfDay(
-                                hour: minAllowed.hour,
-                                minute: minAllowed.minute,
-                              );
-                            }
-                          });
-                        },
-                      ),
-                      
-                      ResponsiveSizedBox.height10,
-                      Divider(thickness: 1),
-                      ResponsiveSizedBox.height10,
-                      
-                      // TO Section
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: ResponsiveText('To', weight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 8),
-                      ToDateTimeSelectionWidget(
-                        key: ValueKey('to_picker_${tempFromDate}_${tempFromTime}_${tempToDate}_${tempToTime}'),
-                        initialDate: tempToDate,
-                        initialTime: tempToTime,
-                        minDateTime: DateTime(
-                          tempFromDate.year,
-                          tempFromDate.month,
-                          tempFromDate.day,
-                          tempFromTime.hour,
-                          tempFromTime.minute,
-                        ).add(const Duration(hours: 12)),
-                        onDateTimeChanged: (d, t) {
-                          setDialogState(() {
-                            tempToDate = d;
-                            tempToTime = t;
-                          });
-                        },
-                      ),
-                      
-                      ResponsiveSizedBox.height15,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                            onPressed: () => Navigator.of(ctx).pop(),
-                            child: TextStyles.body(text: 'Cancel'),
-                          ),
-                          SizedBox(width: ResponsiveUtils.wp(2)),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Appcolors.kblackcolor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadiusStyles.kradius10(),
-                              ),
+  void _openDateTimeTopSheet() {
+    DateTime tempFromDate = pickupDate;
+    TimeOfDay tempFromTime = pickupTime;
+    DateTime tempToDate = dropDate;
+    TimeOfDay tempToTime = dropTime;
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Edit Date/Time',
+      transitionDuration: const Duration(milliseconds: 260),
+      pageBuilder: (ctx, anim1, anim2) {
+        // Use StatefulBuilder to manage state within the dialog
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return SafeArea(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    margin: EdgeInsets.symmetric(
+                      horizontal: ResponsiveUtils.wp(4),
+                      vertical: ResponsiveUtils.hp(2),
+                    ),
+                    padding: EdgeInsets.all(ResponsiveUtils.wp(4)),
+                    decoration: BoxDecoration(
+                      color: Appcolors.kwhitecolor,
+                      borderRadius: BorderRadiusStyles.kradius10(),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(25),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            ResponsiveText(
+                              'Edit Pickup & Drop',
+                              weight: FontWeight.w700,
                             ),
-                            onPressed: () {
-                              final DateTime fromDt = DateTime(
+                            const Spacer(),
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: Icon(
+                                Icons.close,
+                                size: ResponsiveUtils.sp(5),
+                              ),
+                              onPressed: () => Navigator.of(ctx).pop(),
+                            ),
+                          ],
+                        ),
+                        ResponsiveSizedBox.height10,
+
+                        // FROM Section
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: ResponsiveText(
+                            'From',
+                            weight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        FromDateTimeSelectionWidget(
+                          key: ValueKey(
+                            'from_picker_${tempFromDate}_${tempFromTime}',
+                          ),
+                          initialDate: tempFromDate,
+                          initialTime: tempFromTime,
+                          onDateTimeChanged: (d, t) {
+                            setDialogState(() {
+                              tempFromDate = d;
+                              tempFromTime = t;
+
+                              // Check if current "To" selection is still valid
+                              final fromDt = DateTime(
                                 tempFromDate.year,
                                 tempFromDate.month,
                                 tempFromDate.day,
                                 tempFromTime.hour,
                                 tempFromTime.minute,
                               );
-                              final DateTime toDt = DateTime(
+                              final toDt = DateTime(
                                 tempToDate.year,
                                 tempToDate.month,
                                 tempToDate.day,
                                 tempToTime.hour,
                                 tempToTime.minute,
                               );
+                              final minAllowed = fromDt.add(
+                                const Duration(hours: 12),
+                              );
 
-                              // Validate 12-hour minimum gap
-                              final minAllowed = fromDt.add(const Duration(hours: 12));
+                              // If "To" is now invalid, reset it to minimum allowed
                               if (toDt.isBefore(minAllowed)) {
-                                CustomSnackbar.show(
-                                  context,
-                                  message:
-                                      'Drop date/time must be at least 12 hours after pickup',
-                                  type: SnackbarType.error,
+                                tempToDate = DateTime(
+                                  minAllowed.year,
+                                  minAllowed.month,
+                                  minAllowed.day,
                                 );
-                                return;
+                                tempToTime = TimeOfDay(
+                                  hour: minAllowed.hour,
+                                  minute: minAllowed.minute,
+                                );
                               }
+                            });
+                          },
+                        ),
 
-                              setState(() {
-                                pickupDate = tempFromDate;
-                                pickupTime = tempFromTime;
-                                dropDate = tempToDate;
-                                dropTime = tempToTime;
-                              });
+                        ResponsiveSizedBox.height10,
+                        Divider(thickness: 1),
+                        ResponsiveSizedBox.height10,
 
-                              Navigator.of(ctx).pop();
-
-                              // Trigger new search with updated dates
-                              _searchCars();
-                            },
-                            child: TextStyles.body(
-                              text: 'Submit',
-                              color: Appcolors.kwhitecolor,
-                            ),
+                        // TO Section
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: ResponsiveText('To', weight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 8),
+                        ToDateTimeSelectionWidget(
+                          key: ValueKey(
+                            'to_picker_${tempFromDate}_${tempFromTime}_${tempToDate}_${tempToTime}',
                           ),
-                        ],
-                      ),
-                    ],
+                          initialDate: tempToDate,
+                          initialTime: tempToTime,
+                          minDateTime: DateTime(
+                            tempFromDate.year,
+                            tempFromDate.month,
+                            tempFromDate.day,
+                            tempFromTime.hour,
+                            tempFromTime.minute,
+                          ).add(const Duration(hours: 12)),
+                          onDateTimeChanged: (d, t) {
+                            setDialogState(() {
+                              tempToDate = d;
+                              tempToTime = t;
+                            });
+                          },
+                        ),
+
+                        ResponsiveSizedBox.height15,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(),
+                              child: TextStyles.body(text: 'Cancel'),
+                            ),
+                            SizedBox(width: ResponsiveUtils.wp(2)),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Appcolors.kblackcolor,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadiusStyles.kradius10(),
+                                ),
+                              ),
+                              onPressed: () {
+                                final DateTime fromDt = DateTime(
+                                  tempFromDate.year,
+                                  tempFromDate.month,
+                                  tempFromDate.day,
+                                  tempFromTime.hour,
+                                  tempFromTime.minute,
+                                );
+                                final DateTime toDt = DateTime(
+                                  tempToDate.year,
+                                  tempToDate.month,
+                                  tempToDate.day,
+                                  tempToTime.hour,
+                                  tempToTime.minute,
+                                );
+
+                                // Validate 12-hour minimum gap
+                                final minAllowed = fromDt.add(
+                                  const Duration(hours: 12),
+                                );
+                                if (toDt.isBefore(minAllowed)) {
+                                  CustomSnackbar.show(
+                                    context,
+                                    message:
+                                        'Drop date/time must be at least 12 hours after pickup',
+                                    type: SnackbarType.error,
+                                  );
+                                  return;
+                                }
+
+                                setState(() {
+                                  pickupDate = tempFromDate;
+                                  pickupTime = tempFromTime;
+                                  dropDate = tempToDate;
+                                  dropTime = tempToTime;
+                                });
+
+                                Navigator.of(ctx).pop();
+
+                                // Trigger new search with updated dates
+                                _searchCars();
+                              },
+                              child: TextStyles.body(
+                                text: 'Submit',
+                                color: Appcolors.kwhitecolor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
-      );
-    },
-  );
-}
+            );
+          },
+        );
+      },
+    );
+  }
 
+  Future<bool> _checkTokenExists() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String token = preferences.getString('USER_TOKEN') ?? '';
+    return token.isNotEmpty;
+  }
+
+  Future<void> _handleCheckoutNavigation(
+    BuildContext context,
+    CarsModel car,
+  ) async {
+    final hasToken = await _checkTokenExists();
+
+    if (!hasToken) {
+      CustomNavigation.pushWithTransition(
+        context,
+        LoginScreen(
+          loginfrom: "searchpage",
+          pickupDate: pickupDate,
+          pickupTime: pickupTime,
+          dropDate: dropDate,
+          dropTime: dropTime,
+          modelId: car.modelId, // <-- now valid
+          cityId: selectedCityId,
+          kmId: selectedKmId,
+        ),
+      );
+      return;
+    }
+
+    context.read<FetchProfileBloc>().add(FetchProfileInitialEvent());
+
+    // showDialog(
+    //   context: context,
+    //   barrierDismissible: false,
+    //   builder: (context) => const Center(child: CircularProgressIndicator()),
+    // );
+
+    context
+        .read<FetchProfileBloc>()
+        .stream
+        .firstWhere(
+          (state) =>
+              state is FetchProfileSuccessState ||
+              state is FetchProfileErrorState,
+        )
+        .then((state) {
+          if (!context.mounted) return;
+
+          if (state is FetchProfileErrorState) {
+            if (state.message.toLowerCase().contains('expired') ||
+                state.message == 'expiredtoken') {
+              CustomNavigation.pushWithTransition(
+                context,
+                LoginScreen(loginfrom: "searchpage"),
+              );
+            } else {
+              CustomNavigation.pushWithTransition(
+                context,
+                ScreenBookingdetailpage(
+                  pickupDate: pickupDate,
+                  pickupTime: pickupTime,
+                  dropDate: dropDate,
+                  dropTime: dropTime,
+                  modelId: car.modelId, // <-- now valid
+                  cityId: selectedCityId,
+                  kmId: selectedKmId,
+                ),
+              );
+            }
+          } else if (state is FetchProfileSuccessState) {
+            // (Optional) Handle the success path too
+            CustomNavigation.pushWithTransition(
+              context,
+              ScreenBookingdetailpage(
+                pickupDate: pickupDate,
+                pickupTime: pickupTime,
+                dropDate: dropDate,
+                dropTime: dropTime,
+                modelId: car.modelId,
+                cityId: selectedCityId,
+                kmId: selectedKmId,
+              ),
+            );
+          }
+        })
+        .timeout(
+          const Duration(seconds: 10),
+          onTimeout: () {
+            if (context.mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Request timeout. Please try again.'),
+                ),
+              );
+            }
+          },
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1548,11 +1667,7 @@ void _openDateTimeTopSheet() {
                                 InkWell(
                                   onTap: _openDateTimeTopSheet,
                                   child: ResponsiveText(
-                                    DateFormat(
-                                          'dd MMM yyyy',
-                                        ).format(pickupDate) +
-                                        '  ' +
-                                        _formatTimeOfDay(pickupTime),
+                                    '${DateFormat('dd MMM yyyy').format(pickupDate)}  ${_formatTimeOfDay(pickupTime)}',
                                     sizeFactor: 0.8,
                                     weight: FontWeight.w600,
                                   ),
@@ -1565,9 +1680,7 @@ void _openDateTimeTopSheet() {
                                 InkWell(
                                   onTap: _openDateTimeTopSheet,
                                   child: ResponsiveText(
-                                    DateFormat('dd MMM yyyy').format(dropDate) +
-                                        '  ' +
-                                        _formatTimeOfDay(dropTime),
+                                    '${DateFormat('dd MMM yyyy').format(dropDate)}  ${_formatTimeOfDay(dropTime)}',
                                     sizeFactor: 0.8,
                                     weight: FontWeight.w600,
                                   ),
@@ -1829,23 +1942,24 @@ void _openDateTimeTopSheet() {
                             if (fetchedKmPlans.isEmpty) {
                               return Center(child: Text('No plans available'));
                             }
-   // Initialize (only once) to the first active plan and trigger a search.
-        if (!_kmInitialized && fetchedKmPlans.isNotEmpty) {
-          // mark initialized immediately so we don't schedule multiple callbacks
-          _kmInitialized = true;
+                            // Initialize (only once) to the first active plan and trigger a search.
+                            if (!_kmInitialized && fetchedKmPlans.isNotEmpty) {
+                              // mark initialized immediately so we don't schedule multiple callbacks
+                              _kmInitialized = true;
 
-          // Schedule setState & search after this frame to avoid calling setState in build
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            setState(() {
-              selectedKmId = fetchedKmPlans.first.kmId;
-              selectedKmLimit = fetchedKmPlans.first.kmLimit;
-            });
+                              // Schedule setState & search after this frame to avoid calling setState in build
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (!mounted) return;
+                                setState(() {
+                                  selectedKmId = fetchedKmPlans.first.kmId;
+                                  selectedKmLimit =
+                                      fetchedKmPlans.first.kmLimit;
+                                });
 
-            // Trigger initial search with the default KM plan
-            _searchCars();
-          });
-        }
+                                // Trigger initial search with the default KM plan
+                                _searchCars();
+                              });
+                            }
                             return ListView.separated(
                               scrollDirection: Axis.horizontal,
                               padding: EdgeInsets.only(
@@ -1930,53 +2044,62 @@ void _openDateTimeTopSheet() {
               Expanded(
                 child: RefreshIndicator(
                   // Replace your current onRefresh callback with this:
-                  onRefresh: () async {
-                    final DateTime fromDateTimeRefresh = DateTime(
-                      pickupDate.year,
-                      pickupDate.month,
-                      pickupDate.day,
-                      pickupTime.hour,
-                      pickupTime.minute,
-                    );
-                    final DateTime toDateTimeRefresh = DateTime(
-                      dropDate.year,
-                      dropDate.month,
-                      dropDate.day,
-                      dropTime.hour,
-                      dropTime.minute,
-                    );
+               // Replace your current onRefresh callback with this:
+onRefresh: () async {
+  final DateTime fromDateTimeRefresh = DateTime(
+    pickupDate.year,
+    pickupDate.month,
+    pickupDate.day,
+    pickupTime.hour,
+    pickupTime.minute,
+  );
+  final DateTime toDateTimeRefresh = DateTime(
+    dropDate.year,
+    dropDate.month,
+    dropDate.day,
+    dropTime.hour,
+    dropTime.minute,
+  );
 
-                    String formatDateTime(DateTime dt) =>
-                        "${dt.year.toString().padLeft(4, '0')}-"
-                        "${dt.month.toString().padLeft(2, '0')}-"
-                        "${dt.day.toString().padLeft(2, '0')} "
-                        "${dt.hour.toString().padLeft(2, '0')}:"
-                        "${dt.minute.toString().padLeft(2, '0')}:00";
+  String formatDateTime(DateTime dt) =>
+      "${dt.year.toString().padLeft(4, '0')}-"
+      "${dt.month.toString().padLeft(2, '0')}-"
+      "${dt.day.toString().padLeft(2, '0')} "
+      "${dt.hour.toString().padLeft(2, '0')}:"
+      "${dt.minute.toString().padLeft(2, '0')}:00";
 
-                    // Reset UI state variables before making the search
-                    setState(() {
-                      selectedCategoryId = null;
-                      selectedCategoryName = 'Select Car Type';
-                      selectedKmId = null;
-                      selectedKmLimit = null;
-                      showCarTypeOptions = false;
-                    });
+  // Reset UI state variables before making the search
+  setState(() {
+    selectedCategoryId = null;
+    selectedCategoryName = 'Select Car Type';
+    
+    // Re-initialize KM plan to first active plan (same as initState)
+    if (fetchedKmPlans.isNotEmpty) {
+      selectedKmId = fetchedKmPlans.first.kmId;
+      selectedKmLimit = fetchedKmPlans.first.kmLimit;
+    } else {
+      selectedKmId = null;
+      selectedKmLimit = null;
+    }
 
-                    final searchRefresh = SearchModel(
-                      bookingFrom: formatDateTime(fromDateTimeRefresh),
-                      bookingTo: formatDateTime(toDateTimeRefresh),
-                      cityId: int.parse(
-                        selectedCityId ?? widget.selectedCityId,
-                      ),
-                      categoryId: null,
-                      kmId: null,
-                    );
+    showCarTypeOptions = false;
+  });
 
-                    context.read<FetchCarsBloc>().add(
-                      FetchCarsButtonClickEvent(search: searchRefresh),
-                    );
-                    await Future.delayed(const Duration(milliseconds: 200));
-                  },
+  final searchRefresh = SearchModel(
+    bookingFrom: formatDateTime(fromDateTimeRefresh),
+    bookingTo: formatDateTime(toDateTimeRefresh),
+    cityId: int.parse(
+      selectedCityId ?? widget.selectedCityId,
+    ),
+    categoryId: null,
+    kmId: selectedKmId != null ? int.tryParse(selectedKmId!) : null,
+  );
+
+  context.read<FetchCarsBloc>().add(
+    FetchCarsButtonClickEvent(search: searchRefresh),
+  );
+  await Future.delayed(const Duration(milliseconds: 200));
+},
                   child: BlocBuilder<FetchCarsBloc, FetchCarsState>(
                     builder: (context, state) {
                       // Loading -> show a scrollable with spinner so RefreshIndicator works
@@ -2276,10 +2399,7 @@ void _openDateTimeTopSheet() {
                               if (available)
                                 GestureDetector(
                                   onTap: () {
-                                    CustomNavigation.pushWithTransition(
-                                      context,
-                                      ScreenBookingdetailpage( pickupDate: pickupDate, pickupTime: pickupTime, dropDate: dropDate, dropTime: dropTime,modelId:car.modelId ,cityId:selectedCityId ,kmId: selectedKmId,)
-                                    );
+                                    _handleCheckoutNavigation(context, car);
                                   },
                                   child: Container(
                                     padding: EdgeInsets.symmetric(

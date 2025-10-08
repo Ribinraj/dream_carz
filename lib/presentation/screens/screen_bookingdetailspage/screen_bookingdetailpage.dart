@@ -9,10 +9,11 @@ import 'package:dream_carz/data/coupen_model.dart';
 import 'package:dream_carz/presentation/blocs/coupen_bloc/coupen_bloc.dart';
 
 import 'package:dream_carz/presentation/blocs/fetch_booking_overview_bloc/fetch_bookingoverview_bloc.dart';
-import 'package:dream_carz/presentation/blocs/fetch_profile_bloc/fetch_profile_bloc.dart';
+
 import 'package:dream_carz/presentation/screens/screen_bookingdetailspage/widgets/locationselection_widget.dart';
 import 'package:dream_carz/presentation/screens/screen_checkoutpage/screen_checkoutpage.dart';
-import 'package:dream_carz/presentation/screens/screen_loginpage.dart/screen_loginpage.dart';
+import 'package:dream_carz/presentation/screens/screen_paymentpages/screen_paymentsuccesspage.dart';
+
 import 'package:dream_carz/presentation/screens/screen_searchresultscreen.dart/widgets/customloading.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:flutter/material.dart';
@@ -20,23 +21,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 class ScreenBookingdetailpage extends StatefulWidget {
-  final DateTime pickupDate;
-  final TimeOfDay pickupTime;
-  final DateTime dropDate;
-  final TimeOfDay dropTime;
+  final DateTime? pickupDate;
+  final TimeOfDay? pickupTime;
+  final DateTime? dropDate;
+  final TimeOfDay? dropTime;
   final int? modelId;
   final String? cityId;
   final String? kmId;
 
   const ScreenBookingdetailpage({
     super.key,
-    required this.pickupDate,
-    required this.pickupTime,
-    required this.dropDate,
-    required this.dropTime,
+    this.pickupDate,
+    this.pickupTime,
+    this.dropDate,
+    this.dropTime,
     this.modelId,
     this.cityId,
     this.kmId,
@@ -75,10 +76,10 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Combine date + time (uses your existing helper in the state)
       final fromDateTime = _combineDateAndTime(
-        widget.pickupDate,
-        widget.pickupTime,
+        widget.pickupDate!,
+        widget.pickupTime!,
       );
-      final toDateTime = _combineDateAndTime(widget.dropDate, widget.dropTime);
+      final toDateTime = _combineDateAndTime(widget.dropDate!, widget.dropTime!);
 
       // Format exactly as server expects: "yyyy-MM-dd HH:mm:ss"
       final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
@@ -123,65 +124,7 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
     });
   }
 
-  Future<bool> _checkTokenExists() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String token = preferences.getString('USER_TOKEN') ?? '';
-    return token.isNotEmpty;
-  }
 
-  Future<void> _handleCheckoutNavigation(BuildContext context) async {
-    bool hasToken = await _checkTokenExists();
-
-    if (!hasToken) {
-      CustomNavigation.pushWithTransition(context, LoginScreen());
-      return;
-    }
-
-    context.read<FetchProfileBloc>().add(FetchProfileInitialEvent());
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-
-    context
-        .read<FetchProfileBloc>()
-        .stream
-        .firstWhere((state) {
-          return state is FetchProfileSuccessState ||
-              state is FetchProfileErrorState;
-        })
-        .then((state) {
-          if (!context.mounted) return;
-          Navigator.pop(context);
-
-          if (state is FetchProfileErrorState) {
-            if (state.message.toLowerCase().contains('expired') ||
-                state.message == 'expiredtoken') {
-              CustomNavigation.pushWithTransition(context, LoginScreen());
-            } else {
-              CustomNavigation.pushWithTransition(
-                context,
-                ScreenCheckoutpage(),
-              );
-            }
-          }
-        })
-        .timeout(
-          const Duration(seconds: 10),
-          onTimeout: () {
-            if (context.mounted) {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Request timeout. Please try again.'),
-                ),
-              );
-            }
-          },
-        );
-  }
 
   DateTime _combineDateAndTime(DateTime date, TimeOfDay time) {
     return DateTime(date.year, date.month, date.day, time.hour, time.minute);
@@ -222,12 +165,12 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
     }
   }
 
-  // Calculate GST on discounted base fare
-  double _calculateGST(double baseFare) {
-    final discountAmount = _calculateDiscount(baseFare);
-    final discountedBaseFare = baseFare - discountAmount;
-    return (discountedBaseFare * 0.18);
-  }
+  // // Calculate GST on discounted base fare
+  // double _calculateGST(double baseFare) {
+  //   final discountAmount = _calculateDiscount(baseFare);
+  //   final discountedBaseFare = baseFare - discountAmount;
+  //   return (discountedBaseFare * 0.18);
+  // }
 
   // Calculate total payable amount
   double _calculatePayableAmount(BookingOverviewModel model) {
@@ -486,16 +429,12 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
           ResponsiveSizedBox.height20,
           _buildBookingDetailRow(
             'Start Date',
-            DateFormat('dd MMM yyyy').format(widget.pickupDate) +
-                '  ' +
-                _formatTimeOfDay(widget.pickupTime),
+            '${DateFormat('dd MMM yyyy').format(widget.pickupDate!)}  ${_formatTimeOfDay(widget.pickupTime!)}',
           ),
           ResponsiveSizedBox.height10,
           _buildBookingDetailRow(
             'End Date',
-            DateFormat('dd MMM yyyy').format(widget.dropDate) +
-                '  ' +
-                _formatTimeOfDay(widget.dropTime),
+            '${DateFormat('dd MMM yyyy').format(widget.dropDate!)}  ${_formatTimeOfDay(widget.dropTime!)}',
           ),
           ResponsiveSizedBox.height10,
 
@@ -1021,10 +960,7 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
                       child: SizedBox(
                         width: ResponsiveUtils.wp(10),
                         height: ResponsiveUtils.hp(2),
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
+                        child:SpinKitWave(size: 15,color: Appcolors.kwhitecolor,)
                       ),
                     );
                   }
@@ -1182,7 +1118,7 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
       margin: EdgeInsets.all(ResponsiveUtils.wp(4)),
       child: ElevatedButton(
         onPressed: () {
-          CustomNavigation.pushWithTransition(context, ScreenCheckoutpage());
+          CustomNavigation.pushWithTransition(context, PaymentSuccessPage(amount: "3000", transactionId:"kslf33455"));
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.red,

@@ -88,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeController.forward();
 
     // Navigate to next screen after total duration
-    await Future.delayed(const Duration(milliseconds: 4500));
+    await Future.delayed(const Duration(milliseconds: 2000));
     _navigateToNextScreen();
   }
 
@@ -106,7 +106,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-            SystemChrome.setSystemUIOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light, // White icons
@@ -129,7 +129,7 @@ class _SplashScreenState extends State<SplashScreen>
               ]),
               builder: (context, child) {
                 return Transform.scale(
-                  scale: _scaleAnimation.value, 
+                  scale: _scaleAnimation.value,
                   child: Transform.rotate(
                     angle: _rotationAnimation.value,
                     child: Container(
