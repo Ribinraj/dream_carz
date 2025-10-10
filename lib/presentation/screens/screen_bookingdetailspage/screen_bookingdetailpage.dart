@@ -12,6 +12,7 @@ import 'package:dream_carz/presentation/blocs/fetch_booking_overview_bloc/fetch_
 
 import 'package:dream_carz/presentation/screens/screen_bookingdetailspage/widgets/locationselection_widget.dart';
 import 'package:dream_carz/presentation/screens/screen_checkoutpage/screen_checkoutpage.dart';
+import 'package:dream_carz/presentation/screens/screen_networkpage/screen_networkpage.dart';
 import 'package:dream_carz/presentation/screens/screen_paymentpages/screen_paymentsuccesspage.dart';
 
 import 'package:dream_carz/presentation/screens/screen_searchresultscreen.dart/widgets/customloading.dart';
@@ -212,110 +213,112 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Appcolors.kbackgroundcolor,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(
-            Icons.chevron_left,
-            size: ResponsiveUtils.wp(8),
-            color: Colors.black,
+    return ConnectivityAwareWidget(
+      child: Scaffold(
+        backgroundColor: Appcolors.kbackgroundcolor,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(
+              Icons.chevron_left,
+              size: ResponsiveUtils.wp(8),
+              color: Colors.black,
+            ),
           ),
+          title: TextStyles.subheadline(
+            text: 'Booking Summary',
+            color: const Color(0xFF1A365D),
+          ),
+          centerTitle: false,
         ),
-        title: TextStyles.subheadline(
-          text: 'Booking Summary',
-          color: const Color(0xFF1A365D),
-        ),
-        centerTitle: false,
-      ),
-      body: MultiBlocListener(
-        listeners:[
-                   BlocListener<CoupenBloc, CoupenState>(
-            listener: (context, state) {
-              if (state is CoupenSuccessState) {
-                setState(() {
-                  appliedCoupon = state.coupen;
-                  isCouponApplied = true;
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Coupon applied successfully!'),
-                    backgroundColor: Colors.green,
+        body: MultiBlocListener(
+          listeners:[
+                     BlocListener<CoupenBloc, CoupenState>(
+              listener: (context, state) {
+                if (state is CoupenSuccessState) {
+                  setState(() {
+                    appliedCoupon = state.coupen;
+                    isCouponApplied = true;
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Coupon applied successfully!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else if (state is CoupenErrorState) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+          child: BlocBuilder<FetchBookingoverviewBloc, FetchBookingoverviewState>(
+            builder: (context, state) {
+              if (state is FetchBookingoverviewLoadingState) {
+                return Container(
+                  color: Appcolors.kwhitecolor,
+                  child: Center(
+                    child: RotatingSteeringWheel(
+                      size: ResponsiveUtils.wp(30),
+                      steeringWheelAssetPath: Appconstants.splashlogo,
+                    ),
                   ),
                 );
-              } else if (state is CoupenErrorState) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.message),
-                    backgroundColor: Colors.red,
-                  ),
+              } else if (state is FetchBookingoverviewSuccessState) {
+                // inside builder when state is FetchBookingoverviewSuccessState
+                final booking = state.booking;
+      
+                // copy branches (server may return empty list)
+                availableBranches = booking.availableBranches;
+      
+                // auto-select first branch only if not selected already
+                if (availableBranches.isNotEmpty && selectedBranchId == null) {
+                  // schedule after frame to safely call setState
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (!mounted) return;
+                    setState(() {
+                      selectedBranchId = availableBranches.first.branchId;
+                      selectedBranchName =
+                          availableBranches.first.name ?? 'Pickup Location';
+                    });
+                  });
+                }
+                return Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(ResponsiveUtils.wp(4)),
+                        child: Column(
+                          children: [
+                            _buildCarDetailsCard(state.booking),
+                            ResponsiveSizedBox.height20,
+                            _buildFulfillmentDetailsCard(),
+                            ResponsiveSizedBox.height20,
+                            _buildCouponCard(),
+                            ResponsiveSizedBox.height20,
+                            _buildPriceDetailsCard(state.booking),
+                          ],
+                        ),
+                      ),
+                    ),
+                    _buildProceedButton(),
+                  ],
                 );
+              } else if (state is FetchBookingoverviewErrorState) {
+                return Center(child: Text(state.message));
+              } else {
+                return const SizedBox.shrink();
               }
             },
           ),
-        ],
-        child: BlocBuilder<FetchBookingoverviewBloc, FetchBookingoverviewState>(
-          builder: (context, state) {
-            if (state is FetchBookingoverviewLoadingState) {
-              return Container(
-                color: Appcolors.kwhitecolor,
-                child: Center(
-                  child: RotatingSteeringWheel(
-                    size: ResponsiveUtils.wp(30),
-                    steeringWheelAssetPath: Appconstants.splashlogo,
-                  ),
-                ),
-              );
-            } else if (state is FetchBookingoverviewSuccessState) {
-              // inside builder when state is FetchBookingoverviewSuccessState
-              final booking = state.booking;
-
-              // copy branches (server may return empty list)
-              availableBranches = booking.availableBranches;
-
-              // auto-select first branch only if not selected already
-              if (availableBranches.isNotEmpty && selectedBranchId == null) {
-                // schedule after frame to safely call setState
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (!mounted) return;
-                  setState(() {
-                    selectedBranchId = availableBranches.first.branchId;
-                    selectedBranchName =
-                        availableBranches.first.name ?? 'Pickup Location';
-                  });
-                });
-              }
-              return Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.all(ResponsiveUtils.wp(4)),
-                      child: Column(
-                        children: [
-                          _buildCarDetailsCard(state.booking),
-                          ResponsiveSizedBox.height20,
-                          _buildFulfillmentDetailsCard(),
-                          ResponsiveSizedBox.height20,
-                          _buildCouponCard(),
-                          ResponsiveSizedBox.height20,
-                          _buildPriceDetailsCard(state.booking),
-                        ],
-                      ),
-                    ),
-                  ),
-                  _buildProceedButton(),
-                ],
-              );
-            } else if (state is FetchBookingoverviewErrorState) {
-              return Center(child: Text(state.message));
-            } else {
-              return const SizedBox.shrink();
-            }
-          },
         ),
       ),
     );

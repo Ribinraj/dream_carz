@@ -50,4 +50,5 @@ dependencies {
     // Core library desugaring runtime to support Java 8+ APIs on older Android devices
     // Use a recent version; 2.1.5 is commonly used (replace if you want a different version).
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+      implementation("com.google.android.material:material:1.12.0")
 }

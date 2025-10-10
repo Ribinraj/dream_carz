@@ -86,6 +86,7 @@ class Apprepo {
   //   //////////------------fetchcars-----------/////////////////
   Future<ApiResponse<List<CarsModel>>>fetchedCars({required SearchModel search}) async {
     // log('pushtoken when login ${user.pushToken}');
+    
     try {
       Response response = await dio.post(Endpoints.searchcars, data: search);
       final responseData = response.data;

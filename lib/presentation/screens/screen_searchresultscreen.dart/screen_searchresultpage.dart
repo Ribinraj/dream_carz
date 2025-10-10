@@ -1115,6 +1115,7 @@ import 'package:dream_carz/presentation/blocs/fetch_profile_bloc/fetch_profile_b
 import 'package:dream_carz/presentation/screens/screen_bookingdetailspage/screen_bookingdetailpage.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/widgets/date_time_selectionwidget.dart';
 import 'package:dream_carz/presentation/screens/screen_loginpage.dart/screen_loginpage.dart';
+import 'package:dream_carz/presentation/screens/screen_networkpage/screen_networkpage.dart';
 import 'package:dream_carz/presentation/screens/screen_searchresultscreen.dart/widgets/customloading.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:dream_carz/widgets/custom_snackbar.dart';
@@ -1618,509 +1619,551 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
       ),
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF5F5F0),
-        body: SafeArea(
-          child: Column(
-            children: [
-              Container(
-                color: const Color(0xFFF5F5F0),
-                padding: EdgeInsets.fromLTRB(
-                  ResponsiveUtils.wp(4),
-                  ResponsiveUtils.hp(3),
-                  ResponsiveUtils.wp(4),
-                  ResponsiveUtils.hp(2),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        InkWell(
-                          onTap: () => Navigator.of(context).pop(),
-                          child: Container(
-                            padding: EdgeInsets.all(ResponsiveUtils.wp(1.5)),
-                            decoration: BoxDecoration(
-                              color: Appcolors.kprimarycolor,
-                              borderRadius: BorderRadiusStyles.kradius10(),
-                              border: Border.all(color: Colors.grey.shade300),
-                            ),
-                            child: Icon(
-                              Icons.chevron_left,
-                              color: Appcolors.kwhitecolor,
-                            ),
-                          ),
-                        ),
-                        ResponsiveSizedBox.width10,
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.all(ResponsiveUtils.wp(2.1)),
-                            decoration: BoxDecoration(
-                              color: Appcolors.kwhitecolor,
-                              borderRadius: BorderRadiusStyles.kradius5(),
-                              border: Border.all(color: Colors.grey.shade300),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                InkWell(
-                                  onTap: _openDateTimeTopSheet,
-                                  child: ResponsiveText(
-                                    '${DateFormat('dd MMM yyyy').format(pickupDate)}  ${_formatTimeOfDay(pickupTime)}',
-                                    sizeFactor: 0.8,
-                                    weight: FontWeight.w600,
-                                  ),
-                                ),
-                                ResponsiveText(
-                                  'To',
-                                  sizeFactor: 0.75,
-                                  color: const Color(0xFFE74C3C),
-                                ),
-                                InkWell(
-                                  onTap: _openDateTimeTopSheet,
-                                  child: ResponsiveText(
-                                    '${DateFormat('dd MMM yyyy').format(dropDate)}  ${_formatTimeOfDay(dropTime)}',
-                                    sizeFactor: 0.8,
-                                    weight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: ResponsiveUtils.wp(2)),
-                      ],
-                    ),
-
-                    ResponsiveSizedBox.height10,
-
-                    // City & CarType selection
-                    SizedBox(
-                      height: ResponsiveUtils.hp(5.5),
-                      child: Row(
+      child: ConnectivityAwareWidget(
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF5F5F0),
+          body: SafeArea(
+            child: Column(
+              children: [
+                Container(
+                  color: const Color(0xFFF5F5F0),
+                  padding: EdgeInsets.fromLTRB(
+                    ResponsiveUtils.wp(4),
+                    ResponsiveUtils.hp(3),
+                    ResponsiveUtils.wp(4),
+                    ResponsiveUtils.hp(2),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
+                          InkWell(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: Container(
+                              padding: EdgeInsets.all(ResponsiveUtils.wp(1.5)),
+                              decoration: BoxDecoration(
+                                color: Appcolors.kprimarycolor,
+                                borderRadius: BorderRadiusStyles.kradius10(),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: Icon(
+                                Icons.chevron_left,
+                                color: Appcolors.kwhitecolor,
+                              ),
+                            ),
+                          ),
+                          ResponsiveSizedBox.width10,
                           Expanded(
-                            child:
-                                BlocBuilder<FetchCitiesBloc, FetchCitiesState>(
-                                  builder: (context, state) {
-                                    if (state is FetchCitiesLoadingState) {
-                                      return _buildSelectionButton(
-                                        title: 'Loading...',
-                                        icon: Icons.location_city,
-                                        onTap: () {},
-                                      );
-                                    }
-
-                                    if (state is FetchCitiesSuccessState) {
-                                      fetchedCities = state.cities
-                                          .where(
-                                            (c) =>
-                                                c.status.toLowerCase() ==
-                                                'active',
-                                          )
-                                          .toList();
-
-                                      if (selectedCityId != null &&
-                                          selectedCityName == 'Select City') {
-                                        final found = fetchedCities.firstWhere(
-                                          (c) => c.cityId == selectedCityId,
-                                          orElse: () => fetchedCities.isNotEmpty
-                                              ? fetchedCities.first
-                                              : CityModel(
-                                                  cityId: '',
-                                                  name: 'Select City',
-                                                  status: '',
-                                                  createdAt: '',
-                                                  modifiedAt: '',
-                                                ),
+                            child: Container(
+                              padding: EdgeInsets.all(ResponsiveUtils.wp(2.1)),
+                              decoration: BoxDecoration(
+                                color: Appcolors.kwhitecolor,
+                                borderRadius: BorderRadiusStyles.kradius5(),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  InkWell(
+                                    onTap: _openDateTimeTopSheet,
+                                    child: ResponsiveText(
+                                      '${DateFormat('dd MMM yyyy').format(pickupDate)}  ${_formatTimeOfDay(pickupTime)}',
+                                      sizeFactor: 0.8,
+                                      weight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  ResponsiveText(
+                                    'To',
+                                    sizeFactor: 0.75,
+                                    color: const Color(0xFFE74C3C),
+                                  ),
+                                  InkWell(
+                                    onTap: _openDateTimeTopSheet,
+                                    child: ResponsiveText(
+                                      '${DateFormat('dd MMM yyyy').format(dropDate)}  ${_formatTimeOfDay(dropTime)}',
+                                      sizeFactor: 0.8,
+                                      weight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: ResponsiveUtils.wp(2)),
+                        ],
+                      ),
+        
+                      ResponsiveSizedBox.height10,
+        
+                      // City & CarType selection
+                      SizedBox(
+                        height: ResponsiveUtils.hp(5.5),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child:
+                                  BlocBuilder<FetchCitiesBloc, FetchCitiesState>(
+                                    builder: (context, state) {
+                                      if (state is FetchCitiesLoadingState) {
+                                        return _buildSelectionButton(
+                                          title: 'Loading...',
+                                          icon: Icons.location_city,
+                                          onTap: () {},
                                         );
-                                        if (found.cityId.isNotEmpty) {
-                                          selectedCityName = found.name;
-                                        }
                                       }
-
+        
+                                      if (state is FetchCitiesSuccessState) {
+                                        fetchedCities = state.cities
+                                            .where(
+                                              (c) =>
+                                                  c.status.toLowerCase() ==
+                                                  'active',
+                                            )
+                                            .toList();
+        
+                                        if (selectedCityId != null &&
+                                            selectedCityName == 'Select City') {
+                                          final found = fetchedCities.firstWhere(
+                                            (c) => c.cityId == selectedCityId,
+                                            orElse: () => fetchedCities.isNotEmpty
+                                                ? fetchedCities.first
+                                                : CityModel(
+                                                    cityId: '',
+                                                    name: 'Select City',
+                                                    status: '',
+                                                    createdAt: '',
+                                                    modifiedAt: '',
+                                                  ),
+                                          );
+                                          if (found.cityId.isNotEmpty) {
+                                            selectedCityName = found.name;
+                                          }
+                                        }
+        
+                                        return _buildSelectionButton(
+                                          title: selectedCityName,
+                                          icon: Icons.location_city,
+                                          onTap: _toggleCityOptions,
+                                        );
+                                      }
+        
                                       return _buildSelectionButton(
                                         title: selectedCityName,
                                         icon: Icons.location_city,
                                         onTap: _toggleCityOptions,
                                       );
-                                    }
-
-                                    return _buildSelectionButton(
-                                      title: selectedCityName,
-                                      icon: Icons.location_city,
-                                      onTap: _toggleCityOptions,
-                                    );
-                                  },
-                                ),
-                          ),
-
-                          ResponsiveSizedBox.width10,
-
-                          Expanded(
-                            child:
-                                BlocBuilder<
-                                  FetchCategoriesBloc,
-                                  FetchCategoriesState
-                                >(
-                                  builder: (context, state) {
-                                    if (state is FetchCategoriesLoadingState) {
-                                      return _buildSelectionButton(
-                                        title: 'Loading...',
-                                        icon: Icons.directions_car,
-                                        onTap: () {},
-                                      );
-                                    }
-
-                                    if (state is FetchCategoriesSuccessState) {
-                                      fetchedCategories = state.categories;
-
-                                      if (selectedCategoryId != null &&
-                                          selectedCategoryName ==
-                                              'Select Car Type') {
-                                        final found = fetchedCategories
-                                            .firstWhere(
-                                              (c) =>
-                                                  c.categoryId ==
-                                                  selectedCategoryId,
-                                              orElse: () => CategoriesModel(
-                                                categoryId: '',
-                                                fleetTypeId: '',
-                                                categoryName: 'Select Car Type',
-                                                status: '',
-                                                createdAt: '',
-                                                modifiedAt: '',
-                                              ),
-                                            );
-                                        if (found.categoryId.isNotEmpty) {
-                                          selectedCategoryName =
-                                              found.categoryName;
-                                        }
+                                    },
+                                  ),
+                            ),
+        
+                            ResponsiveSizedBox.width10,
+        
+                            Expanded(
+                              child:
+                                  BlocBuilder<
+                                    FetchCategoriesBloc,
+                                    FetchCategoriesState
+                                  >(
+                                    builder: (context, state) {
+                                      if (state is FetchCategoriesLoadingState) {
+                                        return _buildSelectionButton(
+                                          title: 'Loading...',
+                                          icon: Icons.directions_car,
+                                          onTap: () {},
+                                        );
                                       }
-
+        
+                                      if (state is FetchCategoriesSuccessState) {
+                                        fetchedCategories = state.categories;
+        
+                                        if (selectedCategoryId != null &&
+                                            selectedCategoryName ==
+                                                'Select Car Type') {
+                                          final found = fetchedCategories
+                                              .firstWhere(
+                                                (c) =>
+                                                    c.categoryId ==
+                                                    selectedCategoryId,
+                                                orElse: () => CategoriesModel(
+                                                  categoryId: '',
+                                                  fleetTypeId: '',
+                                                  categoryName: 'Select Car Type',
+                                                  status: '',
+                                                  createdAt: '',
+                                                  modifiedAt: '',
+                                                ),
+                                              );
+                                          if (found.categoryId.isNotEmpty) {
+                                            selectedCategoryName =
+                                                found.categoryName;
+                                          }
+                                        }
+        
+                                        return _buildSelectionButton(
+                                          title: selectedCategoryName,
+                                          icon: Icons.directions_car,
+                                          onTap: () {
+                                            setState(() {
+                                              showCarTypeOptions =
+                                                  !showCarTypeOptions;
+                                              if (showCarTypeOptions)
+                                                showCityOptions = false;
+                                            });
+                                          },
+                                        );
+                                      }
+        
                                       return _buildSelectionButton(
                                         title: selectedCategoryName,
                                         icon: Icons.directions_car,
                                         onTap: () {
-                                          setState(() {
-                                            showCarTypeOptions =
-                                                !showCarTypeOptions;
-                                            if (showCarTypeOptions)
-                                              showCityOptions = false;
-                                          });
+                                          setState(
+                                            () => showCarTypeOptions =
+                                                !showCarTypeOptions,
+                                          );
                                         },
                                       );
-                                    }
-
-                                    return _buildSelectionButton(
-                                      title: selectedCategoryName,
-                                      icon: Icons.directions_car,
-                                      onTap: () {
-                                        setState(
-                                          () => showCarTypeOptions =
-                                              !showCarTypeOptions,
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    ResponsiveSizedBox.height10,
-
-                    // City options dropdown
-                    if (showCityOptions)
-                      SizedBox(
-                        height: ResponsiveUtils.hp(5),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              right: ResponsiveUtils.wp(4),
-                            ),
-                            child: Row(
-                              children: fetchedCities.map((city) {
-                                final bool isSelected =
-                                    city.cityId == selectedCityId;
-                                return Padding(
-                                  padding: EdgeInsets.only(
-                                    right: ResponsiveUtils.wp(2),
-                                  ),
-                                  child: _buildOptionChip(
-                                    text: city.name,
-                                    width: _chipWidthForFourAcross(context),
-                                    isSelected: isSelected,
-                                    onTap: () {
-                                      setState(() {
-                                        selectedCityId = city.cityId;
-                                        selectedCityName = city.name;
-                                        showCityOptions = false;
-                                      });
-                                      // Search with new city
-                                      _searchCars();
                                     },
                                   ),
-                                );
-                              }).toList(),
                             ),
-                          ),
+                          ],
                         ),
                       ),
-
-                    // CarType options dropdown
-                    if (showCarTypeOptions)
-                      SizedBox(
-                        height: ResponsiveUtils.hp(5),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              right: ResponsiveUtils.wp(4),
-                            ),
-                            child: Row(
-                              children: fetchedCategories.map((cat) {
-                                final bool isSelected =
-                                    cat.categoryId == selectedCategoryId;
-                                return Padding(
-                                  padding: EdgeInsets.only(
-                                    right: ResponsiveUtils.wp(2),
-                                  ),
-                                  child: _buildOptionChip(
-                                    text: cat.categoryName,
-                                    width: _chipWidthForFourAcross(context),
-                                    isSelected: isSelected,
-                                    onTap: () {
-                                      setState(() {
-                                        selectedCategoryId = cat.categoryId;
-                                        selectedCategoryName = cat.categoryName;
-                                        showCarTypeOptions = false;
-                                      });
-                                      // Search with new category
-                                      _searchCars();
-                                    },
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                    // KM Plans
-                    ResponsiveText(
-                      'Free Kilometer Plans',
-                      sizeFactor: .9,
-                      weight: FontWeight.w500,
-                      color: Appcolors.kprimarycolor,
-                    ),
-                    ResponsiveSizedBox.height10,
-
-                    SizedBox(
-                      height: ResponsiveUtils.hp(5.4),
-                      child: BlocBuilder<FetchKmplansBloc, FetchKmplansState>(
-                        builder: (context, state) {
-                          if (state is FetchKmplansLoadingState) {
-                            return Center(
-                              child: SpinKitThreeBounce(
-                                size: ResponsiveUtils.wp(6),
-                                color: Appcolors.kgreyColor,
-                              ),
-                            );
-                          }
-
-                          if (state is FetchKmplansSuccessState) {
-                            fetchedKmPlans = state.kmplans
-                                .where(
-                                  (k) => k.status.toLowerCase() == 'active',
-                                )
-                                .toList();
-
-                            if (fetchedKmPlans.isEmpty) {
-                              return Center(child: Text('No plans available'));
-                            }
-                            // Initialize (only once) to the first active plan and trigger a search.
-                            if (!_kmInitialized && fetchedKmPlans.isNotEmpty) {
-                              // mark initialized immediately so we don't schedule multiple callbacks
-                              _kmInitialized = true;
-
-                              // Schedule setState & search after this frame to avoid calling setState in build
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                if (!mounted) return;
-                                setState(() {
-                                  selectedKmId = fetchedKmPlans.first.kmId;
-                                  selectedKmLimit =
-                                      fetchedKmPlans.first.kmLimit;
-                                });
-
-                                // Trigger initial search with the default KM plan
-                                _searchCars();
-                              });
-                            }
-                            return ListView.separated(
-                              scrollDirection: Axis.horizontal,
+        
+                      ResponsiveSizedBox.height10,
+        
+                      // City options dropdown
+                      if (showCityOptions)
+                        SizedBox(
+                          height: ResponsiveUtils.hp(5),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Padding(
                               padding: EdgeInsets.only(
                                 right: ResponsiveUtils.wp(4),
                               ),
-                              itemCount: fetchedKmPlans.length,
-                              separatorBuilder: (_, __) =>
-                                  SizedBox(width: ResponsiveUtils.wp(2)),
-                              itemBuilder: (context, index) {
-                                final km = fetchedKmPlans[index];
-                                final kmLimitText =
-                                    km.kmLimit?.toString() ?? km.kmId;
-                                final bool isSelected = km.kmId == selectedKmId;
-
-                                return GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      selectedKmId = km.kmId;
-                                      selectedKmLimit = km.kmLimit;
-                                    });
-                                    // Search with new KM plan
-                                    _searchCars();
-                                  },
-                                  child: Container(
-                                    width: _kmChipWidth(context),
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: ResponsiveUtils.hp(.3),
-                                      horizontal: ResponsiveUtils.wp(1),
+                              child: Row(
+                                children: fetchedCities.map((city) {
+                                  final bool isSelected =
+                                      city.cityId == selectedCityId;
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      right: ResponsiveUtils.wp(2),
                                     ),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? const Color(0xFF2C3E50)
-                                          : Colors.white,
-                                      borderRadius:
-                                          BorderRadiusStyles.kradius5(),
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? const Color(0xFF2C3E50)
-                                            : Colors.grey.shade300,
-                                      ),
+                                    child: _buildOptionChip(
+                                      text: city.name,
+                                      width: _chipWidthForFourAcross(context),
+                                      isSelected: isSelected,
+                                      onTap: () {
+                                        setState(() {
+                                          selectedCityId = city.cityId;
+                                          selectedCityName = city.name;
+                                          showCityOptions = false;
+                                        });
+                                        // Search with new city
+                                        _searchCars();
+                                      },
                                     ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        ResponsiveText(
-                                          kmLimitText,
-                                          sizeFactor: .8,
-                                          weight: FontWeight.bold,
-                                          color: isSelected
-                                              ? Colors.white
-                                              : Colors.black,
-                                        ),
-                                        ResponsiveText(
-                                          'KM',
-                                          sizeFactor: 0.6,
-                                          color: isSelected
-                                              ? Colors.white
-                                              : Colors.black,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          }
-
-                          return SizedBox.shrink();
-                        },
-                      ),
-                    ),
-                    ResponsiveSizedBox.height10,
-                  ],
-                ),
-              ),
-
-              // Cars list from API
-              // --- Replace your current "Cars list from API" RefreshIndicator block with this ---
-
-              // Cars list from API
-              Expanded(
-                child: RefreshIndicator(
-                  // Replace your current onRefresh callback with this:
-               // Replace your current onRefresh callback with this:
-onRefresh: () async {
-  final DateTime fromDateTimeRefresh = DateTime(
-    pickupDate.year,
-    pickupDate.month,
-    pickupDate.day,
-    pickupTime.hour,
-    pickupTime.minute,
-  );
-  final DateTime toDateTimeRefresh = DateTime(
-    dropDate.year,
-    dropDate.month,
-    dropDate.day,
-    dropTime.hour,
-    dropTime.minute,
-  );
-
-  String formatDateTime(DateTime dt) =>
-      "${dt.year.toString().padLeft(4, '0')}-"
-      "${dt.month.toString().padLeft(2, '0')}-"
-      "${dt.day.toString().padLeft(2, '0')} "
-      "${dt.hour.toString().padLeft(2, '0')}:"
-      "${dt.minute.toString().padLeft(2, '0')}:00";
-
-  // Reset UI state variables before making the search
-  setState(() {
-    selectedCategoryId = null;
-    selectedCategoryName = 'Select Car Type';
-    
-    // Re-initialize KM plan to first active plan (same as initState)
-    if (fetchedKmPlans.isNotEmpty) {
-      selectedKmId = fetchedKmPlans.first.kmId;
-      selectedKmLimit = fetchedKmPlans.first.kmLimit;
-    } else {
-      selectedKmId = null;
-      selectedKmLimit = null;
-    }
-
-    showCarTypeOptions = false;
-  });
-
-  final searchRefresh = SearchModel(
-    bookingFrom: formatDateTime(fromDateTimeRefresh),
-    bookingTo: formatDateTime(toDateTimeRefresh),
-    cityId: int.parse(
-      selectedCityId ?? widget.selectedCityId,
-    ),
-    categoryId: null,
-    kmId: selectedKmId != null ? int.tryParse(selectedKmId!) : null,
-  );
-
-  context.read<FetchCarsBloc>().add(
-    FetchCarsButtonClickEvent(search: searchRefresh),
-  );
-  await Future.delayed(const Duration(milliseconds: 200));
-},
-                  child: BlocBuilder<FetchCarsBloc, FetchCarsState>(
-                    builder: (context, state) {
-                      // Loading -> show a scrollable with spinner so RefreshIndicator works
-                      if (state is FetchCarsLoadingState) {
-                        return Container(
-                          color: Appcolors.kwhitecolor, // Full red background
-                          child: Center(
-                            child: RotatingSteeringWheel(
-                              size: ResponsiveUtils.wp(
-                                30,
-                              ), // Adjust size as needed
-                              steeringWheelAssetPath:
-                                  Appconstants.splashlogo, // Your SVG path
+                                  );
+                                }).toList(),
+                              ),
                             ),
                           ),
-                        );
-                      }
-
-                      // Success with empty result -> scrollable message
-                      if (state is FetchCarsSuccessState) {
-                        if (state.cars.isEmpty) {
+                        ),
+        
+                      // CarType options dropdown
+                      if (showCarTypeOptions)
+                        SizedBox(
+                          height: ResponsiveUtils.hp(5),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                right: ResponsiveUtils.wp(4),
+                              ),
+                              child: Row(
+                                children: fetchedCategories.map((cat) {
+                                  final bool isSelected =
+                                      cat.categoryId == selectedCategoryId;
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      right: ResponsiveUtils.wp(2),
+                                    ),
+                                    child: _buildOptionChip(
+                                      text: cat.categoryName,
+                                      width: _chipWidthForFourAcross(context),
+                                      isSelected: isSelected,
+                                      onTap: () {
+                                        setState(() {
+                                          selectedCategoryId = cat.categoryId;
+                                          selectedCategoryName = cat.categoryName;
+                                          showCarTypeOptions = false;
+                                        });
+                                        // Search with new category
+                                        _searchCars();
+                                      },
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                        ),
+        
+                      // KM Plans
+                      ResponsiveText(
+                        'Free Kilometer Plans',
+                        sizeFactor: .9,
+                        weight: FontWeight.w500,
+                        color: Appcolors.kprimarycolor,
+                      ),
+                      ResponsiveSizedBox.height10,
+        
+                      SizedBox(
+                        height: ResponsiveUtils.hp(5.4),
+                        child: BlocBuilder<FetchKmplansBloc, FetchKmplansState>(
+                          builder: (context, state) {
+                            if (state is FetchKmplansLoadingState) {
+                              return Center(
+                                child: SpinKitThreeBounce(
+                                  size: ResponsiveUtils.wp(6),
+                                  color: Appcolors.kgreyColor,
+                                ),
+                              );
+                            }
+        
+                            if (state is FetchKmplansSuccessState) {
+                              fetchedKmPlans = state.kmplans
+                                  .where(
+                                    (k) => k.status.toLowerCase() == 'active',
+                                  )
+                                  .toList();
+        
+                              if (fetchedKmPlans.isEmpty) {
+                                return Center(child: Text('No plans available'));
+                              }
+                              // Initialize (only once) to the first active plan and trigger a search.
+                              if (!_kmInitialized && fetchedKmPlans.isNotEmpty) {
+                                // mark initialized immediately so we don't schedule multiple callbacks
+                                _kmInitialized = true;
+        
+                                // Schedule setState & search after this frame to avoid calling setState in build
+                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                  if (!mounted) return;
+                                  setState(() {
+                                    selectedKmId = fetchedKmPlans.first.kmId;
+                                    selectedKmLimit =
+                                        fetchedKmPlans.first.kmLimit;
+                                  });
+        
+                                  // Trigger initial search with the default KM plan
+                                  _searchCars();
+                                });
+                              }
+                              return ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                padding: EdgeInsets.only(
+                                  right: ResponsiveUtils.wp(4),
+                                ),
+                                itemCount: fetchedKmPlans.length,
+                                separatorBuilder: (_, __) =>
+                                    SizedBox(width: ResponsiveUtils.wp(2)),
+                                itemBuilder: (context, index) {
+                                  final km = fetchedKmPlans[index];
+                                  final kmLimitText =
+                                      km.kmLimit?.toString() ?? km.kmId;
+                                  final bool isSelected = km.kmId == selectedKmId;
+        
+                                  return GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        selectedKmId = km.kmId;
+                                        selectedKmLimit = km.kmLimit;
+                                      });
+                                      // Search with new KM plan
+                                      _searchCars();
+                                    },
+                                    child: Container(
+                                      width: _kmChipWidth(context),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: ResponsiveUtils.hp(.3),
+                                        horizontal: ResponsiveUtils.wp(1),
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isSelected
+                                            ? const Color(0xFF2C3E50)
+                                            : Colors.white,
+                                        borderRadius:
+                                            BorderRadiusStyles.kradius5(),
+                                        border: Border.all(
+                                          color: isSelected
+                                              ? const Color(0xFF2C3E50)
+                                              : Colors.grey.shade300,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          ResponsiveText(
+                                            kmLimitText,
+                                            sizeFactor: .8,
+                                            weight: FontWeight.bold,
+                                            color: isSelected
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                          ResponsiveText(
+                                            'KM',
+                                            sizeFactor: 0.6,
+                                            color: isSelected
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            }
+        
+                            return SizedBox.shrink();
+                          },
+                        ),
+                      ),
+                      ResponsiveSizedBox.height10,
+                    ],
+                  ),
+                ),
+        
+                // Cars list from API
+                // --- Replace your current "Cars list from API" RefreshIndicator block with this ---
+        
+                // Cars list from API
+                Expanded(
+                  child: RefreshIndicator(
+                    // Replace your current onRefresh callback with this:
+                 // Replace your current onRefresh callback with this:
+        onRefresh: () async {
+          final DateTime fromDateTimeRefresh = DateTime(
+            pickupDate.year,
+            pickupDate.month,
+            pickupDate.day,
+            pickupTime.hour,
+            pickupTime.minute,
+          );
+          final DateTime toDateTimeRefresh = DateTime(
+            dropDate.year,
+            dropDate.month,
+            dropDate.day,
+            dropTime.hour,
+            dropTime.minute,
+          );
+        
+          String formatDateTime(DateTime dt) =>
+        "${dt.year.toString().padLeft(4, '0')}-"
+        "${dt.month.toString().padLeft(2, '0')}-"
+        "${dt.day.toString().padLeft(2, '0')} "
+        "${dt.hour.toString().padLeft(2, '0')}:"
+        "${dt.minute.toString().padLeft(2, '0')}:00";
+        
+          // Reset UI state variables before making the search
+          setState(() {
+            selectedCategoryId = null;
+            selectedCategoryName = 'Select Car Type';
+            
+            // Re-initialize KM plan to first active plan (same as initState)
+            if (fetchedKmPlans.isNotEmpty) {
+        selectedKmId = fetchedKmPlans.first.kmId;
+        selectedKmLimit = fetchedKmPlans.first.kmLimit;
+            } else {
+        selectedKmId = null;
+        selectedKmLimit = null;
+            }
+        
+            showCarTypeOptions = false;
+          });
+        
+          final searchRefresh = SearchModel(
+            bookingFrom: formatDateTime(fromDateTimeRefresh),
+            bookingTo: formatDateTime(toDateTimeRefresh),
+            cityId: int.parse(
+        selectedCityId ?? widget.selectedCityId,
+            ),
+            categoryId: null,
+            kmId: selectedKmId != null ? int.tryParse(selectedKmId!) : null,
+          );
+        
+          context.read<FetchCarsBloc>().add(
+            FetchCarsButtonClickEvent(search: searchRefresh),
+          );
+          await Future.delayed(const Duration(milliseconds: 200));
+        },
+                    child: BlocBuilder<FetchCarsBloc, FetchCarsState>(
+                      builder: (context, state) {
+                        // Loading -> show a scrollable with spinner so RefreshIndicator works
+                        if (state is FetchCarsLoadingState) {
+                          return Container(
+                            color: Appcolors.kwhitecolor, // Full red background
+                            child: Center(
+                              child: RotatingSteeringWheel(
+                                size: ResponsiveUtils.wp(
+                                  30,
+                                ), // Adjust size as needed
+                                steeringWheelAssetPath:
+                                    Appconstants.splashlogo, // Your SVG path
+                              ),
+                            ),
+                          );
+                        }
+        
+                        // Success with empty result -> scrollable message
+                        if (state is FetchCarsSuccessState) {
+                          if (state.cars.isEmpty) {
+                            return ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: ResponsiveUtils.wp(4),
+                              ),
+                              children: [
+                                SizedBox(height: ResponsiveUtils.hp(20)),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.directions_car_outlined,
+                                      size: ResponsiveUtils.sp(15),
+                                      color: Colors.grey,
+                                    ),
+                                    ResponsiveSizedBox.height10,
+                                    ResponsiveText(
+                                      'No cars available for selected criteria',
+                                      color: Colors.grey,
+                                      weight: FontWeight.w500,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            );
+                          }
+        
+                          // Normal list
+                          return ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: ResponsiveUtils.wp(4),
+                            ),
+                            itemCount: state.cars.length,
+                            itemBuilder: (context, index) =>
+                                _buildCarCard(state.cars[index]),
+                          );
+                        }
+        
+                        // Error -> show scrollable error UI so refresh still works
+                        if (state is FetchCarsErrorState) {
                           return ListView(
                             physics: const AlwaysScrollableScrollPhysics(),
                             padding: EdgeInsets.symmetric(
@@ -2132,74 +2175,34 @@ onRefresh: () async {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
-                                    Icons.directions_car_outlined,
+                                    Icons.error_outline,
                                     size: ResponsiveUtils.sp(15),
-                                    color: Colors.grey,
+                                    color: Colors.red,
                                   ),
                                   ResponsiveSizedBox.height10,
                                   ResponsiveText(
-                                    'No cars available for selected criteria',
-                                    color: Colors.grey,
+                                    'Failed to load cars',
+                                    color: Colors.red,
                                     weight: FontWeight.w500,
+                                  ),
+                                  ResponsiveSizedBox.height10,
+                                  ElevatedButton(
+                                    onPressed: _searchCars,
+                                    child: ResponsiveText('Retry'),
                                   ),
                                 ],
                               ),
                             ],
                           );
                         }
-
-                        // Normal list
-                        return ListView.builder(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: ResponsiveUtils.wp(4),
-                          ),
-                          itemCount: state.cars.length,
-                          itemBuilder: (context, index) =>
-                              _buildCarCard(state.cars[index]),
-                        );
-                      }
-
-                      // Error -> show scrollable error UI so refresh still works
-                      if (state is FetchCarsErrorState) {
-                        return ListView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: ResponsiveUtils.wp(4),
-                          ),
-                          children: [
-                            SizedBox(height: ResponsiveUtils.hp(20)),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.error_outline,
-                                  size: ResponsiveUtils.sp(15),
-                                  color: Colors.red,
-                                ),
-                                ResponsiveSizedBox.height10,
-                                ResponsiveText(
-                                  'Failed to load cars',
-                                  color: Colors.red,
-                                  weight: FontWeight.w500,
-                                ),
-                                ResponsiveSizedBox.height10,
-                                ElevatedButton(
-                                  onPressed: _searchCars,
-                                  child: ResponsiveText('Retry'),
-                                ),
-                              ],
-                            ),
-                          ],
-                        );
-                      }
-
-                      return SizedBox.shrink();
-                    },
+        
+                        return SizedBox.shrink();
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
