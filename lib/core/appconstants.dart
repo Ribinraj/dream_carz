@@ -9,5 +9,6 @@ class Appconstants {
   static const dreamcartext = 'assets/images/heading text.png';
   static const dreamcartext2 = 'assets/images/heading text2.png';
    static const dreamcartextwhite = 'assets/images/ChatGPT_Image_Oct_9__2025__02_30_11_PM-removebg-preview.png';
+   static const networkimage='assets/images/sanctions_18667439.png';
 
 }

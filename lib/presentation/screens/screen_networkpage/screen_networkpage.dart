@@ -1,4 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
@@ -72,15 +73,16 @@ class NoNetworkOverlay extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 150),
           child: Column(
             children: [
+              ResponsiveSizedBox.height50,
               Container(
                 height: ResponsiveUtils.hp(25),
                 width: ResponsiveUtils.wp(65),
                 decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage(
-                      'assets/images/13766137_5356680.jpg',
+                      Appconstants.networkimage,
                     ),
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
