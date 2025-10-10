@@ -1,5 +1,3 @@
-
-
 import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
@@ -45,15 +43,16 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
     // TODO: implement initState
     super.initState();
     context.read<FetchCitiesBloc>().add(FetchcitiesInitialEvent());
-  
-      _initializeDefaultDateTime();
+
+    _initializeDefaultDateTime();
   }
+
   void _initializeDefaultDateTime() {
     final now = DateTime.now();
-    
+
     // Set fromDate to today
     fromDate = DateTime(now.year, now.month, now.day);
-    
+
     // Set fromTime to next available 30-minute slot
     if (now.minute >= 30) {
       // Next hour on the hour
@@ -62,7 +61,7 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
       // Current hour at 30 minutes
       fromTime = TimeOfDay(hour: now.hour, minute: 30);
     }
-    
+
     // Optional: Auto-initialize "To" as well (12 hours after "From")
     final fromDateTime = DateTime(
       fromDate!.year,
@@ -71,11 +70,12 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
       fromTime!.hour,
       fromTime!.minute,
     );
-    
+
     final toDateTime = fromDateTime.add(const Duration(hours: 12));
     toDate = DateTime(toDateTime.year, toDateTime.month, toDateTime.day);
     toTime = TimeOfDay(hour: toDateTime.hour, minute: toDateTime.minute);
   }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -120,10 +120,13 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                               _scaffoldKey.currentState?.openDrawer();
                             },
                           ),
-                          ResponsiveSizedBox.width10,
-                          TextStyles.headline(
-                            text: 'Dream Carz',
-                            color: Appcolors.kprimarycolor,
+                          // ResponsiveSizedBox.width10,
+                          Image.asset(
+                            Appconstants.dreamcartext, // your PNG file path
+                            width: ResponsiveUtils.wp(
+                              50,
+                            ), // adjust width as needed
+                            fit: BoxFit.contain,
                           ),
                           Spacer(),
 
@@ -396,60 +399,62 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                       child: Column(
                         children: [
                           _buildFromDateTimeSection(
-  'From', 
-  Appconstants.dateIcon, 
-  (date, time) {
-    setState(() {
-      fromDate = date;
-      fromTime = time;
-      // Reset toDate if it's now invalid
-      if (toDate != null && toTime != null) {
-        final fromDT = DateTime(
-          fromDate!.year,
-          fromDate!.month,
-          fromDate!.day,
-          fromTime!.hour,
-          fromTime!.minute,
-        );
-        final toDT = DateTime(
-          toDate!.year,
-          toDate!.month,
-          toDate!.day,
-          toTime!.hour,
-          toTime!.minute,
-        );
-        final minAllowed = fromDT.add(const Duration(hours: 12));
-        if (toDT.isBefore(minAllowed)) {
-          toDate = null;
-          toTime = null;
-        }
-      }
-    });
-  },
-),
+                            'From',
+                            Appconstants.dateIcon,
+                            (date, time) {
+                              setState(() {
+                                fromDate = date;
+                                fromTime = time;
+                                // Reset toDate if it's now invalid
+                                if (toDate != null && toTime != null) {
+                                  final fromDT = DateTime(
+                                    fromDate!.year,
+                                    fromDate!.month,
+                                    fromDate!.day,
+                                    fromTime!.hour,
+                                    fromTime!.minute,
+                                  );
+                                  final toDT = DateTime(
+                                    toDate!.year,
+                                    toDate!.month,
+                                    toDate!.day,
+                                    toTime!.hour,
+                                    toTime!.minute,
+                                  );
+                                  final minAllowed = fromDT.add(
+                                    const Duration(hours: 12),
+                                  );
+                                  if (toDT.isBefore(minAllowed)) {
+                                    toDate = null;
+                                    toTime = null;
+                                  }
+                                }
+                              });
+                            },
+                          ),
 
-ResponsiveSizedBox.height15,
-Divider(thickness: .5),
-ResponsiveSizedBox.height5,
+                          ResponsiveSizedBox.height15,
+                          Divider(thickness: .5),
+                          ResponsiveSizedBox.height5,
 
-// To Date/Time with 12-hour minimum gap
-_buildToDateTimeSection(
-  'To', 
-  Appconstants.dateIcon, 
-  (date, time) {
-    setState(() {
-      toDate = date;
-      toTime = time;
-    });
-  },
-  DateTime(
-    fromDate!.year,
-    fromDate!.month,
-    fromDate!.day,
-    fromTime!.hour,
-    fromTime!.minute,
-  ).add(const Duration(hours: 12)),
-),
+                          // To Date/Time with 12-hour minimum gap
+                          _buildToDateTimeSection(
+                            'To',
+                            Appconstants.dateIcon,
+                            (date, time) {
+                              setState(() {
+                                toDate = date;
+                                toTime = time;
+                              });
+                            },
+                            DateTime(
+                              fromDate!.year,
+                              fromDate!.month,
+                              fromDate!.day,
+                              fromTime!.hour,
+                              fromTime!.minute,
+                            ).add(const Duration(hours: 12)),
+                          ),
                           // // From Date/Time
                           // _buildDateTimeSection('From', Appconstants.dateIcon, (
                           //   date,
@@ -560,216 +565,219 @@ _buildToDateTimeSection(
       ],
     );
   }
+
   Widget _buildFromDateTimeSection(
-  String label,
-  String svgAssetPath,
-  Function(DateTime?, TimeOfDay?) onChanged,
-) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          SvgPicture.asset(
-            svgAssetPath,
-            width: ResponsiveUtils.sp(4.5),
-            height: ResponsiveUtils.sp(4.5),
-            colorFilter: const ColorFilter.mode(
-              Color(0xFFE74C3C),
-              BlendMode.srcIn,
+    String label,
+    String svgAssetPath,
+    Function(DateTime?, TimeOfDay?) onChanged,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            SvgPicture.asset(
+              svgAssetPath,
+              width: ResponsiveUtils.sp(4.5),
+              height: ResponsiveUtils.sp(4.5),
+              colorFilter: const ColorFilter.mode(
+                Color(0xFFE74C3C),
+                BlendMode.srcIn,
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          ResponsiveText(
-            label,
-            sizeFactor: 0.9,
-            weight: FontWeight.w600,
-            color: Appcolors.kblackcolor,
-          ),
-        ],
-      ),
-      const SizedBox(height: 8),
-      Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadiusStyles.kradius10(),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(11),
-              offset: const Offset(0, 2),
-              blurRadius: 8,
-              spreadRadius: 0,
+            const SizedBox(width: 8),
+            ResponsiveText(
+              label,
+              sizeFactor: 0.9,
+              weight: FontWeight.w600,
+              color: Appcolors.kblackcolor,
             ),
           ],
         ),
-        child: FromDateTimeSelectionWidget(
-          onDateTimeChanged: onChanged,
-          initialDate: fromDate,
-          initialTime: fromTime,
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadiusStyles.kradius10(),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(11),
+                offset: const Offset(0, 2),
+                blurRadius: 8,
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: FromDateTimeSelectionWidget(
+            onDateTimeChanged: onChanged,
+            initialDate: fromDate,
+            initialTime: fromTime,
+          ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
-Widget _buildToDateTimeSection(
-  String label,
-  String svgAssetPath,
-  Function(DateTime?, TimeOfDay?) onChanged,
-  DateTime minDateTime,
-) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          SvgPicture.asset(
-            svgAssetPath,
-            width: ResponsiveUtils.sp(4.5),
-            height: ResponsiveUtils.sp(4.5),
-            colorFilter: const ColorFilter.mode(
-              Color(0xFFE74C3C),
-              BlendMode.srcIn,
+  Widget _buildToDateTimeSection(
+    String label,
+    String svgAssetPath,
+    Function(DateTime?, TimeOfDay?) onChanged,
+    DateTime minDateTime,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            SvgPicture.asset(
+              svgAssetPath,
+              width: ResponsiveUtils.sp(4.5),
+              height: ResponsiveUtils.sp(4.5),
+              colorFilter: const ColorFilter.mode(
+                Color(0xFFE74C3C),
+                BlendMode.srcIn,
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          ResponsiveText(
-            label,
-            sizeFactor: 0.9,
-            weight: FontWeight.w600,
-            color: Appcolors.kblackcolor,
-          ),
-        ],
-      ),
-      const SizedBox(height: 8),
-      Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadiusStyles.kradius10(),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(11),
-              offset: const Offset(0, 2),
-              blurRadius: 8,
-              spreadRadius: 0,
+            const SizedBox(width: 8),
+            ResponsiveText(
+              label,
+              sizeFactor: 0.9,
+              weight: FontWeight.w600,
+              color: Appcolors.kblackcolor,
             ),
           ],
         ),
-        child: ToDateTimeSelectionWidget(
-          key: ValueKey(minDateTime), // Force rebuild when minDateTime changes
-          onDateTimeChanged: onChanged,
-          minDateTime: minDateTime,
-          initialDate: toDate,
-          initialTime: toTime,
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadiusStyles.kradius10(),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(11),
+                offset: const Offset(0, 2),
+                blurRadius: 8,
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: ToDateTimeSelectionWidget(
+            key: ValueKey(
+              minDateTime,
+            ), // Force rebuild when minDateTime changes
+            onDateTimeChanged: onChanged,
+            minDateTime: minDateTime,
+            initialDate: toDate,
+            initialTime: toTime,
+          ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
-// // Update the _buildDateTimeSection in your homepage
-// Widget _buildFromDateTimeSection(
-//   String label,
-//   String svgAssetPath,
-//   Function(DateTime?, TimeOfDay?) onChanged,
-// ) {
-//   return Column(
-//     crossAxisAlignment: CrossAxisAlignment.start,
-//     children: [
-//       Row(
-//         children: [
-//           SvgPicture.asset(
-//             svgAssetPath,
-//             width: ResponsiveUtils.sp(4.5),
-//             height: ResponsiveUtils.sp(4.5),
-//             colorFilter: const ColorFilter.mode(
-//               Color(0xFFE74C3C),
-//               BlendMode.srcIn,
-//             ),
-//           ),
-//           const SizedBox(width: 8),
-//           ResponsiveText(
-//             label,
-//             sizeFactor: 0.9,
-//             weight: FontWeight.w600,
-//             color: Appcolors.kblackcolor,
-//           ),
-//         ],
-//       ),
-//       const SizedBox(height: 8),
-//       Container(
-//         decoration: BoxDecoration(
-//           borderRadius: BorderRadiusStyles.kradius10(),
-//           boxShadow: [
-//             BoxShadow(
-//               color: Colors.black.withAlpha(11),
-//               offset: const Offset(0, 2),
-//               blurRadius: 8,
-//               spreadRadius: 0,
-//             ),
-//           ],
-//         ),
-//         child: FromDateTimeSelectionWidget(
-//           onDateTimeChanged: onChanged,
-//           initialDate: fromDate,
-//           initialTime: fromTime,
-//         ),
-//       ),
-//     ],
-//   );
-// }
+  // // Update the _buildDateTimeSection in your homepage
+  // Widget _buildFromDateTimeSection(
+  //   String label,
+  //   String svgAssetPath,
+  //   Function(DateTime?, TimeOfDay?) onChanged,
+  // ) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Row(
+  //         children: [
+  //           SvgPicture.asset(
+  //             svgAssetPath,
+  //             width: ResponsiveUtils.sp(4.5),
+  //             height: ResponsiveUtils.sp(4.5),
+  //             colorFilter: const ColorFilter.mode(
+  //               Color(0xFFE74C3C),
+  //               BlendMode.srcIn,
+  //             ),
+  //           ),
+  //           const SizedBox(width: 8),
+  //           ResponsiveText(
+  //             label,
+  //             sizeFactor: 0.9,
+  //             weight: FontWeight.w600,
+  //             color: Appcolors.kblackcolor,
+  //           ),
+  //         ],
+  //       ),
+  //       const SizedBox(height: 8),
+  //       Container(
+  //         decoration: BoxDecoration(
+  //           borderRadius: BorderRadiusStyles.kradius10(),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               color: Colors.black.withAlpha(11),
+  //               offset: const Offset(0, 2),
+  //               blurRadius: 8,
+  //               spreadRadius: 0,
+  //             ),
+  //           ],
+  //         ),
+  //         child: FromDateTimeSelectionWidget(
+  //           onDateTimeChanged: onChanged,
+  //           initialDate: fromDate,
+  //           initialTime: fromTime,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
-// Widget _buildToDateTimeSection(
-//   String label,
-//   String svgAssetPath,
-//   Function(DateTime?, TimeOfDay?) onChanged,
-//   DateTime minDateTime,
-// ) {
-//   return Column(
-//     crossAxisAlignment: CrossAxisAlignment.start,
-//     children: [
-//       Row(
-//         children: [
-//           SvgPicture.asset(
-//             svgAssetPath,
-//             width: ResponsiveUtils.sp(4.5),
-//             height: ResponsiveUtils.sp(4.5),
-//             colorFilter: const ColorFilter.mode(
-//               Color(0xFFE74C3C),
-//               BlendMode.srcIn,
-//             ),
-//           ),
-//           const SizedBox(width: 8),
-//           ResponsiveText(
-//             label,
-//             sizeFactor: 0.9,
-//             weight: FontWeight.w600,
-//             color: Appcolors.kblackcolor,
-//           ),
-//         ],
-//       ),
-//       const SizedBox(height: 8),
-//       Container(
-//         decoration: BoxDecoration(
-//           borderRadius: BorderRadiusStyles.kradius10(),
-//           boxShadow: [
-//             BoxShadow(
-//               color: Colors.black.withAlpha(11),
-//               offset: const Offset(0, 2),
-//               blurRadius: 8,
-//               spreadRadius: 0,
-//             ),
-//           ],
-//         ),
-//         child: ToDateTimeSelectionWidget(
-//           key: ValueKey(minDateTime), // Force rebuild when minDateTime changes
-//           onDateTimeChanged: onChanged,
-//           minDateTime: minDateTime,
-//           initialDate: toDate,
-//           initialTime: toTime,
-//         ),
-//       ),
-//     ],
-//   );
-// }
+  // Widget _buildToDateTimeSection(
+  //   String label,
+  //   String svgAssetPath,
+  //   Function(DateTime?, TimeOfDay?) onChanged,
+  //   DateTime minDateTime,
+  // ) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Row(
+  //         children: [
+  //           SvgPicture.asset(
+  //             svgAssetPath,
+  //             width: ResponsiveUtils.sp(4.5),
+  //             height: ResponsiveUtils.sp(4.5),
+  //             colorFilter: const ColorFilter.mode(
+  //               Color(0xFFE74C3C),
+  //               BlendMode.srcIn,
+  //             ),
+  //           ),
+  //           const SizedBox(width: 8),
+  //           ResponsiveText(
+  //             label,
+  //             sizeFactor: 0.9,
+  //             weight: FontWeight.w600,
+  //             color: Appcolors.kblackcolor,
+  //           ),
+  //         ],
+  //       ),
+  //       const SizedBox(height: 8),
+  //       Container(
+  //         decoration: BoxDecoration(
+  //           borderRadius: BorderRadiusStyles.kradius10(),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               color: Colors.black.withAlpha(11),
+  //               offset: const Offset(0, 2),
+  //               blurRadius: 8,
+  //               spreadRadius: 0,
+  //             ),
+  //           ],
+  //         ),
+  //         child: ToDateTimeSelectionWidget(
+  //           key: ValueKey(minDateTime), // Force rebuild when minDateTime changes
+  //           onDateTimeChanged: onChanged,
+  //           minDateTime: minDateTime,
+  //           initialDate: toDate,
+  //           initialTime: toTime,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   // Widget _buildDateTimeSection(
   //   String label,

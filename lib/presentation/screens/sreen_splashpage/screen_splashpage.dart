@@ -2,13 +2,12 @@ import 'dart:math';
 import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/screen_homepage.dart';
-import 'package:dream_carz/presentation/screens/screen_loginpage.dart/screen_loginpage.dart';
+
 import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -165,44 +164,17 @@ class _SplashScreenState extends State<SplashScreen>
               },
             ),
 
-            SizedBox(height: ResponsiveUtils.hp(3)),
+            SizedBox(height: ResponsiveUtils.hp(1)),
 
             AnimatedBuilder(
               animation: _fadeAnimation,
               builder: (context, child) {
                 return FadeTransition(
                   opacity: _fadeAnimation,
-                  child: Column(
-                    children: [
-                      Text(
-                        'DREAMCARZ',
-                        style: GoogleFonts.ebGaramond(
-                          fontSize: ResponsiveUtils.sp(8),
-                          fontWeight: FontWeight.bold,
-                          color: Appcolors.kwhitecolor,
-                          letterSpacing: 1,
-                          shadows: [
-                            Shadow(
-                              color: Appcolors.kprimarycolor.withAlpha(102),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: ResponsiveUtils.hp(.5)),
-
-                      Text(
-                        'Feel Your Drive',
-                        style: GoogleFonts.dancingScript(
-                          fontSize: ResponsiveUtils.sp(4.5),
-                          fontWeight: FontWeight.w500,
-                          color: Appcolors.kwhitecolor,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                    ],
+                  child: Image.asset(
+                    Appconstants.dreamcartextwhite,
+                    width: ResponsiveUtils.wp(60),
+                    fit: BoxFit.contain,
                   ),
                 );
               },
