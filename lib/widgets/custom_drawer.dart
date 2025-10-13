@@ -4,6 +4,7 @@ import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:dream_carz/presentation/blocs/fetch_profile_bloc/fetch_profile_bloc.dart';
+import 'package:dream_carz/presentation/screens/screen_contactuspage/sreen_contactuspage.dart';
 
 import 'package:dream_carz/presentation/screens/screen_loginpage.dart/screen_loginpage.dart';
 import 'package:dream_carz/presentation/screens/screen_profilepage/screen_profilpage.dart';
@@ -12,6 +13,7 @@ import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CustomDrawer extends StatefulWidget {
   const CustomDrawer({super.key});
@@ -102,7 +104,7 @@ Future<void> _handleProfileNavigation() async {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            decoration: const BoxDecoration(color: Appcolors.kwhitecolor),
+            decoration: const BoxDecoration(color:Appcolors.kblackcolor),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -113,51 +115,158 @@ Future<void> _handleProfileNavigation() async {
               ],
             ),
           ),
-          ListTile(
-            leading: const Icon(
-              Icons.person_outline_outlined,
-              color: Appcolors.kprimarycolor,
-            ),
-            title: TextStyles.body(text: 'Profile', weight: FontWeight.w600),
-            onTap: _handleProfileNavigation, // Use the new handler
-          ),
-          ListTile(
-            leading: const Icon(
-              Icons.privacy_tip_outlined,
-              color: Appcolors.kprimarycolor,
-            ),
-            title: TextStyles.body(
-              text: 'Privacy Policies',
-              weight: FontWeight.w600,
-            ),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: const Icon(
-              Icons.phone_android,
-              color: Appcolors.kprimarycolor,
-            ),
-            title: TextStyles.body(text: 'Contact us', weight: FontWeight.w600),
-            onTap: () {},
-          ),
-          Column(
-            children: [
-              SizedBox(height: ResponsiveUtils.hp(40)),
-              TextStyles.caption(text: 'Designed & Developed by'),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextStyles.caption(
-                    text: 'Crisant Technologies',
-                    weight: FontWeight.w600,
-                  ),
-                  TextStyles.caption(text: ', Mysuru'),
-                ],
+    Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Menu',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey.shade700,
               ),
-            ],
+            ),
           ),
+        ),
+
+        // Menu items
+        _buildMenuTile(
+          icon: Icons.person,
+          title: 'Profile',
+          onTap: () {
+_handleProfileNavigation();
+          },
+        ),
+        const Divider(height: 1),
+
+        _buildMenuTile(
+          icon: Icons.shopping_bag_outlined,
+          title: 'Privacy Policy',
+          onTap: () {
+            _launchURL('https://dreamcarz.live/privacy');
+          },
+        ),
+        
+        const Divider(height: 1),
+      _buildMenuTile(
+          icon: Icons.question_answer_outlined,
+          title: 'Terms & Conditions',
+          onTap: () {
+             {
+            _launchURL('https://dreamcarz.live/terms');
+          }
+          },
+        ),
+        const Divider(height: 1),
+        // // App section title
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        //   child: Align(
+        //     alignment: Alignment.centerLeft,
+        //     child: Text(
+        //       'App',
+        //       style: TextStyle(
+        //         fontSize: 16,
+        //         fontWeight: FontWeight.w500,
+        //         color: Colors.grey.shade700,
+        //       ),
+        //     ),
+        //   ),
+        // ),
+
+        // _buildMenuTile(
+        //   icon: Icons.question_answer_outlined,
+        //   title: 'FAQs',
+        //   onTap: () {},
+        // ),
+        // const Divider(height: 1),
+
+        _buildMenuTile(
+          icon: Icons.mail_outline,
+          title: 'Contact Us',
+          onTap: () {
+           CustomNavigation.pushWithTransition(context, ContactUsPage());
+          },
+        ),
+   
+
+        const Divider(),
+        Column(
+          children: [
+            SizedBox(
+              height: ResponsiveUtils.hp(5),
+            ),
+            TextStyles.caption(text: 'Designed & Developed by'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextStyles.caption(
+                    text: 'Crisant Technologies', weight: FontWeight.w600),
+                TextStyles.caption(text: ', Mysuru'),
+              ],
+            )
+          ],
+        ),
         ],
       ),
     );
   }
+
+  Future<void> _launchURL(String url) async {
+    try {
+      final Uri uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        _showErrorSnackBar('Could not launch $url');
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error launching URL: $e');
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+  Widget _buildMenuTile(
+      {required IconData icon,
+      required String title,
+      required VoidCallback onTap,
+      Color? iconcolor = Appcolors.kprimarycolor}) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: iconcolor,
+            ),
+            const SizedBox(width: 16),
+            TextStyles.body(
+              text: title,
+            ),
+            const Spacer(),
+            Icon(
+              Icons.chevron_right,
+              color: Colors.grey.shade400,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+
 }

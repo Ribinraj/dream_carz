@@ -23,6 +23,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ScreenHomepage extends StatefulWidget {
   const ScreenHomepage({super.key});
@@ -239,17 +240,59 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                       BlocBuilder<FetchCitiesBloc, FetchCitiesState>(
                         builder: (context, state) {
                           if (state is FetchCitiesLoadingState) {
-                            return Container(
-                              width: double.infinity,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: ResponsiveUtils.wp(4),
-                                vertical: ResponsiveUtils.hp(.3),
-                              ),
-                              child: SpinKitWave(
-                                size: 25,
-                                color: Appcolors.kprimarycolor,
-                              ),
-                            );
+                 return Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveUtils.wp(4),
+            vertical: ResponsiveUtils.hp(1.5),
+          ),
+          decoration: BoxDecoration(
+            color: Colors.grey.withAlpha(10),
+            border: Border.all(
+              color: Colors.grey.withAlpha(22),
+              width: 1.5,
+            ),
+            borderRadius: BorderRadiusStyles.kradius10(),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 18,
+                height: 18,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              SizedBox(width: 10),
+              Container(
+                width: ResponsiveUtils.wp(30),
+                height: ResponsiveUtils.hp(2),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              Spacer(),
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Container(
+                  width: 18,
+                  height: 18,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
                           }
       
                           if (state is FetchCitiesSuccessState) {

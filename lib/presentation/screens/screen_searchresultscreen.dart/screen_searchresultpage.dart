@@ -1127,6 +1127,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ScreenSearchresultpage extends StatefulWidget {
   final DateTime fromDate;
@@ -1926,11 +1927,57 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                         child: BlocBuilder<FetchKmplansBloc, FetchKmplansState>(
                           builder: (context, state) {
                             if (state is FetchKmplansLoadingState) {
-                              return Center(
-                                child: SpinKitThreeBounce(
-                                  size: ResponsiveUtils.wp(6),
-                                  color: Appcolors.kgreyColor,
-                                ),
+                                return ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.only(
+          right: ResponsiveUtils.wp(4),
+        ),
+        itemCount: 5, // Show 5 shimmer items
+        separatorBuilder: (_, __) =>
+            SizedBox(width: ResponsiveUtils.wp(2)),
+        itemBuilder: (context, index) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            child: Container(
+              width: _kmChipWidth(context),
+              padding: EdgeInsets.symmetric(
+                vertical: ResponsiveUtils.hp(.3),
+                horizontal: ResponsiveUtils.wp(1),
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadiusStyles.kradius5(),
+                border: Border.all(
+                  color: Colors.grey.shade300,
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: ResponsiveUtils.wp(8),
+                    height: ResponsiveUtils.hp(2),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  SizedBox(height: ResponsiveUtils.hp(0.5)),
+                  Container(
+                    width: ResponsiveUtils.wp(5),
+                    height: ResponsiveUtils.hp(1.5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      
                               );
                             }
         
@@ -2181,7 +2228,7 @@ class _CarBookingScreenState extends State<ScreenSearchresultpage> {
                                   ),
                                   ResponsiveSizedBox.height10,
                                   ResponsiveText(
-                                    'Failed to load cars',
+                                    state.message,
                                     color: Colors.red,
                                     weight: FontWeight.w500,
                                   ),
