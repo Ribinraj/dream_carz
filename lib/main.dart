@@ -5,6 +5,7 @@ import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:dream_carz/domain/controllers/pushnotification_controller.dart';
 import 'package:dream_carz/domain/repositories/apprepo.dart';
 import 'package:dream_carz/domain/repositories/loginrepo.dart';
+import 'package:dream_carz/presentation/blocs/booking_confirmation_bloc/booking_confirmation_bloc.dart';
 import 'package:dream_carz/presentation/blocs/connectivity_bloc/connectivity_bloc.dart';
 import 'package:dream_carz/presentation/blocs/coupen_bloc/coupen_bloc.dart';
 import 'package:dream_carz/presentation/blocs/edit_profile_bloc/edit_profile_bloc.dart';
@@ -100,6 +101,9 @@ class MyApp extends StatelessWidget {
         ),
                               BlocProvider(
           create: (context) => ConnectivityBloc(),
+        ),
+                                  BlocProvider(
+          create: (context) => BookingConfirmationBloc(repository: apprepo),
         )
         
       ],
