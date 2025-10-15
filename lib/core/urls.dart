@@ -12,4 +12,5 @@ class Endpoints {
   static const editprofile = 'login/updateprofile';
   static const bookingoverview = 'booking/overview';
   static const coupen = 'booking/applyCoupon';
+  static const bookingconfirmation='booking/confirm';
 }
