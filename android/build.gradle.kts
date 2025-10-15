@@ -1,7 +1,11 @@
 allprojects {
     repositories {
         google()
-        mavenCentral()
+          mavenCentral()
+            maven { 
+         url= uri{"https://phonepe.mycloudrepo.io/public/repositories/phonepe-intentsdk-android" }
+      }
+      
     }
 }
 

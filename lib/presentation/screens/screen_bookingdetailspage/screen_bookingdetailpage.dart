@@ -13,12 +13,13 @@ import 'package:dream_carz/presentation/blocs/coupen_bloc/coupen_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_booking_overview_bloc/fetch_bookingoverview_bloc.dart';
 
 import 'package:dream_carz/presentation/screens/screen_bookingdetailspage/widgets/locationselection_widget.dart';
-import 'package:dream_carz/presentation/screens/screen_checkoutpage/screen_checkoutpage.dart';
+import 'package:dream_carz/presentation/screens/screen_paymentpage/screenpaymentpage.dart';
 import 'package:dream_carz/presentation/screens/screen_networkpage/screen_networkpage.dart';
 import 'package:dream_carz/presentation/screens/screen_paymentpages/screen_paymentsuccesspage.dart';
 
 import 'package:dream_carz/presentation/screens/screen_searchresultscreen.dart/widgets/customloading.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
+import 'package:dream_carz/widgets/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -295,36 +296,103 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
                     ),
                    BlocConsumer<BookingConfirmationBloc, BookingConfirmationState>(
       listener: (context, state) {
-        // TODO: implement listener
+        if (state is BookingConfirmationSuccessState) {
+          CustomNavigation.pushWithTransition(context,ScreenPaymentPage(bookingData: state.car,));
+        }
+        else if(state is BookingConfirmationErrorState){
+        CustomSnackbar.show(context, message: state.message, type:SnackbarType.error);
+        }
       },
       builder: (context, state) {
+        if (state is BookingConfirmationLoadingState) {
+           return Container(
+          width: double.infinity,
+          margin: EdgeInsets.all(ResponsiveUtils.wp(4)),
+          child: ElevatedButton(
+            onPressed: () {
+
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              padding: EdgeInsets.symmetric(vertical: ResponsiveUtils.hp(1.6)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadiusStyles.kradius10(),
+              ),
+              elevation: 0,
+            ),
+            child:SpinKitCircle(size: 20,color: Appcolors.kwhitecolor,),
+          ),
+        );
+        }
         return Container(
           width: double.infinity,
           margin: EdgeInsets.all(ResponsiveUtils.wp(4)),
           child: ElevatedButton(
             onPressed: () {
-                final fromDateTime = DateTime(
-     widget. pickupDate!.year,
-     widget. pickupDate!.month,
-     widget. pickupDate!.day,
-      widget.pickupTime!.hour,
-     widget. pickupTime!.minute,
-    );
-    final toDateTime = DateTime(
-     widget. dropDate!.year,
-     widget. dropDate!.month,
-    widget.  dropDate!.day,
-   widget.   dropTime!.hour,
-     widget. dropTime!.minute,
-    );
-        String formatDateTime(DateTime dt) =>
-        "${dt.year.toString().padLeft(4, '0')}-"
-        "${dt.month.toString().padLeft(2, '0')}-"
-        "${dt.day.toString().padLeft(2, '0')} "
-        "${dt.hour.toString().padLeft(2, '0')}:"
-        "${dt.minute.toString().padLeft(2, '0')}:00";
-      final fulfillment = isDelivery ? "delivery" : "pickup";
-              context.read<BookingConfirmationBloc>().add(BookingConfirmationButtonClickEvent(booking: ConfirmBookingmodel(bookingFrom:formatDateTime(fromDateTime), bookingTo:formatDateTime(toDateTime), modelId: widget.modelId!, cityId:int.parse(widget.cityId!), fulfillment:fulfillment)));
+          // Validate before proceeding
+          final validationError = _validateBookingDetails();
+          
+          if (validationError != null) {
+            CustomSnackbar.show(
+              context,
+              message: validationError,
+              type: SnackbarType.error,
+            );
+            return;
+          }
+
+          // If validation passes, proceed with booking
+          final fromDateTime = DateTime(
+            widget.pickupDate!.year,
+            widget.pickupDate!.month,
+            widget.pickupDate!.day,
+            widget.pickupTime!.hour,
+            widget.pickupTime!.minute,
+          );
+          final toDateTime = DateTime(
+            widget.dropDate!.year,
+            widget.dropDate!.month,
+            widget.dropDate!.day,
+            widget.dropTime!.hour,
+            widget.dropTime!.minute,
+          );
+
+          String formatDateTime(DateTime dt) =>
+              "${dt.year.toString().padLeft(4, '0')}-"
+              "${dt.month.toString().padLeft(2, '0')}-"
+              "${dt.day.toString().padLeft(2, '0')} "
+              "${dt.hour.toString().padLeft(2, '0')}:"
+              "${dt.minute.toString().padLeft(2, '0')}:00";
+
+          final fulfillment = isDelivery ? "delivery" : "pickup";
+
+          context.read<BookingConfirmationBloc>().add(
+                BookingConfirmationButtonClickEvent(
+                  booking: ConfirmBookingmodel(
+                    bookingFrom: formatDateTime(fromDateTime),
+                    bookingTo: formatDateTime(toDateTime),
+                    modelId: widget.modelId!,
+                    cityId: int.parse(widget.cityId!),
+                    fulfillment: fulfillment,
+                    couponCode: couponController.text.trim().isNotEmpty
+                        ? couponController.text.trim()
+                        : null,
+                    deliveryArea: isDelivery
+                        ? deliveryLocationController.text.trim()
+                        : null,
+                    deliveryAddress: isDelivery
+                        ? deliveryAddressController.text.trim()
+                        : null,
+                    deliveryContactName: isDelivery
+                        ? deliveryContactNameController.text.trim()
+                        : null,
+                    deliveryContactMobile: isDelivery
+                        ? deliveryMobileController.text.trim()
+                        : null,
+                    branchId: !isDelivery ? selectedBranchId : null,
+                  ),
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
@@ -1155,37 +1223,37 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
     );
   }
 
-  // Widget _buildProceedButton() {
-  //   return BlocConsumer<BookingConfirmationBloc, BookingConfirmationState>(
-  //     listener: (context, state) {
-  //       // TODO: implement listener
-  //     },
-  //     builder: (context, state) {
-  //       return Container(
-  //         width: double.infinity,
-  //         margin: EdgeInsets.all(ResponsiveUtils.wp(4)),
-  //         child: ElevatedButton(
-  //           onPressed: () {
-  //             context.read<BookingConfirmationBloc>().add(BookingConfirmationButtonClickEvent(booking: ConfirmBookingmodel(bookingFrom: bookingFrom, bookingTo: bookingTo, modelId: modelId, cityId: cityId, fulfillment: fulfillment)));
-  //           },
-  //           style: ElevatedButton.styleFrom(
-  //             backgroundColor: Colors.red,
-  //             padding: EdgeInsets.symmetric(vertical: ResponsiveUtils.hp(1.6)),
-  //             shape: RoundedRectangleBorder(
-  //               borderRadius: BorderRadiusStyles.kradius10(),
-  //             ),
-  //             elevation: 0,
-  //           ),
-  //           child: TextStyles.body(
-  //             text: 'PROCEED',
-  //             color: Colors.white,
-  //             weight: FontWeight.bold,
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
+
+String? _validateBookingDetails() {
+  // Check if fulfillment is pickup and branchId is required
+  if (!isDelivery && (selectedBranchId == null || selectedBranchId!.isEmpty)) {
+    return 'Please select a pickup location';
+  }
+
+  // Check if fulfillment is delivery and all delivery fields are required
+  if (isDelivery) {
+    if (deliveryLocationController.text.trim().isEmpty) {
+      return 'Please select delivery location';
+    }
+    if (deliveryAddressController.text.trim().isEmpty) {
+      return 'Please enter delivery address';
+    }
+    if (deliveryContactNameController.text.trim().isEmpty) {
+      return 'Please enter contact name';
+    }
+    if (deliveryMobileController.text.trim().isEmpty) {
+      return 'Please enter mobile number';
+    }
+    if (deliveryMobileController.text.trim().length != 10) {
+      return 'Mobile number must be 10 digits';
+    }
+    if (!RegExp(r'^[0-9]+$').hasMatch(deliveryMobileController.text.trim())) {
+      return 'Mobile number must contain only digits';
+    }
+  }
+
+  return null; // No validation errors
+}
 
   @override
   void dispose() {

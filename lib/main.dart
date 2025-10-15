@@ -115,7 +115,7 @@ class MyApp extends StatelessWidget {
             systemOverlayStyle: SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
               statusBarIconBrightness: Brightness.dark,
-              statusBarBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
             ),
           ),
           fontFamily: 'Helvetica',

@@ -52,6 +52,8 @@ dependencies:
   connectivity_plus: ^7.0.0
   url_launcher: ^6.3.2
   shimmer: ^3.0.0
+  phonepe_payment_sdk: ^3.0.2
+  uuid: ^4.5.1
  
  
 
