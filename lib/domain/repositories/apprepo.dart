@@ -258,7 +258,7 @@ class Apprepo {
       );
       log("Response received: ${response.statusCode}");
       final responseData = response.data;
-      log("Response data: $responseData");
+     // log("Response data: $responseData");
  
       if ( responseData["status"] == 200) {
         final coupen = CouponModel.fromJson(responseData["data"]);
@@ -314,6 +314,45 @@ class Apprepo {
      
         return ApiResponse(
           data: bookingconfirmationdetails,
+          message: responseData['message'] ?? 'Success',
+          error: false,
+          status: responseData["status"],
+        );
+      } else {
+        return ApiResponse(
+          data: null,
+          message: responseData['message'] ?? 'Something went wrong',
+          error: true,
+          status: responseData["status"],
+        );
+      }
+    } on DioException catch (e) {
+      debugPrint(e.message);
+
+      log(e.toString());
+      return ApiResponse(
+        data: null,
+        message: 'Network or server error occurred',
+        error: true,
+        status: 500,
+      );
+    }
+  }
+      //   //////////------------BookingConfirmation-----------/////////////////
+  Future<ApiResponse>bookingstatus({required String orderId}) async {
+    // log('pushtoken when login ${user.pushToken}');
+    
+    try {
+      final token=await getUserToken();
+      Response response = await dio.post(Endpoints.bookingstatus, data: orderId,options: Options(headers: {'Authorization': token}));
+      final responseData = response.data;
+   
+log("Response data: $responseData");
+ 
+      if (!responseData["error"] && responseData["status"] == 200) {
+
+        return ApiResponse(
+          data:null,
           message: responseData['message'] ?? 'Success',
           error: false,
           status: responseData["status"],

@@ -42,6 +42,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+            <meta-data android:name="com.phonepe.android.sdk.isUAT" android:value="true"/> 
+<meta-data android:name="com.phonepe.android.sdk.isSimulator" android:value="true"/>
+<meta-data android:name="com.phonepe.android.sdk.MerchantId" android:value="M2335NMFM3DOC"/>
                         <meta-data
     android:name="com.google.android.geo.API_KEY"
     android:value="AIzaSyBW8UbeKu73pQ3fCj5rh3PXe_mXPorgCHA"/>
@@ -52,6 +55,12 @@
 
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
     <queries>
+            <!-- Specific package(s) you may target (PhonePe) -->
+        <package android:name="com.phonepe.app" />
+        <!-- Add other UPI apps you want to allow (optional, helpful for testing) -->
+        <package android:name="com.google.android.apps.nbu.paisa.user" /> <!-- Google Pay -->
+        <package android:name="net.one97.paytm" /> <!-- Paytm -->
+        <package android:name="com.bsb.hike" /> <!-- example: remove if not needed -->
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>

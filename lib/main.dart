@@ -15,6 +15,7 @@ import 'package:dream_carz/presentation/blocs/fetch_categories_bloc/fetch_catego
 import 'package:dream_carz/presentation/blocs/fetch_cities_bloc/fetch_cities_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_kmplans_bloc/fetch_kmplans_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_profile_bloc/fetch_profile_bloc.dart';
+import 'package:dream_carz/presentation/blocs/payment_status_bloc/payment_status_bloc.dart';
 import 'package:dream_carz/presentation/blocs/resend_otp_bloc/resend_otp_bloc.dart';
 import 'package:dream_carz/presentation/blocs/send_otp_bloc/send_otp_bloc.dart';
 import 'package:dream_carz/presentation/blocs/verify_otp_bloc/verify_otp_bloc.dart';
@@ -104,6 +105,9 @@ class MyApp extends StatelessWidget {
         ),
                                   BlocProvider(
           create: (context) => BookingConfirmationBloc(repository: apprepo),
+        ),
+                                         BlocProvider(
+          create: (context) => PaymentStatusBloc(repository: apprepo),
         )
         
       ],
