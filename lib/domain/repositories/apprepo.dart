@@ -12,6 +12,7 @@ import 'package:dream_carz/data/confirm_bookingmodel.dart';
 import 'package:dream_carz/data/coupen_model.dart';
 import 'package:dream_carz/data/documentlist_model.dart';
 import 'package:dream_carz/data/km_model.dart';
+import 'package:dream_carz/data/ordermodel.dart';
 import 'package:dream_carz/data/search_model.dart';
 import 'package:dream_carz/data/upload_documentmodel.dart';
 import 'package:dream_carz/widgets/shared_preferences.dart';
@@ -435,6 +436,45 @@ log("Response data: $responseData");
      
         return ApiResponse(
           data:null,
+          message: responseData['message'] ?? 'Success',
+          error: false,
+          status: responseData["status"],
+        );
+      } else {
+        return ApiResponse(
+          data: null,
+          message: responseData['message'] ?? 'Something went wrong',
+          error: true,
+          status: responseData["status"],
+        );
+      }
+    } on DioException catch (e) {
+      debugPrint(e.message);
+
+      log(e.toString());
+      return ApiResponse(
+        data: null,
+        message: 'Network or server error occurred',
+        error: true,
+        status: 500,
+      );
+    }
+  }
+      //   //////////------------myorders-----------/////////////////
+  Future<ApiResponse<List<Ordermodel>>>myorders() async {
+    // log('pushtoken when login ${user.pushToken}');
+    final token=await getUserToken();
+    try {
+      Response response = await dio.post(Endpoints.myorders,options: Options(headers: {'Authorization': token}));
+      final responseData = response.data;
+   
+      if (!responseData["error"] && responseData["status"] == 200) {
+        final List<dynamic> orders = responseData['data'];
+        List<Ordermodel> fetchedorders = orders
+            .map((doc) => Ordermodel.fromJson(doc))
+            .toList();
+        return ApiResponse(
+          data: fetchedorders,
           message: responseData['message'] ?? 'Success',
           error: false,
           status: responseData["status"],

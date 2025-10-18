@@ -9,7 +9,9 @@ import 'package:dream_carz/data/documentlist_model.dart';
 import 'package:dream_carz/data/upload_documentmodel.dart';
 import 'package:dream_carz/presentation/blocs/fetch_documentlists_bloc/fetch_document_lists_bloc.dart';
 import 'package:dream_carz/presentation/blocs/upload_document_bloc/upload_document_bloc.dart';
+import 'package:dream_carz/presentation/screens/screen_bookingconfirmation/screen_bookingconfirmationpage.dart';
 import 'package:dream_carz/presentation/screens/screen_mydocuments/widgets/image_picker.dart';
+import 'package:dream_carz/widgets/custom_navigation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,10 +32,7 @@ class DocumentUploadItem {
 class MyDocumentsPage extends StatefulWidget {
   final String bookingId;
 
-  const MyDocumentsPage({
-    super.key,
-    required this.bookingId,
-  });
+  const MyDocumentsPage({super.key, required this.bookingId});
 
   @override
   State<MyDocumentsPage> createState() => _MyDocumentsPageState();
@@ -48,8 +47,8 @@ class _MyDocumentsPageState extends State<MyDocumentsPage> {
     super.initState();
     // Fetch document list on page load
     context.read<FetchDocumentListsBloc>().add(
-          FetchDocmentsButtonClickEvent(bookingId: widget.bookingId),
-        );
+      FetchDocmentsButtonClickEvent(bookingId: widget.bookingId),
+    );
   }
 
   Future<String> _convertImageToBase64(String filePath) async {
@@ -90,7 +89,9 @@ class _MyDocumentsPageState extends State<MyDocumentsPage> {
 
     for (var item in documentItems) {
       if (item.selectedFile != null) {
-        final base64String = await _convertImageToBase64(item.selectedFile!.path);
+        final base64String = await _convertImageToBase64(
+          item.selectedFile!.path,
+        );
         documentsToUpload.add(
           DocumentFile(
             documentId: int.tryParse(item.document.documentId ?? '0'),
@@ -121,13 +122,13 @@ class _MyDocumentsPageState extends State<MyDocumentsPage> {
 
     // Trigger upload
     context.read<UploadDocumentBloc>().add(
-          UploadDocumentButtonClickEvent(
-            documents: UploadDocumentmodel(
-              bookingId: int.tryParse(widget.bookingId),
-              documents: documentsToUpload,
-            ),
-          ),
-        );
+      UploadDocumentButtonClickEvent(
+        documents: UploadDocumentmodel(
+          bookingId: int.tryParse(widget.bookingId),
+          documents: documentsToUpload,
+        ),
+      ),
+    );
   }
 
   @override
@@ -178,28 +179,32 @@ class _MyDocumentsPageState extends State<MyDocumentsPage> {
           BlocListener<UploadDocumentBloc, UploadDocumentState>(
             listener: (context, state) {
               if (state is UploadDocumentSuccessState) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: ResponsiveText(
-                      state.message,
-                      sizeFactor: 0.9,
-                      color: Appcolors.kwhitecolor,
-                    ),
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadiusStyles.kradius10(),
-                    ),
-                    behavior: SnackBarBehavior.floating,
-                  ),
+                CustomNavigation.pushReplaceWithTransition(
+                  context,
+                  OrderConfirmedPage(),
                 );
-                // Mark all as uploaded
-                setState(() {
-                  for (var item in documentItems) {
-                    if (item.selectedFile != null) {
-                      item.isUploaded = true;
-                    }
-                  }
-                });
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   SnackBar(
+                //     content: ResponsiveText(
+                //       state.message,
+                //       sizeFactor: 0.9,
+                //       color: Appcolors.kwhitecolor,
+                //     ),
+                //     backgroundColor: Colors.green,
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadiusStyles.kradius10(),
+                //     ),
+                //     behavior: SnackBarBehavior.floating,
+                //   ),
+                // );
+                // // Mark all as uploaded
+                // setState(() {
+                //   for (var item in documentItems) {
+                //     if (item.selectedFile != null) {
+                //       item.isUploaded = true;
+                //     }
+                //   }
+                // });
               } else if (state is UploadDocumentErrorState) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -288,8 +293,8 @@ class _MyDocumentsPageState extends State<MyDocumentsPage> {
                               : _submitDocuments,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Appcolors.kprimarycolor,
-                            disabledBackgroundColor:
-                                Appcolors.kprimarycolor.withOpacity(0.6),
+                            disabledBackgroundColor: Appcolors.kprimarycolor
+                                .withOpacity(0.6),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadiusStyles.kradius10(),
                             ),

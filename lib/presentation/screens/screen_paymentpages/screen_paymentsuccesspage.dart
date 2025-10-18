@@ -1,17 +1,25 @@
+
+// import 'dart:convert';
 // import 'package:dream_carz/core/colors.dart';
 // import 'package:dream_carz/core/responsiveutils.dart';
 // import 'package:dream_carz/presentation/screens/screen_homepage/screen_homepage.dart';
 // import 'package:dream_carz/presentation/screens/screen_mybookingspage/screen_mybookingpage.dart';
+// import 'package:dream_carz/presentation/screens/screen_mydocuments/screen_mydocuments.dart';
 // import 'package:dream_carz/widgets/custom_navigation.dart';
 // import 'package:flutter/material.dart';
 
 // class PaymentSuccessPage extends StatefulWidget {
-//   final String amount;
+//   final String bookingId;
+//   final double amount;
 //   final String transactionId;
+//   final Map<String, dynamic>? rawResponse;
+
 //   const PaymentSuccessPage({
 //     super.key,
 //     required this.amount,
 //     required this.transactionId,
+//     required this.bookingId,
+//     this.rawResponse,
 //   });
 
 //   @override
@@ -21,23 +29,21 @@
 // class PaymentSuccessPageState extends State<PaymentSuccessPage>
 //     with SingleTickerProviderStateMixin {
 //   late AnimationController _controller;
-//   //late Animation<double> _scaleAnimation;
+//   late Animation<double> _scaleAnimation;
+//   bool _showRaw = false;
 
 //   @override
 //   void initState() {
 //     super.initState();
 //     _controller = AnimationController(
-//       duration: const Duration(milliseconds: 1500),
+//       duration: const Duration(milliseconds: 900),
 //       vsync: this,
 //     );
 
-//     // _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-//     //   CurvedAnimation(
-//     //     parent: _controller,
-//     //     curve: Curves.elasticOut,
-//     //   ),
-//     // );
-
+//     _scaleAnimation = CurvedAnimation(
+//       parent: _controller,
+//       curve: Curves.elasticOut,
+//     );
 //     _controller.forward();
 //   }
 
@@ -46,6 +52,8 @@
 //     _controller.dispose();
 //     super.dispose();
 //   }
+
+//   String get formattedAmount => '₹ ${widget.amount.toStringAsFixed(2)}';
 
 //   @override
 //   Widget build(BuildContext context) {
@@ -66,46 +74,50 @@
 //                 mainAxisAlignment: MainAxisAlignment.center,
 //                 crossAxisAlignment: CrossAxisAlignment.center,
 //                 children: [
-//                   // ScaleTransition(
-//                   //   scale: _scaleAnimation,
-//                   //   child: Container(
-//                   //     width: 100,
-//                   //     height: 100,
-//                   //     decoration: BoxDecoration(
-//                   //       color: Colors.green.shade100,
-//                   //       shape: BoxShape.circle,
-//                   //     ),
-//                   //     child: Icon(
-//                   //       Icons.check,
-//                   //       color: Colors.green.shade600,
-//                   //       size: 50,
-//                   //     ),
-//                   //   ),
-//                   // ),
-//                   Image.asset(
-//                     'assets/images/transaction-approved-smartphone.png',
-//                     height: ResponsiveUtils.hp(25),
+//                   ScaleTransition(
+//                     scale: _scaleAnimation,
+//                     child: Image.asset(
+//                       'assets/images/transaction-approved-smartphone.png',
+//                       height: ResponsiveUtils.hp(25),
+//                     ),
 //                   ),
+
 //                   const SizedBox(height: 24),
+
 //                   Text(
 //                     'Payment Successful!',
 //                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
 //                       fontWeight: FontWeight.bold,
 //                       color: Colors.grey.shade800,
 //                     ),
+//                     textAlign: TextAlign.center,
 //                   ),
-//                   const SizedBox(height: 16),
+
+//                   const SizedBox(height: 12),
+
 //                   Text(
-//                     'Thank you for your Booking.\nYour order has been processed successfully.',
+//                     'Thank you for your booking. Your order has been processed successfully.',
 //                     textAlign: TextAlign.center,
 //                     style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
 //                   ),
-//                   const SizedBox(height: 32),
+
+//                   const SizedBox(height: 28),
+
 //                   _buildProgressIndicator(),
-//                   const SizedBox(height: 32),
+
+//                   const SizedBox(height: 28),
+
 //                   _buildTransactionDetails(),
-//                   const SizedBox(height: 32),
+
+//                   const SizedBox(height: 24),
+
 //                   _buildButtons(context),
+
+//                   if (widget.rawResponse != null) ...[
+//                     const SizedBox(height: 20),
+//                     _buildRawToggle(),
+//                     if (_showRaw) _buildRawResponseBox(),
+//                   ],
 //                 ],
 //               ),
 //             ),
@@ -116,17 +128,22 @@
 //   }
 
 //   Widget _buildProgressIndicator() {
-//     return TweenAnimationBuilder(
+//     return TweenAnimationBuilder<double>(
 //       tween: Tween<double>(begin: 0.0, end: 1.0),
-//       duration: const Duration(milliseconds: 1500),
-//       builder: (context, double value, child) {
+//       duration: const Duration(milliseconds: 900),
+//       builder: (context, value, _) {
 //         return Column(
 //           children: [
 //             LinearProgressIndicator(
 //               value: value,
 //               backgroundColor: Colors.grey.shade200,
 //               valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade500),
-//               minHeight: 2,
+//               minHeight: 3,
+//             ),
+//             const SizedBox(height: 8),
+//             Text(
+//               value < 1.0 ? 'Finalizing order...' : 'Done',
+//               style: TextStyle(color: Colors.grey.shade700),
 //             ),
 //           ],
 //         );
@@ -136,6 +153,7 @@
 
 //   Widget _buildTransactionDetails() {
 //     return Container(
+//       width: double.infinity,
 //       padding: const EdgeInsets.all(16),
 //       decoration: BoxDecoration(
 //         color: Colors.white,
@@ -150,9 +168,9 @@
 //       ),
 //       child: Column(
 //         children: [
-//           _buildDetailRow('Amount Paid', '${widget.amount}'),
-//           const SizedBox(height: 16),
-//           _buildDetailRow('Transaction ID', '${widget.transactionId}'),
+//           _buildDetailRow('Amount Paid', formattedAmount),
+//           const SizedBox(height: 12),
+//           _buildDetailRow('Transaction ID', widget.transactionId),
 //         ],
 //       ),
 //     );
@@ -166,9 +184,12 @@
 //           label,
 //           style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
 //         ),
-//         Text(
-//           value,
-//           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+//         Flexible(
+//           child: Text(
+//             value,
+//             textAlign: TextAlign.right,
+//             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+//           ),
 //         ),
 //       ],
 //     );
@@ -179,16 +200,20 @@
 //       children: [
 //         ElevatedButton(
 //           onPressed: () {
+//             // Navigate to bookings page with replace transition
 //             CustomNavigation.pushReplaceWithTransition(
 //               context,
 //               ScreenMybookingpage(),
 //             );
 //           },
 //           style: ElevatedButton.styleFrom(
-//             backgroundColor: Colors.green.shade600.withOpacity(.8),
+//             backgroundColor: Colors.green.shade600.withOpacity(.9),
 //             foregroundColor: Colors.white,
-//             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-//             shape: const RoundedRectangleBorder(),
+//             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(8),
+//             ),
+//             minimumSize: Size(ResponsiveUtils.wp(60), 48),
 //           ),
 //           child: const Row(
 //             mainAxisAlignment: MainAxisAlignment.center,
@@ -199,40 +224,110 @@
 //             ],
 //           ),
 //         ),
-//         const SizedBox(height: 30),
+
+//         const SizedBox(height: 16),
+
 //         OutlinedButton(
 //           onPressed: () {
-//                 Navigator.of(context).pushAndRemoveUntil(
-//       MaterialPageRoute(builder: (_) => ScreenHomepage()),
-//       (route) => false,
-//     );
+//             CustomNavigation.pushReplaceWithTransition(
+//               context,
+//               MyDocumentsPage(bookingId: widget.bookingId),
+//             );
 //           },
 //           style: OutlinedButton.styleFrom(
-//             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-//             shape: const RoundedRectangleBorder(),
+//             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(8),
+//             ),
+//             side: BorderSide(color: Appcolors.kblackcolor.withOpacity(0.6)),
+//             minimumSize: Size(ResponsiveUtils.wp(60), 44),
 //           ),
-//           child: const Text(
-//             'Back to Home',
+//           child: Text(
+//             'Upload Document',
 //             style: TextStyle(
 //               color: Appcolors.kblackcolor,
 //               fontWeight: FontWeight.bold,
+//               fontSize: 15,
 //             ),
 //           ),
+//         ),
+
+//         const SizedBox(height: 12),
+
+//         // Optional: share receipt button (placeholder)
+//         TextButton.icon(
+//           onPressed: () {
+//             Navigator.of(context).pushAndRemoveUntil(
+//               MaterialPageRoute(builder: (_) => ScreenHomepage()),
+//               (route) => false,
+//             );
+//           },
+//           icon: const Icon(Icons.share, size: 18),
+//           label: const Text('Back to Home'),
 //         ),
 //       ],
 //     );
 //   }
+
+//   Widget _buildRawToggle() {
+//     return GestureDetector(
+//       onTap: () => setState(() => _showRaw = !_showRaw),
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           Icon(
+//             _showRaw ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+//             color: Colors.grey.shade700,
+//           ),
+//           const SizedBox(width: 6),
+//           Text(
+//             _showRaw ? 'Hide details' : 'Show details',
+//             style: TextStyle(color: Colors.grey.shade700),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildRawResponseBox() {
+//     final pretty = const JsonEncoder.withIndent(
+//       '  ',
+//     ).convert(widget.rawResponse);
+//     return Container(
+//       margin: const EdgeInsets.only(top: 12),
+//       padding: const EdgeInsets.all(12),
+//       width: double.infinity,
+//       decoration: BoxDecoration(
+//         color: Colors.grey.shade50,
+//         borderRadius: BorderRadius.circular(8),
+//         border: Border.all(color: Colors.grey.shade300),
+//       ),
+//       child: SingleChildScrollView(
+//         scrollDirection: Axis.horizontal,
+//         child: Text(
+//           pretty,
+//           style: const TextStyle(
+//             fontFamily: 'monospace',
+//             fontSize: 12,
+//             color: Colors.black87,
+//           ),
+//         ),
+//       ),
+//     );
+//   }
 // }
-// payment_success_page.dart
+//////////////////////////////////////////////////
 import 'dart:convert';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/screen_homepage.dart';
 import 'package:dream_carz/presentation/screens/screen_mybookingspage/screen_mybookingpage.dart';
+import 'package:dream_carz/presentation/screens/screen_mydocuments/screen_mydocuments.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
 import 'package:flutter/material.dart';
 
 class PaymentSuccessPage extends StatefulWidget {
+  final String bookingId;
   final double amount;
   final String transactionId;
   final Map<String, dynamic>? rawResponse;
@@ -241,6 +336,7 @@ class PaymentSuccessPage extends StatefulWidget {
     super.key,
     required this.amount,
     required this.transactionId,
+    required this.bookingId,
     this.rawResponse,
   });
 
@@ -262,7 +358,10 @@ class PaymentSuccessPageState extends State<PaymentSuccessPage>
       vsync: this,
     );
 
-    _scaleAnimation = CurvedAnimation(parent: _controller, curve: Curves.elasticOut);
+    _scaleAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.elasticOut,
+    );
     _controller.forward();
   }
 
@@ -274,70 +373,121 @@ class PaymentSuccessPageState extends State<PaymentSuccessPage>
 
   String get formattedAmount => '₹ ${widget.amount.toStringAsFixed(2)}';
 
+  Future<bool> _onWillPop() async {
+    return await _showWarningDialog() ?? false;
+  }
+
+  Future<bool?> _showWarningDialog() async {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700, size: 28),
+              const SizedBox(width: 8),
+              const Text('Document Required'),
+            ],
+          ),
+          content: const Text(
+            'Without uploading your document, your order will not be confirmed. Are you sure you want to leave?',
+            style: TextStyle(fontSize: 15),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                'Stay & Upload',
+                style: TextStyle(
+                  color: Colors.green.shade700,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                'Leave Anyway',
+                style: TextStyle(color: Colors.red.shade600),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.green.shade50, Colors.teal.shade50],
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.green.shade50, Colors.teal.shade50],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: Image.asset(
-                      'assets/images/transaction-approved-smartphone.png',
-                      height: ResponsiveUtils.hp(25),
+          child: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ScaleTransition(
+                      scale: _scaleAnimation,
+                      child: Image.asset(
+                        'assets/images/transaction-approved-smartphone.png',
+                        height: ResponsiveUtils.hp(25),
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  Text(
-                    'Payment Successful!',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade800,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
+                    Text(
+                      'Payment Successful!',
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade800,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
 
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 12),
 
-                  Text(
-                    'Thank you for your booking. Your order has been processed successfully.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
-                  ),
+                    Text(
+                      'Thank you for your booking. Your order has been processed successfully.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                    ),
 
-                  const SizedBox(height: 28),
+                    const SizedBox(height: 28),
 
-                  _buildProgressIndicator(),
+                    _buildProgressIndicator(),
 
-                  const SizedBox(height: 28),
+                    const SizedBox(height: 28),
 
-                  _buildTransactionDetails(),
+                    _buildTransactionDetails(),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  _buildButtons(context),
+                    _buildButtons(context),
 
-                  if (widget.rawResponse != null) ...[
-                    const SizedBox(height: 20),
-                    _buildRawToggle(),
-                    if (_showRaw) _buildRawResponseBox(),
+                    if (widget.rawResponse != null) ...[
+                      const SizedBox(height: 20),
+                      _buildRawToggle(),
+                      if (_showRaw) _buildRawResponseBox(),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
@@ -429,7 +579,9 @@ class PaymentSuccessPageState extends State<PaymentSuccessPage>
             backgroundColor: Colors.green.shade600.withOpacity(.9),
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
             minimumSize: Size(ResponsiveUtils.wp(60), 48),
           ),
           child: const Row(
@@ -442,23 +594,53 @@ class PaymentSuccessPageState extends State<PaymentSuccessPage>
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
+
+        // Important notice for document upload
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.orange.shade50,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.orange.shade200),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Upload document to confirm your order',
+                  style: TextStyle(
+                    color: Colors.orange.shade900,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 12),
 
         OutlinedButton(
           onPressed: () {
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => ScreenHomepage()),
-              (route) => false,
+            CustomNavigation.pushReplaceWithTransition(
+              context,
+              MyDocumentsPage(bookingId: widget.bookingId),
             );
           },
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
             side: BorderSide(color: Appcolors.kblackcolor.withOpacity(0.6)),
             minimumSize: Size(ResponsiveUtils.wp(60), 44),
           ),
           child: Text(
-            'Back to Home',
+            'Upload Document',
             style: TextStyle(
               color: Appcolors.kblackcolor,
               fontWeight: FontWeight.bold,
@@ -471,12 +653,17 @@ class PaymentSuccessPageState extends State<PaymentSuccessPage>
 
         // Optional: share receipt button (placeholder)
         TextButton.icon(
-          onPressed: () {
-            // TODO: integrate share/save receipt functionality (e.g. using share_plus)
-            // Example: Share.share('Receipt: Transaction ${widget.transactionId} - $formattedAmount');
+          onPressed: () async {
+            final shouldLeave = await _showWarningDialog();
+            if (shouldLeave == true) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => ScreenHomepage()),
+                (route) => false,
+              );
+            }
           },
-          icon: const Icon(Icons.share, size: 18),
-          label: const Text('Share Receipt'),
+          icon: const Icon(Icons.home_outlined, size: 18),
+          label: const Text('Back to Home'),
         ),
       ],
     );
@@ -488,7 +675,10 @@ class PaymentSuccessPageState extends State<PaymentSuccessPage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(_showRaw ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: Colors.grey.shade700),
+          Icon(
+            _showRaw ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+            color: Colors.grey.shade700,
+          ),
           const SizedBox(width: 6),
           Text(
             _showRaw ? 'Hide details' : 'Show details',
@@ -500,7 +690,9 @@ class PaymentSuccessPageState extends State<PaymentSuccessPage>
   }
 
   Widget _buildRawResponseBox() {
-    final pretty = const JsonEncoder.withIndent('  ').convert(widget.rawResponse);
+    final pretty = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(widget.rawResponse);
     return Container(
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(12),
@@ -514,7 +706,11 @@ class PaymentSuccessPageState extends State<PaymentSuccessPage>
         scrollDirection: Axis.horizontal,
         child: Text(
           pretty,
-          style: const TextStyle(fontFamily: 'monospace', fontSize: 12, color: Colors.black87),
+          style: const TextStyle(
+            fontFamily: 'monospace',
+            fontSize: 12,
+            color: Colors.black87,
+          ),
         ),
       ),
     );

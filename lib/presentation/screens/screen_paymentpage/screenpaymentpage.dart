@@ -289,6 +289,7 @@ Future<void> _startpayment() async {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => PaymentSuccessPage(
+          bookingId:widget.bookingData.bookingId ,
           transactionId: transactionId,
           amount: amount,
           rawResponse: rawResponse,
@@ -350,7 +351,7 @@ Future<void> _startpayment() async {
           if (state is PaymentStatusSuccessState) {
             // navigate to success page
             Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (_) => PaymentSuccessPage(amount: 0,transactionId: 'neo33333',),
+              builder: (_) => PaymentSuccessPage(amount:double.parse(widget.bookingData.grandTotal!),transactionId:widget.bookingData.transactionId!,bookingId:widget.bookingData.bookingId ,),
             ));
           } else if (state is PaymentStatusErrorState) {
             // show error and navigate to failure page or show message

@@ -190,18 +190,18 @@ class ScreenProfilpage extends StatelessWidget {
                     },
                   ),
                   Divider(height: 1, color: Colors.grey[200]),
-                  _buildMenuOption(
-                    context: context,
-                    icon: Icons.folder_outlined,
-                    title: 'Documents',
-                    subtitle: 'Manage your documents',
-                    onTap: () {
-                      CustomNavigation.pushWithTransition(
-                        context,
-                        MyDocumentsPage(bookingId: "77",),
-                      );
-                    },
-                  ),
+                  // _buildMenuOption(
+                  //   context: context,
+                  //   icon: Icons.folder_outlined,
+                  //   title: 'Documents',
+                  //   subtitle: 'Manage your documents',
+                  //   onTap: () {
+                  //     CustomNavigation.pushWithTransition(
+                  //       context,
+                  //       MyDocumentsPage(bookingId: "77",),
+                  //     );
+                  //   },
+                  // ),
                 ],
               ),
             ),
