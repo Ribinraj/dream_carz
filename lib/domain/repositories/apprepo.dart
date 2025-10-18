@@ -10,8 +10,10 @@ import 'package:dream_carz/data/categories_model.dart';
 import 'package:dream_carz/data/city_model.dart';
 import 'package:dream_carz/data/confirm_bookingmodel.dart';
 import 'package:dream_carz/data/coupen_model.dart';
+import 'package:dream_carz/data/documentlist_model.dart';
 import 'package:dream_carz/data/km_model.dart';
 import 'package:dream_carz/data/search_model.dart';
+import 'package:dream_carz/data/upload_documentmodel.dart';
 import 'package:dream_carz/widgets/shared_preferences.dart';
 
 import 'package:flutter/material.dart';
@@ -351,6 +353,86 @@ log("Response data: $responseData");
  
       if (!responseData["error"] && responseData["status"] == 200) {
 
+        return ApiResponse(
+          data:null,
+          message: responseData['message'] ?? 'Success',
+          error: false,
+          status: responseData["status"],
+        );
+      } else {
+        return ApiResponse(
+          data: null,
+          message: responseData['message'] ?? 'Something went wrong',
+          error: true,
+          status: responseData["status"],
+        );
+      }
+    } on DioException catch (e) {
+      debugPrint(e.message);
+
+      log(e.toString());
+      return ApiResponse(
+        data: null,
+        message: 'Network or server error occurred',
+        error: true,
+        status: 500,
+      );
+    }
+  }
+    //   //////////------------fetchdocumentlists-----------/////////////////
+  Future<ApiResponse<List<DocumentlistModel>>>fetchdocumenlists({required String bookingId}) async {
+    // log('pushtoken when login ${user.pushToken}');
+    final token=await getUserToken();
+    try {
+      Response response = await dio.post(Endpoints.documentslist, data: {
+    "bookingId":bookingId
+},options: Options(headers: {'Authorization': token}));
+      final responseData = response.data;
+   
+      if (!responseData["error"] && responseData["status"] == 200) {
+        final List<dynamic> documents = responseData['data'];
+        List<DocumentlistModel> fetcheddocuments = documents
+            .map((doc) => DocumentlistModel.fromJson(doc))
+            .toList();
+        return ApiResponse(
+          data: fetcheddocuments,
+          message: responseData['message'] ?? 'Success',
+          error: false,
+          status: responseData["status"],
+        );
+      } else {
+        return ApiResponse(
+          data: null,
+          message: responseData['message'] ?? 'Something went wrong',
+          error: true,
+          status: responseData["status"],
+        );
+      }
+    } on DioException catch (e) {
+      debugPrint(e.message);
+
+      log(e.toString());
+      return ApiResponse(
+        data: null,
+        message: 'Network or server error occurred',
+        error: true,
+        status: 500,
+      );
+    }
+  }
+      //   //////////------------Upload documents-----------/////////////////
+  Future<ApiResponse>uploadDocuments({required UploadDocumentmodel documents}) async {
+    // log('pushtoken when login ${user.pushToken}');
+    
+    try {
+      final token=await getUserToken();
+      Response response = await dio.post(Endpoints.documentupload, data: documents,options: Options(headers: {'Authorization': token}));
+      final responseData = response.data;
+   
+
+      if (!responseData["error"] && responseData["status"] == 200) {
+       // final bookingconfirmationdetails =BookedCarmodel.fromJson(responseData['data']) ;
+     
         return ApiResponse(
           data:null,
           message: responseData['message'] ?? 'Success',

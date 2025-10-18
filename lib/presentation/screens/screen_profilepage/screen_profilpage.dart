@@ -198,7 +198,7 @@ class ScreenProfilpage extends StatelessWidget {
                     onTap: () {
                       CustomNavigation.pushWithTransition(
                         context,
-                        MyDocumentsPage(),
+                        MyDocumentsPage(bookingId: "77",),
                       );
                     },
                   ),
