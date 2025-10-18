@@ -1,36 +1,39 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
+import 'package:dream_carz/data/documentlist_model.dart';
+import 'package:dream_carz/data/upload_documentmodel.dart';
+import 'package:dream_carz/presentation/blocs/fetch_documentlists_bloc/fetch_document_lists_bloc.dart';
+import 'package:dream_carz/presentation/blocs/upload_document_bloc/upload_document_bloc.dart';
 import 'package:dream_carz/presentation/screens/screen_mydocuments/widgets/image_picker.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
-class Document {
-  final String id;
-  final String name;
-  final String type;
-  final String uploadDate;
-  final DocumentStatus status;
-  final String? imagePath; // For uploaded documents
-  final IconData icon;
+class DocumentUploadItem {
+  final DocumentlistModel document;
+  XFile? selectedFile;
+  bool isUploaded;
 
-  Document({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.uploadDate,
-    required this.status,
-    this.imagePath,
-    required this.icon,
+  DocumentUploadItem({
+    required this.document,
+    this.selectedFile,
+    this.isUploaded = false,
   });
 }
 
-enum DocumentStatus { verified, pending, rejected, notUploaded }
-
 class MyDocumentsPage extends StatefulWidget {
-  const MyDocumentsPage({super.key});
+  final String bookingId;
+
+  const MyDocumentsPage({
+    super.key,
+    required this.bookingId,
+  });
 
   @override
   State<MyDocumentsPage> createState() => _MyDocumentsPageState();
@@ -38,34 +41,94 @@ class MyDocumentsPage extends StatefulWidget {
 
 class _MyDocumentsPageState extends State<MyDocumentsPage> {
   final ImagePicker _picker = ImagePicker();
+  List<DocumentUploadItem> documentItems = [];
 
-  // Hardcoded document data
-  List<Document> documents = [
-    Document(
-      id: "DOC001",
-      name: "Driving License",
-      type: "Identity Document",
-      uploadDate: "Dec 15, 2024",
-      status: DocumentStatus.verified,
-      icon: Icons.credit_card,
-    ),
-    Document(
-      id: "DOC002",
-      name: "Aadhaar Card",
-      type: "Identity Document",
-      uploadDate: "Dec 10, 2024",
-      status: DocumentStatus.pending,
-      icon: Icons.badge,
-    ),
-    Document(
-      id: "DOC003",
-      name: "PAN Card",
-      type: "Tax Document",
-      uploadDate: "Nov 28, 2024",
-      status: DocumentStatus.verified,
-      icon: Icons.account_balance_wallet,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    // Fetch document list on page load
+    context.read<FetchDocumentListsBloc>().add(
+          FetchDocmentsButtonClickEvent(bookingId: widget.bookingId),
+        );
+  }
+
+  Future<String> _convertImageToBase64(String filePath) async {
+    final bytes = await File(filePath).readAsBytes();
+    return base64Encode(bytes);
+  }
+
+  bool _validateMandatoryDocuments() {
+    for (var item in documentItems) {
+      if (item.document.mandatory == "1" && item.selectedFile == null) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Future<void> _submitDocuments() async {
+    if (!_validateMandatoryDocuments()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ResponsiveText(
+            'Please upload all mandatory documents',
+            sizeFactor: 0.9,
+            color: Appcolors.kwhitecolor,
+          ),
+          backgroundColor: Colors.red,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadiusStyles.kradius10(),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    // Prepare documents for upload
+    List<DocumentFile> documentsToUpload = [];
+
+    for (var item in documentItems) {
+      if (item.selectedFile != null) {
+        final base64String = await _convertImageToBase64(item.selectedFile!.path);
+        documentsToUpload.add(
+          DocumentFile(
+            documentId: int.tryParse(item.document.documentId ?? '0'),
+            fileName: item.selectedFile!.name,
+            fileBase64: base64String,
+          ),
+        );
+      }
+    }
+
+    if (documentsToUpload.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ResponsiveText(
+            'Please select at least one document to upload',
+            sizeFactor: 0.9,
+            color: Appcolors.kwhitecolor,
+          ),
+          backgroundColor: Colors.orange,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadiusStyles.kradius10(),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    // Trigger upload
+    context.read<UploadDocumentBloc>().add(
+          UploadDocumentButtonClickEvent(
+            documents: UploadDocumentmodel(
+              bookingId: int.tryParse(widget.bookingId),
+              documents: documentsToUpload,
+            ),
+          ),
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,149 +146,252 @@ class _MyDocumentsPageState extends State<MyDocumentsPage> {
           ),
         ),
         title: TextStyles.subheadline(
-          text: 'My Documents',
+          text: 'Upload Documents',
           color: const Color(0xFF1A365D),
         ),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        padding: EdgeInsets.all(ResponsiveUtils.wp(4)),
-        itemCount: documents.length,
-        itemBuilder: (context, index) {
-          return DocumentCard(
-            document: documents[index],
-            onUpload: () =>
-                _showImagePickerBottomSheet(context, documents[index]),
-            onView: () => _viewDocument(documents[index]),
-          );
-        },
-      ),
-    );
-  }
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<FetchDocumentListsBloc, FetchDocumentListsState>(
+            listener: (context, state) {
+              if (state is FetchDocumentsSuccessState) {
+                setState(() {
+                  documentItems = state.documents
+                      .map((doc) => DocumentUploadItem(document: doc))
+                      .toList();
+                });
+              } else if (state is FetchDocumentsErrorState) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: ResponsiveText(
+                      state.message,
+                      sizeFactor: 0.9,
+                      color: Appcolors.kwhitecolor,
+                    ),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+          ),
+          BlocListener<UploadDocumentBloc, UploadDocumentState>(
+            listener: (context, state) {
+              if (state is UploadDocumentSuccessState) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: ResponsiveText(
+                      state.message,
+                      sizeFactor: 0.9,
+                      color: Appcolors.kwhitecolor,
+                    ),
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadiusStyles.kradius10(),
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+                // Mark all as uploaded
+                setState(() {
+                  for (var item in documentItems) {
+                    if (item.selectedFile != null) {
+                      item.isUploaded = true;
+                    }
+                  }
+                });
+              } else if (state is UploadDocumentErrorState) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: ResponsiveText(
+                      state.message,
+                      sizeFactor: 0.9,
+                      color: Appcolors.kwhitecolor,
+                    ),
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadiusStyles.kradius10(),
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<FetchDocumentListsBloc, FetchDocumentListsState>(
+          builder: (context, state) {
+            if (state is FetchDocumentsLoadingState) {
+              return Center(
+                child: CircularProgressIndicator(
+                  color: Appcolors.kprimarycolor,
+                ),
+              );
+            }
 
-  void _showImagePickerBottomSheet(BuildContext context, Document document) {
-    CustomImagePicker.show(
-      context: context,
-      title: 'Upload ${document.name}',
-      onImageSelected: (XFile? image) {
-        if (image != null) {
-          _handleImageUpload(document, image);
-        }
-      },
-    );
-  }
+            if (documentItems.isEmpty) {
+              return Center(
+                child: ResponsiveText(
+                  'No documents to upload',
+                  sizeFactor: 1.0,
+                  color: Colors.grey,
+                ),
+              );
+            }
 
-  void _handleImageUpload(Document document, XFile image) {
-    // Here you would typically upload to your server
-    // For now, just update the UI
-    setState(() {
-      int index = documents.indexWhere((doc) => doc.id == document.id);
-      if (index != -1) {
-        documents[index] = Document(
-          id: document.id,
-          name: document.name,
-          type: document.type,
-          uploadDate: "Just now",
-          status: DocumentStatus.pending,
-          imagePath: image.path,
-          icon: document.icon,
-        );
-      }
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: ResponsiveText(
-          '${document.name} uploaded successfully!',
-          sizeFactor: 0.9,
-          color: Appcolors.kwhitecolor,
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    padding: EdgeInsets.all(ResponsiveUtils.wp(4)),
+                    itemCount: documentItems.length,
+                    itemBuilder: (context, index) {
+                      return DocumentUploadCard(
+                        documentItem: documentItems[index],
+                        onImageSelected: (image) {
+                          setState(() {
+                            documentItems[index].selectedFile = image;
+                            documentItems[index].isUploaded = false;
+                          });
+                        },
+                        onRemove: () {
+                          setState(() {
+                            documentItems[index].selectedFile = null;
+                            documentItems[index].isUploaded = false;
+                          });
+                        },
+                      );
+                    },
+                  ),
+                ),
+                // Submit button
+                Container(
+                  padding: EdgeInsets.all(ResponsiveUtils.wp(4)),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: BlocBuilder<UploadDocumentBloc, UploadDocumentState>(
+                    builder: (context, uploadState) {
+                      return SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: uploadState is UploadDocumentLoadingState
+                              ? null
+                              : _submitDocuments,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Appcolors.kprimarycolor,
+                            disabledBackgroundColor:
+                                Appcolors.kprimarycolor.withOpacity(0.6),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadiusStyles.kradius10(),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              vertical: ResponsiveUtils.hp(2),
+                            ),
+                          ),
+                          child: uploadState is UploadDocumentLoadingState
+                              ? SizedBox(
+                                  height: ResponsiveUtils.sp(5),
+                                  width: ResponsiveUtils.sp(5),
+                                  child: CircularProgressIndicator(
+                                    color: Appcolors.kwhitecolor,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : ResponsiveText(
+                                  'Submit Documents',
+                                  sizeFactor: 1.0,
+                                  weight: FontWeight.bold,
+                                  color: Appcolors.kwhitecolor,
+                                ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
         ),
-        backgroundColor: Colors.green,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusStyles.kradius10(),
-        ),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  void _viewDocument(Document document) {
-    // Handle view document action
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: ResponsiveText(
-          'Viewing ${document.name}',
-          sizeFactor: 0.9,
-          color: Appcolors.kwhitecolor,
-        ),
-        backgroundColor: Appcolors.kprimarycolor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusStyles.kradius10(),
-        ),
-        behavior: SnackBarBehavior.floating,
       ),
     );
   }
 }
 
-class DocumentCard extends StatelessWidget {
-  final Document document;
-  final VoidCallback onUpload;
-  final VoidCallback onView;
+class DocumentUploadCard extends StatelessWidget {
+  final DocumentUploadItem documentItem;
+  final Function(XFile) onImageSelected;
+  final VoidCallback onRemove;
 
-  const DocumentCard({
+  const DocumentUploadCard({
     super.key,
-    required this.document,
-    required this.onUpload,
-    required this.onView,
+    required this.documentItem,
+    required this.onImageSelected,
+    required this.onRemove,
   });
 
-  Color getStatusColor(DocumentStatus status) {
-    switch (status) {
-      case DocumentStatus.verified:
-        return Colors.green;
-      case DocumentStatus.pending:
-        return Colors.orange;
-      case DocumentStatus.rejected:
-        return Colors.red;
-      case DocumentStatus.notUploaded:
-        return Colors.grey;
+  IconData _getDocumentIcon(String? documentName) {
+    final name = documentName?.toLowerCase() ?? '';
+    if (name.contains('aadhar') || name.contains('aadhaar')) {
+      return Icons.badge;
+    } else if (name.contains('license') || name.contains('driving')) {
+      return Icons.credit_card;
+    } else if (name.contains('pan')) {
+      return Icons.account_balance_wallet;
+    } else if (name.contains('address') || name.contains('proof')) {
+      return Icons.home;
     }
+    return Icons.description;
   }
 
-  String getStatusText(DocumentStatus status) {
-    switch (status) {
-      case DocumentStatus.verified:
-        return 'Verified';
-      case DocumentStatus.pending:
-        return 'Pending';
-      case DocumentStatus.rejected:
-        return 'Rejected';
-      case DocumentStatus.notUploaded:
-        return 'Not Uploaded';
-    }
-  }
-
-  IconData getStatusIcon(DocumentStatus status) {
-    switch (status) {
-      case DocumentStatus.verified:
-        return Icons.verified;
-      case DocumentStatus.pending:
-        return Icons.pending;
-      case DocumentStatus.rejected:
-        return Icons.cancel;
-      case DocumentStatus.notUploaded:
-        return Icons.upload_file;
-    }
+  void _showImagePicker(BuildContext context) {
+    CustomImagePicker.show(
+      context: context,
+      title: 'Upload ${documentItem.document.documentName}',
+      onImageSelected: (XFile? image) {
+        if (image != null) {
+          onImageSelected(image);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: ResponsiveText(
+                'Image selected successfully!',
+                sizeFactor: 0.9,
+                color: Appcolors.kwhitecolor,
+              ),
+              backgroundColor: Colors.green,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadiusStyles.kradius10(),
+              ),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isMandatory = documentItem.document.mandatory == "1";
+    final hasImage = documentItem.selectedFile != null;
+
     return Container(
       margin: EdgeInsets.only(bottom: ResponsiveUtils.hp(2)),
       decoration: BoxDecoration(
         color: Appcolors.kwhitecolor,
         borderRadius: BorderRadiusStyles.kradius15(),
+        border: isMandatory && !hasImage
+            ? Border.all(color: Colors.orange.withOpacity(0.5), width: 1.5)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
@@ -240,10 +406,8 @@ class DocumentCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with document info and status
             Row(
               children: [
-                // Document icon
                 Container(
                   width: ResponsiveUtils.wp(12),
                   height: ResponsiveUtils.wp(12),
@@ -252,190 +416,128 @@ class DocumentCard extends StatelessWidget {
                     borderRadius: BorderRadiusStyles.kradius10(),
                   ),
                   child: Icon(
-                    document.icon,
+                    _getDocumentIcon(documentItem.document.documentName),
                     size: ResponsiveUtils.sp(6),
                     color: Appcolors.kprimarycolor,
                   ),
                 ),
-
                 ResponsiveSizedBox.width10,
-
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ResponsiveText(
-                        document.name,
-                        sizeFactor: 1.1,
+                        documentItem.document.documentName ?? 'Document',
+                        sizeFactor: 1.0,
                         weight: FontWeight.bold,
                         color: Appcolors.kblackcolor,
                       ),
                       ResponsiveSizedBox.height5,
-                      ResponsiveText(
-                        document.type,
-                        sizeFactor: 0.8,
-                        weight: FontWeight.w500,
-                        color: Colors.grey[600],
-                      ),
-                      if (document.uploadDate.isNotEmpty) ...[
-                        ResponsiveSizedBox.height5,
-                        ResponsiveText(
-                          'Uploaded: ${document.uploadDate}',
-                          sizeFactor: 0.75,
-                          color: Colors.grey[500],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-
-                // Status badge
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ResponsiveUtils.wp(3),
-                    vertical: ResponsiveUtils.hp(0.8),
-                  ),
-                  decoration: BoxDecoration(
-                    color: getStatusColor(document.status).withOpacity(0.1),
-                    borderRadius: BorderRadiusStyles.kradius20(),
-                    border: Border.all(
-                      color: getStatusColor(document.status),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        getStatusIcon(document.status),
-                        size: ResponsiveUtils.sp(3.5),
-                        color: getStatusColor(document.status),
-                      ),
-                      ResponsiveSizedBox.width5,
-                      ResponsiveText(
-                        getStatusText(document.status),
-                        sizeFactor: 0.75,
-                        weight: FontWeight.w600,
-                        color: getStatusColor(document.status),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            ResponsiveSizedBox.height20,
-
-            // Action buttons
-            Row(
-              children: [
-                // Upload/Re-upload button
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: onUpload,
-                    icon: Icon(
-                      document.status == DocumentStatus.notUploaded
-                          ? Icons.upload_file
-                          : Icons.refresh,
-                      size: ResponsiveUtils.sp(4),
-                      color: Appcolors.kwhitecolor,
-                    ),
-                    label: ResponsiveText(
-                      document.status == DocumentStatus.notUploaded
-                          ? 'Upload'
-                          : 'Re-upload',
-                      sizeFactor: 0.9,
-                      weight: FontWeight.w600,
-                      color: Appcolors.kwhitecolor,
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Appcolors.kprimarycolor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusStyles.kradius10(),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        vertical: ResponsiveUtils.hp(1.5),
-                      ),
-                    ),
-                  ),
-                ),
-
-                if (document.status != DocumentStatus.notUploaded) ...[
-                  ResponsiveSizedBox.width10,
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: onView,
-                      icon: Icon(
-                        Icons.visibility,
-                        size: ResponsiveUtils.sp(4),
-                        color: Appcolors.kprimarycolor,
-                      ),
-                      label: ResponsiveText(
-                        'View',
-                        sizeFactor: 0.9,
-                        weight: FontWeight.w600,
-                        color: Appcolors.kprimarycolor,
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Appcolors.kprimarycolor),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusStyles.kradius10(),
-                        ),
+                      Container(
                         padding: EdgeInsets.symmetric(
-                          vertical: ResponsiveUtils.hp(1.5),
+                          horizontal: ResponsiveUtils.wp(2),
+                          vertical: ResponsiveUtils.hp(0.5),
+                        ),
+                        decoration: BoxDecoration(
+                          color: isMandatory
+                              ? Colors.orange.withOpacity(0.1)
+                              : Colors.grey.withOpacity(0.1),
+                          borderRadius: BorderRadiusStyles.kradius5(),
+                        ),
+                        child: ResponsiveText(
+                          isMandatory ? 'Mandatory' : 'Optional',
+                          sizeFactor: 0.7,
+                          weight: FontWeight.w600,
+                          color: isMandatory ? Colors.orange : Colors.grey,
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                if (documentItem.isUploaded)
+                  Container(
+                    padding: EdgeInsets.all(ResponsiveUtils.wp(2)),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: ResponsiveUtils.sp(5),
                     ),
                   ),
-                ],
               ],
             ),
-
-            // Show rejection reason if document is rejected
-            if (document.status == DocumentStatus.rejected) ...[
+            if (hasImage) ...[
               ResponsiveSizedBox.height15,
               Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(ResponsiveUtils.wp(3)),
+                height: ResponsiveUtils.hp(15),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
                   borderRadius: BorderRadiusStyles.kradius10(),
-                  border: Border.all(
-                    color: Colors.red.withOpacity(0.3),
-                    width: 1,
-                  ),
+                  border: Border.all(color: Colors.grey.withOpacity(0.3)),
                 ),
-                child: Row(
+                child: Stack(
                   children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: ResponsiveUtils.sp(4),
-                      color: Colors.red,
+                    ClipRRect(
+                      borderRadius: BorderRadiusStyles.kradius10(),
+                      child: Image.file(
+                        File(documentItem.selectedFile!.path),
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    ResponsiveSizedBox.width10,
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ResponsiveText(
-                            'Rejection Reason:',
-                            sizeFactor: 0.85,
-                            weight: FontWeight.w600,
+                    Positioned(
+                      top: ResponsiveUtils.wp(2),
+                      right: ResponsiveUtils.wp(2),
+                      child: GestureDetector(
+                        onTap: onRemove,
+                        child: Container(
+                          padding: EdgeInsets.all(ResponsiveUtils.wp(1.5)),
+                          decoration: BoxDecoration(
                             color: Colors.red,
+                            shape: BoxShape.circle,
                           ),
-                          ResponsiveSizedBox.height5,
-                          ResponsiveText(
-                            'Document image is not clear. Please upload a clearer image.',
-                            sizeFactor: 0.8,
-                            color: Colors.red[700],
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: ResponsiveUtils.sp(4),
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
             ],
+            ResponsiveSizedBox.height15,
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _showImagePicker(context),
+                icon: Icon(
+                  hasImage ? Icons.refresh : Icons.upload_file,
+                  size: ResponsiveUtils.sp(4.5),
+                  color: Appcolors.kwhitecolor,
+                ),
+                label: ResponsiveText(
+                  hasImage ? 'Change Image' : 'Select Image',
+                  sizeFactor: 0.9,
+                  weight: FontWeight.w600,
+                  color: Appcolors.kwhitecolor,
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Appcolors.kprimarycolor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusStyles.kradius10(),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    vertical: ResponsiveUtils.hp(1.5),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

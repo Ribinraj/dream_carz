@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is needed to pick delivery address</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>We need access to your location to provide continuous delivery tracking and timely driver updates, even when the app is in the background.</string>
 		<key>GOOGLE_MAPS_API_KEY</key>
 	<string>AIzaSyBW8UbeKu73pQ3fCj5rh3PXe_mXPorgCHA</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
@@ -36,7 +38,8 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
-
+<key>NSCameraUsageDescription</key>
+<string>We need access to your camera to let you take pictures for document upload.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

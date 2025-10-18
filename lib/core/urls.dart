@@ -13,4 +13,7 @@ class Endpoints {
   static const bookingoverview = 'booking/overview';
   static const coupen = 'booking/applyCoupon';
   static const bookingconfirmation='booking/confirm';
+  static const bookingstatus='booking/status';
+  static const documentslist='booking/collectDocuments';
+  static const documentupload='booking/uploadDocuments';
 }

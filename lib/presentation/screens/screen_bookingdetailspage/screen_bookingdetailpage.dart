@@ -13,6 +13,7 @@ import 'package:dream_carz/presentation/blocs/coupen_bloc/coupen_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_booking_overview_bloc/fetch_bookingoverview_bloc.dart';
 
 import 'package:dream_carz/presentation/screens/screen_bookingdetailspage/widgets/locationselection_widget.dart';
+import 'package:dream_carz/presentation/screens/screen_mydocuments/screen_mydocuments.dart';
 import 'package:dream_carz/presentation/screens/screen_paymentpage/screenpaymentpage.dart';
 import 'package:dream_carz/presentation/screens/screen_networkpage/screen_networkpage.dart';
 import 'package:dream_carz/presentation/screens/screen_paymentpages/screen_paymentsuccesspage.dart';
@@ -297,7 +298,8 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
                    BlocConsumer<BookingConfirmationBloc, BookingConfirmationState>(
       listener: (context, state) {
         if (state is BookingConfirmationSuccessState) {
-          CustomNavigation.pushWithTransition(context,ScreenPaymentPage(bookingData: state.car,));
+         // CustomNavigation.pushWithTransition(context,ScreenPaymentPage(bookingData: state.car,));
+         CustomNavigation.pushWithTransition(context,MyDocumentsPage(bookingId: state.car.bookingId,));
         }
         else if(state is BookingConfirmationErrorState){
         CustomSnackbar.show(context, message: state.message, type:SnackbarType.error);

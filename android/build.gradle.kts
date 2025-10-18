@@ -1,11 +1,11 @@
 allprojects {
     repositories {
         google()
-          mavenCentral()
-            maven { 
-         url= uri{"https://phonepe.mycloudrepo.io/public/repositories/phonepe-intentsdk-android" }
-      }
-      
+        mavenCentral()
+        // PhonePe Intent SDK repository
+        maven {
+            url = uri("https://phonepe.mycloudrepo.io/public/repositories/phonepe-intentsdk-android")
+        }
     }
 }
 
@@ -16,6 +16,7 @@ subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
