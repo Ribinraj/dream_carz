@@ -1,11 +1,8 @@
-
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactUsPage extends StatefulWidget {
@@ -83,19 +80,16 @@ class _ContactUsPageState extends State<ContactUsPage> {
   }
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    //context.read<FetchContactBloc>().add(FetchcontactInitailEvent());
-  }
-
-  @override
   Widget build(BuildContext context) {
+    const phoneNumber = '+919482166001';
+    const emailAddress = 'support@dreamcarz.live';
+    const addressPlain =
+        '10 New No 26, 7th Main, 15th Cross Rd,\nNS Palya, BTM 2nd Stage,\nBengaluru, Karnataka 560076';
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: Icon(
@@ -139,143 +133,159 @@ class _ContactUsPageState extends State<ContactUsPage> {
                   const SizedBox(height: 16),
                   const Text(
                     'Get in Touch',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'We\'re here to help! Reach out through any of the channels below.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
                 ],
               ),
             ),
-
             ResponsiveSizedBox.height20,
 
-                   Column(
-                    children: [
-                      // Contact Methods
-                      _buildContactItem(
-                        icon: Icons.phone,
-                        title: 'Phone',
-                        subtitle:'9946802969',
-                        description: 'Tap to call',
-                        color: Colors.green,
-                        onTap: () => _launchPhone('9946802969'),
-                        onLongPress: () =>
-                            _copyToClipboard('9946802969', 'Phone number'),
-                      ),
-            
-                      ResponsiveSizedBox.height10,
-            
-                      _buildContactItem(
-                        icon: Icons.email,
-                        title: 'Email',
-                        subtitle:'ribinrajop@gmail.com',
-                        description:'ribinrajop@gmail.com',
-                        color: Colors.orange,
-                        onTap: () => _launchEmail('ribinrajop@gmail.com'),
-                        onLongPress: () => _copyToClipboard(
-                            'ribinrajop@gmail.com', 'Email address'),
-                      ),
-            
-                      ResponsiveSizedBox.height10,
-            
-                      _buildContactItem(
-                        icon: Icons.location_on,
-                        title: 'Location',
-                        subtitle:'Ribinrajop, ootupurath house, amaramblam south po, malappuram dt',
-                        description: 'Tap to view on map',
-                        color: Colors.red,
-                        onTap: () {},
-                        onLongPress: () {},
-                      ),
-            
-                      ResponsiveSizedBox.height10,
-            
-                      _buildContactItem(
-                        icon: Icons.language,
-                        title: 'Website',
-                        subtitle:'https://dreamcarz.live/',
-                        description: 'Tap to visit website',
-                        color: Colors.blue,
-                        onTap: () => _launchURL('https://dreamcarz.live/'),
-                        onLongPress: () => _copyToClipboard(
-                            'https://dreamcarz.live/', 'Website URL'),
-                      ),
-            
-                      ResponsiveSizedBox.height20,
-            
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
+            // Contact Items
+            Column(
+              children: [
+                _buildContactItem(
+                  icon: Icons.phone,
+                  title: 'Phone',
+                  subtitle: '(+91) 948 216 6001',
+                  description: 'Tap to call',
+                  color: Colors.green,
+                  onTap: () => _launchPhone(phoneNumber),
+                  onLongPress: () =>
+                      _copyToClipboard(phoneNumber, 'Phone number'),
+                ),
+                ResponsiveSizedBox.height10,
+                _buildContactItem(
+                  icon: Icons.email,
+                  title: 'Email',
+                  subtitle: emailAddress,
+                  description: 'Tap to send email',
+                  color: Colors.orange,
+                  onTap: () => _launchEmail(emailAddress),
+                  onLongPress: () =>
+                      _copyToClipboard(emailAddress, 'Email address'),
+                ),
+                ResponsiveSizedBox.height10,
+                _buildContactItem(
+                  icon: Icons.location_on,
+                  title: 'Location',
+                  subtitle: 'Bengaluru, Karnataka',
+                  // Provide a RichText widget for styled address.
+                  descriptionWidget: Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: '365DAYNEEDS\n',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Follow Us',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          TextSpan(
+                            text: addressPlain,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
                             ),
-                            ResponsiveSizedBox.height10,
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                _buildSocialButtonWithImage(
-                                  imagePath:
-                                      'assets/images/facebook_2504903.png',
-                                  color: const Color(0xFF1877F2),
-                                  onTap: () =>
-                                  ''
-                                      //_launchURL(contact.fbLink),
-                                ),
-                                ResponsiveSizedBox.width20,
-                                _buildSocialButtonWithImage(
-                                  imagePath:
-                                      'assets/images/instagram_2111463.png',
-                                  color: const Color(0xFFE4405F),
-                                  onTap: () =>
-                                  ''
-                                      //_launchURL(contact.instaLink),
-                                ),
-                                ResponsiveSizedBox.width20,
-                                _buildSocialButtonWithImage(
-                                  imagePath:
-                                      'assets/images/whatsapp_3536445.png',
-                                  color: const Color(0xFF25D366),
-                                  onTap: () => _launchWhatsApp('9946802969',
-                                      'Hello! I would like to get in touch.'),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  color: Colors.red,
+                  onTap: () => _launchURL(
+                    'https://maps.google.com/?q=Dream+Carz+BTM+2nd+Stage+Bengaluru',
+                  ),
+                  onLongPress: () =>
+                      _copyToClipboard('365DAYNEEDS\n$addressPlain', 'Address'),
+                ),
+                ResponsiveSizedBox.height10,
+                _buildContactItem(
+                  icon: Icons.language,
+                  title: 'Website',
+                  subtitle: 'https://dreamcarz.live/',
+                  description: 'Tap to visit website',
+                  color: Colors.blue,
+                  onTap: () => _launchURL('https://dreamcarz.live/'),
+                  onLongPress: () => _copyToClipboard(
+                    'https://dreamcarz.live/',
+                    'Website URL',
+                  ),
+                ),
+                ResponsiveSizedBox.height20,
+
+                // Social Section
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
-                
-             
-
-            ResponsiveSizedBox.height50
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Follow Us',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      ResponsiveSizedBox.height10,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          _buildSocialButtonWithImage(
+                            imagePath: 'assets/images/facebook_2504903.png',
+                            color: const Color(0xFF1877F2),
+                            onTap: () {
+                              _launchURL(
+                                "https://www.facebook.com/people/DREAMcarz/61580293407628/",
+                              );
+                            },
+                          ),
+                          ResponsiveSizedBox.width20,
+                          _buildSocialButtonWithImage(
+                            imagePath: 'assets/images/instagram_2111463.png',
+                            color: const Color(0xFFE4405F),
+                            onTap: () {
+                              _launchURL(
+                                "https://www.instagram.com/dreamcarz._/#",
+                              );
+                            },
+                          ),
+                          ResponsiveSizedBox.width20,
+                          _buildSocialButtonWithImage(
+                            imagePath: 'assets/images/whatsapp_3536445.png',
+                            color: const Color(0xFF25D366),
+                            onTap: () => _launchWhatsApp(
+                              phoneNumber,
+                              'Hello! I would like to get in touch.',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            ResponsiveSizedBox.height50,
           ],
         ),
       ),
@@ -286,10 +296,11 @@ class _ContactUsPageState extends State<ContactUsPage> {
     required IconData icon,
     required String title,
     required String subtitle,
-    required String description,
     required Color color,
     required VoidCallback onTap,
     required VoidCallback onLongPress,
+    String? description,
+    Widget? descriptionWidget,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -337,42 +348,21 @@ class _ContactUsPageState extends State<ContactUsPage> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
+                  if (descriptionWidget != null) descriptionWidget,
+                  if (descriptionWidget == null && description != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Text(
+                        description,
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
             Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHourRow(String day, String time) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            day,
-            style: const TextStyle(fontSize: 14),
-          ),
-          Text(
-            time,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: time == 'Closed' ? Colors.red : Colors.green,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -390,36 +380,21 @@ class _ContactUsPageState extends State<ContactUsPage> {
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Image.asset(
-          imagePath,
-          height: 24,
-          width: 24,
-          // color: color, // Optional: apply color tint if needed
-        ),
+        child: Image.asset(imagePath, height: 24, width: 24),
       ),
     );
   }
 
-  /////////////////
   Future<void> _launchWhatsApp(String phoneNumber, [String? message]) async {
     try {
-      // Remove any spaces, dashes, or special characters from phone number
       String cleanNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
-
-      // Ensure the number starts with country code
       if (!cleanNumber.startsWith('+')) {
-        cleanNumber =
-            '+91$cleanNumber'; // Add India country code if not present
+        cleanNumber = '+91$cleanNumber';
       }
 
-      // Create WhatsApp URL
-      String whatsappUrl;
-      if (message != null && message.isNotEmpty) {
-        String encodedMessage = Uri.encodeComponent(message);
-        whatsappUrl = 'https://wa.me/$cleanNumber?text=$encodedMessage';
-      } else {
-        whatsappUrl = 'https://wa.me/$cleanNumber';
-      }
+      String whatsappUrl = message != null && message.isNotEmpty
+          ? 'https://wa.me/$cleanNumber?text=${Uri.encodeComponent(message)}'
+          : 'https://wa.me/$cleanNumber';
 
       final Uri uri = Uri.parse(whatsappUrl);
       if (await canLaunchUrl(uri)) {

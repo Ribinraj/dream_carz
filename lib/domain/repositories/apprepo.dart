@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:dream_carz/core/urls.dart';
+import 'package:dream_carz/data/banner_model.dart';
 import 'package:dream_carz/data/booked_carmodel.dart';
 import 'package:dream_carz/data/booking_overview_model.dart';
 import 'package:dream_carz/data/booking_requestmodel.dart';
@@ -483,6 +484,46 @@ log("Response data: $responseData");
         return ApiResponse(
           data: null,
           message: responseData['message'] ?? 'Something went wrong',
+          error: true,
+          status: responseData["status"],
+        );
+      }
+    } on DioException catch (e) {
+      debugPrint(e.message);
+
+      log(e.toString());
+      return ApiResponse(
+        data: null,
+        message: 'Network or server error occurred',
+        error: true,
+        status: 500,
+      );
+    }
+  }
+      //   //////////------------fetchbanners-----------/////////////////
+  Future<ApiResponse<List<BannerDataModel>>>fetchbanners() async {
+    // log('pushtoken when login ${user.pushToken}');
+    try {
+      Response response = await dio.post(Endpoints.banners);
+      final responseData = response.data;
+      // log('responsestatus${responseData}');
+      // log('responsestatus${responseData['status']}');
+
+      if (!responseData["error"] && responseData["status"] == 200) {
+        final List<dynamic> bnrs = responseData['data'];
+        List<BannerDataModel> fetchbanners = bnrs
+            .map((bnr) => BannerDataModel.fromJson(bnr))
+            .toList();
+        return ApiResponse(
+          data: fetchbanners,
+          message: responseData['messages'] ?? 'Success',
+          error: false,
+          status: responseData["status"],
+        );
+      } else {
+        return ApiResponse(
+          data: null,
+          message: responseData['messages'] ?? 'Something went wrong',
           error: true,
           status: responseData["status"],
         );

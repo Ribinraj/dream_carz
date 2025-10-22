@@ -9,6 +9,7 @@ import 'package:dream_carz/presentation/blocs/booking_confirmation_bloc/booking_
 import 'package:dream_carz/presentation/blocs/connectivity_bloc/connectivity_bloc.dart';
 import 'package:dream_carz/presentation/blocs/coupen_bloc/coupen_bloc.dart';
 import 'package:dream_carz/presentation/blocs/edit_profile_bloc/edit_profile_bloc.dart';
+import 'package:dream_carz/presentation/blocs/fetch_banners_bloc/fetch_banners_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_booking_overview_bloc/fetch_bookingoverview_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_cars_bloc/fetch_cars_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_categories_bloc/fetch_categories_bloc.dart';
@@ -121,7 +122,10 @@ class MyApp extends StatelessWidget {
         ) ,
                                                BlocProvider(
           create: (context) => MyOrdersBloc(repository: apprepo),
-        )       
+        ),
+                                                     BlocProvider(
+          create: (context) => FetchBannersBloc(repository: apprepo),
+        )        
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

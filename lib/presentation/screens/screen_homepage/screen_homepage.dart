@@ -3,6 +3,7 @@ import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
 import 'package:dream_carz/data/city_model.dart';
+import 'package:dream_carz/presentation/blocs/fetch_banners_bloc/fetch_banners_bloc.dart';
 
 import 'package:dream_carz/presentation/blocs/fetch_cities_bloc/fetch_cities_bloc.dart';
 
@@ -21,7 +22,7 @@ import 'package:dream_carz/widgets/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 import 'package:flutter_svg/svg.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -45,6 +46,7 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
     // TODO: implement initState
     super.initState();
     context.read<FetchCitiesBloc>().add(FetchcitiesInitialEvent());
+    context.read<FetchBannersBloc>().add(FetchBannersInitialEvnt());
 
     _initializeDefaultDateTime();
   }
@@ -132,7 +134,7 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                               fit: BoxFit.contain,
                             ),
                             Spacer(),
-      
+
                             IconButton(
                               onPressed: () {
                                 CustomNavigation.pushWithTransition(
@@ -148,9 +150,9 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                           ],
                         ),
                       ),
-      
+
                       const SizedBox(height: 10),
-      
+
                       // 🔹 CAROUSEL AS CARD
                       SizedBox(
                         height: ResponsiveUtils.hp(25),
@@ -174,14 +176,16 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                 ),
               ],
             ),
-      
+
             // Search Container
             Positioned(
               top: MediaQuery.of(context).size.height * 0.4,
               left: 0,
               right: 0,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.wp(4)),
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveUtils.wp(4),
+                ),
                 child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
@@ -231,76 +235,78 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                           ),
                         ],
                       ),
-      
+
                       ResponsiveSizedBox.height20,
-      
+
                       // Location Selection with enhanced design
                       _buildSectionTitle('Select City', Icons.location_on),
                       ResponsiveSizedBox.height10,
                       BlocBuilder<FetchCitiesBloc, FetchCitiesState>(
                         builder: (context, state) {
                           if (state is FetchCitiesLoadingState) {
-                 return Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveUtils.wp(4),
-            vertical: ResponsiveUtils.hp(1.5),
-          ),
-          decoration: BoxDecoration(
-            color: Colors.grey.withAlpha(10),
-            border: Border.all(
-              color: Colors.grey.withAlpha(22),
-              width: 1.5,
-            ),
-            borderRadius: BorderRadiusStyles.kradius10(),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 18,
-                height: 18,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              SizedBox(width: 10),
-              Container(
-                width: ResponsiveUtils.wp(30),
-                height: ResponsiveUtils.hp(2),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              Spacer(),
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Container(
-                  width: 18,
-                  height: 18,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade100,
+                              child: Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: ResponsiveUtils.wp(4),
+                                  vertical: ResponsiveUtils.hp(1.5),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.withAlpha(10),
+                                  border: Border.all(
+                                    color: Colors.grey.withAlpha(22),
+                                    width: 1.5,
+                                  ),
+                                  borderRadius: BorderRadiusStyles.kradius10(),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 18,
+                                      height: 18,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                    SizedBox(width: 10),
+                                    Container(
+                                      width: ResponsiveUtils.wp(30),
+                                      height: ResponsiveUtils.hp(2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Container(
+                                        width: 18,
+                                        height: 18,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
                           }
-      
+
                           if (state is FetchCitiesSuccessState) {
                             // Filter only Active cities
                             final activeCities = state.cities
-                                .where((c) => c.status.toLowerCase() == 'active')
+                                .where(
+                                  (c) => c.status.toLowerCase() == 'active',
+                                )
                                 .toList();
-      
+
                             return Container(
                               width: double.infinity,
                               padding: EdgeInsets.symmetric(
@@ -384,7 +390,9 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                                           horizontal: ResponsiveUtils.wp(2),
                                         ),
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                           color: Colors.transparent,
                                         ),
                                         child: Row(
@@ -420,9 +428,9 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                           }
                         },
                       ),
-      
+
                       ResponsiveSizedBox.height15,
-      
+
                       // Date/Time sections in a modern card layout
                       Container(
                         padding: const EdgeInsets.all(15),
@@ -477,11 +485,11 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                                 });
                               },
                             ),
-      
+
                             ResponsiveSizedBox.height15,
                             Divider(thickness: .5),
                             ResponsiveSizedBox.height5,
-      
+
                             // To Date/Time with 12-hour minimum gap
                             _buildToDateTimeSection(
                               'To',
@@ -510,12 +518,12 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                             //     fromTime = time;
                             //   });
                             // }),
-      
+
                             // ResponsiveSizedBox.height15,
                             // Divider(thickness: .5),
-      
+
                             // ResponsiveSizedBox.height5,
-      
+
                             // // To Date/Time
                             // _buildDateTimeSection('To', Appconstants.dateIcon, (
                             //   date,
@@ -529,7 +537,7 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                           ],
                         ),
                       ),
-      
+
                       ResponsiveSizedBox.height20,
                       CustomElevatedButton(
                         onpress: () {
@@ -546,7 +554,7 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                             );
                             return;
                           }
-      
+
                           final fromDT = DateTime(
                             fromDate!.year,
                             fromDate!.month,
@@ -561,7 +569,7 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                             toTime!.hour,
                             toTime!.minute,
                           );
-      
+
                           if (!toDT.isAfter(fromDT)) {
                             CustomSnackbar.show(
                               context,
@@ -571,7 +579,7 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                             );
                             return;
                           }
-      
+
                           // ✅ only if all good → navigate
                           CustomNavigation.pushWithTransition(
                             context,
@@ -584,7 +592,7 @@ class _ScreenSearchPageState extends State<ScreenHomepage> {
                             ),
                           );
                         },
-      
+
                         text: 'Find Carz',
                       ),
                     ],

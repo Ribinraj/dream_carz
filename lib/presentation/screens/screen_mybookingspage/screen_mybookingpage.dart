@@ -1155,6 +1155,7 @@ class BookingCard extends StatelessWidget {
                       ],
                     ),
                     ResponsiveSizedBox.height10,
+                    
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
