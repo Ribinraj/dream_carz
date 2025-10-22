@@ -586,34 +586,34 @@ class _BookingsPageState extends State<ScreenMybookingpage>
     super.dispose();
   }
 
-  List<Ordermodel> getFilteredBookings(List<Ordermodel> allBookings) {
-    switch (_currentIndex) {
-      case 0: // All Bookings
-        return allBookings;
-      case 1: // Upcoming
-        return allBookings.where((booking) {
-          final status = booking.status?.toLowerCase() ?? '';
-          return status == 'Pending' || status == 'confirmed';
-        }).toList();
-      case 2: // Active/Live
-        return allBookings.where((booking) {
-          final status = booking.status?.toLowerCase() ?? '';
-          return status == 'Active' || status == 'ongoing';
-        }).toList();
-      case 3: // Cancelled
-        return allBookings.where((booking) {
-          final status = booking.status?.toLowerCase() ?? '';
-          return status == 'cancelled';
-        }).toList();
-      case 4: // Completed
-        return allBookings.where((booking) {
-          final status = booking.status?.toLowerCase() ?? '';
-          return status == 'completed';
-        }).toList();
-      default:
-        return allBookings;
-    }
+ List<Ordermodel> getFilteredBookings(List<Ordermodel> allBookings) {
+  switch (_currentIndex) {
+    case 0: // All Bookings
+      return allBookings;
+    case 1: // Upcoming
+      return allBookings.where((booking) {
+        final status = booking.status?.toLowerCase() ?? '';
+        return status == 'pending' || status == 'confirmed';  // ✅ lowercase
+      }).toList();
+    case 2: // Active/Live
+      return allBookings.where((booking) {
+        final status = booking.status?.toLowerCase() ?? '';
+        return status == 'active' || status == 'ongoing';  // ✅ lowercase
+      }).toList();
+    case 3: // Cancelled
+      return allBookings.where((booking) {
+        final status = booking.status?.toLowerCase() ?? '';
+        return status == 'cancelled';  // ✅ lowercase
+      }).toList();
+    case 4: // Completed
+      return allBookings.where((booking) {
+        final status = booking.status?.toLowerCase() ?? '';
+        return status == 'completed';  // ✅ lowercase
+      }).toList();
+    default:
+      return allBookings;
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -739,18 +739,34 @@ class _BookingsPageState extends State<ScreenMybookingpage>
                     ),
                   );
                 }
+if (state is MyordersSuccessState) {
+  // Debug: Print all statuses
+  print('Total bookings: ${state.orders.length}');
+  for (var booking in state.orders) {
+    print('Booking ${booking.bookingNumber}: Status = "${booking.status}"');
+  }
+  
+  final filteredBookings = getFilteredBookings(state.orders);
+  
+  return TabBarView(
+    controller: _tabController,
+    children: List.generate(
+      5,
+      (index) => BookingsList(bookings: filteredBookings),
+    ),
+  );
+}
+                // if (state is MyordersSuccessState) {
+                //   final filteredBookings = getFilteredBookings(state.orders);
 
-                if (state is MyordersSuccessState) {
-                  final filteredBookings = getFilteredBookings(state.orders);
-
-                  return TabBarView(
-                    controller: _tabController,
-                    children: List.generate(
-                      5,
-                      (index) => BookingsList(bookings: filteredBookings),
-                    ),
-                  );
-                }
+                //   return TabBarView(
+                //     controller: _tabController,
+                //     children: List.generate(
+                //       5,
+                //       (index) => BookingsList(bookings: filteredBookings),
+                //     ),
+                //   );
+                // }
 
                 return const SizedBox.shrink();
               },

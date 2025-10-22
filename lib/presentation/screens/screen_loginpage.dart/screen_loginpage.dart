@@ -91,7 +91,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ResponsiveSizedBox.height30,
                   Row(
                     children: [
-                      BackCircleButton(onPressed: () {}),
+                      BackCircleButton(onPressed: () {
+                        CustomNavigation.pop(context);
+                      }),
                       Spacer(),
                     ],
                   ),
