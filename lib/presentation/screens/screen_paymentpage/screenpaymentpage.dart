@@ -152,7 +152,7 @@ Future<void> _startpayment() async {
     );
 
     // Option A: Always call backend order update via BLoC (simple)
-    paymentBloc.add(Paymentstatuseventcalling(orderId:widget.bookingData.bookingId));
+    paymentBloc.add(Paymentstatuseventcalling(bookingId:widget.bookingData.bookingId));
 
     // Option B: If you still want to show different snackbars locally, you can:
     switch (result.status) {
@@ -172,8 +172,8 @@ Future<void> _startpayment() async {
     log('Payment exception: $e\n$st');
     _handleError(e);
     // Optionally inform backend about an error by calling bloc with orderId
-    final String orderId = widget.bookingData.transactionId ?? _uuid.v4().replaceAll('-', '');
-    paymentBloc.add(Paymentstatuseventcalling(orderId: orderId));
+    //final String orderId = widget.bookingData.transactionId ?? _uuid.v4().replaceAll('-', '');
+    paymentBloc.add(Paymentstatuseventcalling(bookingId: widget.bookingData.bookingId));
   } finally {
     if (mounted) {
       setState(() {
@@ -281,34 +281,34 @@ Future<void> _startpayment() async {
     } catch (_) {}
   }
 
-  void _navigateToSuccessPage({
-    required String transactionId,
-    required double amount,
-    Map<String, dynamic>? rawResponse,
-  }) {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => PaymentSuccessPage(
-          bookingId:widget.bookingData.bookingId ,
-          transactionId: transactionId,
-          amount: amount,
-          rawResponse: rawResponse,
-        ),
-      ),
-    );
-  }
+  // void _navigateToSuccessPage({
+  //   required String transactionId,
+  //   required double amount,
+  //   Map<String, dynamic>? rawResponse,
+  // }) {
+  //   Navigator.of(context).pushReplacement(
+  //     MaterialPageRoute(
+  //       builder: (_) => PaymentSuccessPage(
+  //         bookingId:widget.bookingData.bookingId ,
+  //         transactionId: transactionId,
+  //         amount: amount,
+  //         rawResponse: rawResponse,
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  void _navigateToFailurePage({
-    required String reason,
-    Map<String, dynamic>? rawResponse,
-  }) {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) =>
-            PaymentFailurePage(reason: reason, rawResponse: rawResponse),
-      ),
-    );
-  }
+  // void _navigateToFailurePage({
+  //   required String reason,
+  //   Map<String, dynamic>? rawResponse,
+  // }) {
+  //   Navigator.of(context).pushReplacement(
+  //     MaterialPageRoute(
+  //       builder: (_) =>
+  //           PaymentFailurePage(reason: reason, rawResponse: rawResponse),
+  //     ),
+  //   );
+  // }
 
   // UI (kept your original layout)
   @override
@@ -361,7 +361,7 @@ Future<void> _startpayment() async {
               type: SnackbarType.error,
             );
             Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (_) => PaymentFailurePage(reason: state.message),
+              builder: (_) => PaymentFailurePage(reason: state.message,amount:double.parse(widget.bookingData.grandTotal!) ,transactionId: widget.bookingData.transactionId!,),
             ));
           }
         },

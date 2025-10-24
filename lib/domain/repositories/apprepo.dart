@@ -342,16 +342,18 @@ class Apprepo {
       );
     }
   }
-      //   //////////------------BookingConfirmation-----------/////////////////
-  Future<ApiResponse>bookingstatus({required String orderId}) async {
-    // log('pushtoken when login ${user.pushToken}');
+      //   //////////------------Bookingstatus-----------/////////////////
+  Future<ApiResponse>bookingstatus({required String bookingId}) async {
+   log('statusssssssId $bookingId');
     
     try {
       final token=await getUserToken();
-      Response response = await dio.post(Endpoints.bookingstatus, data: orderId,options: Options(headers: {'Authorization': token}));
+      Response response = await dio.post(Endpoints.bookingstatus, data: {
+    "bookingId":bookingId
+},options: Options(headers: {'Authorization': token}));
       final responseData = response.data;
    
-log("Response data: $responseData");
+log("Response data statusssssss: $responseData");
  
       if (!responseData["error"] && responseData["status"] == 200) {
 

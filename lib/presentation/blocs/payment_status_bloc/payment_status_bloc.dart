@@ -19,7 +19,7 @@ class PaymentStatusBloc extends Bloc<PaymentStatusEvent, PaymentStatusState> {
   FutureOr<void> paymentstatus(Paymentstatuseventcalling event, Emitter<PaymentStatusState> emit) async{
     emit(PaymentStatusLoadingState());
     try {
-      final response=await repository.bookingstatus(orderId: event.orderId);
+      final response=await repository.bookingstatus(bookingId: event.bookingId);
       if (!response.error && response.status==200) {
         emit(PaymentStatusSuccessState());
       }

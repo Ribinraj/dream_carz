@@ -1176,7 +1176,7 @@ class BookingCard extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          CustomNavigation.pushWithTransition(
+                          CustomNavigation.pushReplaceWithTransition(
                             context,
                             MyDocumentsPage(bookingId: booking.bookingId!),
                           );
