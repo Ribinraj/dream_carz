@@ -80,14 +80,14 @@ class Loginrepo {
        preferences.setString('USER_TOKEN', responseData["data"]["token"]);
         return ApiResponse(
           data: null,
-          message: responseData['messages'] ?? 'Success',
+          message: responseData['message'] ?? 'Success',
           error: false,
           status: responseData["status"],
         );
       } else {
         return ApiResponse(
           data: null,
-          message: responseData['messages'] ?? 'Something went wrong',
+          message: responseData['message'] ?? 'Something went wrong',
           error: true,
           status: responseData["status"],
         );

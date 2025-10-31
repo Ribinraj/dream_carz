@@ -9,6 +9,7 @@ import 'package:dream_carz/presentation/blocs/resend_otp_bloc/resend_otp_bloc.da
 import 'package:dream_carz/presentation/blocs/verify_otp_bloc/verify_otp_bloc.dart';
 import 'package:dream_carz/presentation/screens/screen_bookingdetailspage/screen_bookingdetailpage.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/screen_homepage.dart';
+import 'package:dream_carz/presentation/screens/screen_profilepage/screen_profilpage.dart';
 import 'package:dream_carz/widgets/custom_backcirclebutton.dart';
 import 'package:dream_carz/widgets/custom_loadingbutton.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
@@ -294,7 +295,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     
                           PushNotifications().sendTokenToServer();
                         } else if (state is VerifyOtpErrorState) {
-                          SnackBar(content: Text(state.message));
+                          CustomSnackbar.show(context, message: state.message, type: SnackbarType.error);
                         }
                       },
                       builder: (context, state) {

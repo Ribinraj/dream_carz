@@ -692,7 +692,7 @@ class _BookingsPageState extends State<ScreenMybookingpage>
                 if (state is MyordersLoadingState) {
                   return Center(
                     child: SpinKitFadingCircle(
-                      size: ResponsiveUtils.wp(15),
+                      size: ResponsiveUtils.wp(5),
                       color: Appcolors.kprimarycolor,
                     ),
                   );

@@ -194,25 +194,45 @@ class _CarCarouselWidgetState extends State<CarCarouselWidget> {
     _pageController.dispose();
     super.dispose();
   }
+void _startAutoSlide(int imageCount) {
+  _timer?.cancel();
+  _timer = Timer.periodic(const Duration(seconds: 4), (_) {
+    if (!mounted || _isUserInteracting) return;
+    if (!_pageController.hasClients) return; // 👈 added safety check
 
-  void _startAutoSlide(int imageCount) {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 4), (_) {
-      if (_isUserInteracting) return;
-      if (!mounted) return;
+    int next = _currentIndex + 1;
+    if (next >= imageCount) next = 0;
 
-      int next = _currentIndex + 1;
-      if (next >= imageCount) {
-        next = 0;
-      }
-
+    try {
       _pageController.animateToPage(
         next,
         duration: const Duration(milliseconds: 600),
         curve: Curves.easeInOut,
       );
-    });
-  }
+    } catch (e) {
+      debugPrint('PageController error: $e'); // 👈 optional but safer
+    }
+  });
+}
+
+  // void _startAutoSlide(int imageCount) {
+  //   _timer?.cancel();
+  //   _timer = Timer.periodic(const Duration(seconds: 4), (_) {
+  //     if (_isUserInteracting) return;
+  //     if (!mounted) return;
+
+  //     int next = _currentIndex + 1;
+  //     if (next >= imageCount) {
+  //       next = 0;
+  //     }
+
+  //     _pageController.animateToPage(
+  //       next,
+  //       duration: const Duration(milliseconds: 600),
+  //       curve: Curves.easeInOut,
+  //     );
+  //   });
+  // }
 
   void _pauseAutoSlide() {
     setState(() => _isUserInteracting = true);
