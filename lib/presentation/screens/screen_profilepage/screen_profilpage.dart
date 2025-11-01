@@ -2,6 +2,7 @@ import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/presentation/blocs/fetch_profile_bloc/fetch_profile_bloc.dart';
+import 'package:dream_carz/presentation/screens/screen_deleteaccount/screen_deleteaccount.dart';
 import 'package:dream_carz/presentation/screens/screen_editprofilepage/screen_editprofilepage.dart';
 import 'package:dream_carz/presentation/screens/screen_mybookingspage/screen_mybookingpage.dart';
 import 'package:dream_carz/presentation/screens/screen_mydocuments/screen_mydocuments.dart';
@@ -18,6 +19,8 @@ class ScreenProfilpage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String?username;
+String?mobilenumber;
     return Scaffold(
       backgroundColor: Appcolors.kbackgroundcolor,
       appBar: AppBar(
@@ -61,6 +64,8 @@ class ScreenProfilpage extends StatelessWidget {
                   );
                 }
                 if (state is FetchProfileSuccessState) {
+                  username=state.profile.fullName;
+                  mobilenumber=state.profile.mobileNumber;
                   return Container(
                     width: double.infinity,
                     padding: EdgeInsets.all(ResponsiveUtils.wp(6)),
@@ -148,6 +153,29 @@ class ScreenProfilpage extends StatelessWidget {
                             ),
                           ),
                         ),
+                        ResponsiveSizedBox.height20,
+Row(
+  children: [
+    const Spacer(),
+    InkWell(
+      onTap: () {
+        CustomNavigation.pushWithTransition(
+          context,
+          DeleteAccountPage(
+            username: state.profile.fullName,
+            mobilenumber: state.profile.mobileNumber,
+          ),
+        );
+      },
+      child: TextStyles.medium(
+        text: 'Delete Account?',
+        weight: FontWeight.bold,
+        color: Appcolors.kredcolor,
+      ),
+    ),
+  ],
+),
+
                       ],
                     ),
                   );
@@ -259,6 +287,7 @@ class ScreenProfilpage extends StatelessWidget {
                 ),
               ),
             ),
+
 
             ResponsiveSizedBox.height20,
           ],

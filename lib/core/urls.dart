@@ -18,4 +18,5 @@ class Endpoints {
   static const documentupload = 'booking/uploadDocuments';
   static const myorders = 'account/myOrders';
   static const banners = 'masters/banners';
+  static const deleteaccount='login/deleteaccount';
 }

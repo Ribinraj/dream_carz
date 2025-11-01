@@ -267,7 +267,43 @@ Future<void> updatetoken({required String token}) async {
     log("Error updating FCM token: $e");
   }
 }
+  //   /////////////deleteAccount/////////////
+  Future<ApiResponse> deleteaccount({required String reason}) async {
+    try {
+      final token = await getUserToken();
+      Response response = await dio.post(
+        Endpoints.deleteaccount,
+        options: Options(headers: {'Authorization': token}),
+        data: {"reason": reason},
+      );
 
+      final responseData = response.data;
+      if (!responseData["error"] && responseData["status"] == 200) {
+        return ApiResponse(
+          data: null,
+          message: responseData['message'] ?? 'Success',
+          error: false,
+          status: responseData["status"],
+        );
+      } else {
+        return ApiResponse(
+          data: null,
+          message: responseData['message'] ?? 'Something went wrong',
+          error: true,
+          status: responseData["status"],
+        );
+      }
+    } on DioException catch (e) {
+      debugPrint(e.message);
+      log(e.toString());
+      return ApiResponse(
+        data: null,
+        message: 'Network or server error occurred',
+        error: true,
+        status: 500,
+      );
+    }
+  }
   void dispose() {
     dio.close();
   }

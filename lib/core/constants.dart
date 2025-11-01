@@ -6,6 +6,8 @@ class ResponsiveText extends StatelessWidget {
   final double? sizeFactor;
   final FontWeight? weight;
   final Color? color;
+  final TextOverflow? overflow; // 👈 new
+  final TextAlign? textAlign;   // 👈 optional but useful
 
   const ResponsiveText(
     this.text, {
@@ -13,6 +15,8 @@ class ResponsiveText extends StatelessWidget {
     this.sizeFactor,
     this.weight,
     this.color,
+    this.overflow,
+    this.textAlign,
   });
 
   @override
@@ -22,8 +26,9 @@ class ResponsiveText extends StatelessWidget {
 
     return Text(
       text,
+      textAlign: textAlign,
+      overflow: overflow ?? TextOverflow.ellipsis, // 👈 apply here
       style: TextStyle(
-        overflow: TextOverflow.ellipsis,
         fontSize: sizeFactor != null ? baseSize * sizeFactor! : baseSize,
         fontWeight: weight ?? FontWeight.normal,
         color: color ?? Colors.black,
