@@ -9,8 +9,9 @@ final class SendOtpLoadingState extends SendOtpState {}
 
 final class SendOtpSuccessState extends SendOtpState {
   final String customerId;
+  final String accountType;
 
-  SendOtpSuccessState({required this.customerId});
+  SendOtpSuccessState({required this.customerId,required this.accountType});
 
 
 

@@ -4,10 +4,10 @@ part of 'verify_otp_bloc.dart';
 sealed class VerifyOtpEvent {}
 
 final class VerifyOtpButtonclickEvent extends VerifyOtpEvent {
-  final String customerId;
-  final String otp;
+ final VerifyOtpmodel userdetails;
 
-  VerifyOtpButtonclickEvent({required this.customerId, required this.otp});
+  VerifyOtpButtonclickEvent({required this.userdetails});
+
 
 
 }

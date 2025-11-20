@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:dream_carz/core/urls.dart';
 import 'package:dream_carz/data/edit_profile_model.dart';
 import 'package:dream_carz/data/profile_model.dart';
+import 'package:dream_carz/data/verify_otpmodel.dart';
 import 'package:dream_carz/widgets/shared_preferences.dart';
 
 import 'package:flutter/material.dart';
@@ -34,7 +35,7 @@ class Loginrepo {
 
   ///----------------------send otp-----------------------------////
 
-  Future<ApiResponse<String>> sendOtp(
+  Future<ApiResponse<Map<String,String>>> sendOtp(
       {required String mobileNumber}) async {
     try {
       Response response = await dio
@@ -42,9 +43,10 @@ class Loginrepo {
       final responseData = response.data;
       if (!responseData["error"] && responseData["status"] == 200) {
         final customerId = responseData["data"][  "customerId"].toString();
-     
+        final accountType=responseData["accountType"].toString();
         return ApiResponse(
-            data:customerId,
+            data:{"customerId":customerId,
+            "accountType":accountType},
             message: responseData["message"] ?? 'Success',
             error: false,
             status: responseData["status"]);
@@ -64,13 +66,10 @@ class Loginrepo {
   }
 
 //   //////////------------verifyotp-----------/////////////////
-  Future<ApiResponse> verifyotp({required String customerId, required String otp}) async {
+  Future<ApiResponse> verifyotp({required VerifyOtpmodel userdetails}) async {
    // log('pushtoken when login ${user.pushToken}');
     try {
-      Response response = await dio.post(Endpoints.verifyotp, data:{
-    "customerId": customerId,
-    "otp": otp
-});
+      Response response = await dio.post(Endpoints.verifyotp, data:userdetails);
       final responseData = response.data;
       log('responsestatus${responseData}');
       log('responsestatus${responseData['status']}');
@@ -249,11 +248,11 @@ class Loginrepo {
 //   ///////////////update token/////////////////
 Future<void> updatetoken({required String token}) async {
   try {
-  //  final userToken = await getUserToken();
+   final userToken = await getUserToken();
     
     Response response = await dio.post(
       Endpoints.settoken, 
-      //options: Options(headers: {'Authorization': userToken}),
+      options: Options(headers: {'Authorization': userToken}),
       data: {  "pushToken": token}
     );
     

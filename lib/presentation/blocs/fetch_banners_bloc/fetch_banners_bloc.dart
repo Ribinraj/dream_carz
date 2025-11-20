@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:dio/dio.dart';
+
 import 'package:dream_carz/data/banner_model.dart';
 import 'package:dream_carz/domain/repositories/apprepo.dart';
 import 'package:meta/meta.dart';
@@ -13,7 +13,7 @@ class FetchBannersBloc extends Bloc<FetchBannersEvent, FetchBannersState> {
   final Apprepo repository;
   FetchBannersBloc({required this.repository}) : super(FetchBannersInitial()) {
     on<FetchBannersEvent>((event, emit) {
-      // TODO: implement event handler
+  
     });
     on<FetchBannersInitialEvnt>(fetchbanner);
   }

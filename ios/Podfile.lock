@@ -161,7 +161,7 @@ SPEC CHECKSUMS:
   FirebaseCoreInternal: 56ea29f3dad2894f81b060f706f9d53509b6ed3b
   FirebaseInstallations: 3e884b01feabdf67582a80f3250425a00979b4ed
   FirebaseMessaging: 43ec73bbfedd0c385a849bb91593ab4ad4b9e48e
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
   geocoding_ios: 33776c9ebb98d037b5e025bb0e7537f6dd19646e
   geolocator_apple: ab36aa0e8b7d7a2d7639b3b4e48308394e8cef5e

@@ -24,9 +24,10 @@ class SendOtpBloc extends Bloc<SendOtpEvent, SendOtpState> {
       final response =
           await repository.sendOtp(mobileNumber: event.mobileNumber);
       if (!response.error && response.status == 200) {
-       
+       final customerId=response.data?["customerId"]??"";
+       final accountType=response.data?["accountType"]??"";
      
-        emit(SendOtpSuccessState(customerId: response.data!));
+        emit(SendOtpSuccessState(customerId:customerId,accountType: accountType));
       } else {
         emit(SendOtpErrorState(message: response.message));
       }

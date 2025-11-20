@@ -3,6 +3,7 @@ import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/presentation/blocs/send_otp_bloc/send_otp_bloc.dart';
 import 'package:dream_carz/presentation/screens/screen_otp_verificationpage/screen_otp_verificationpage.dart';
+import 'package:dream_carz/presentation/screens/screen_registerpage/verify_newuserpage.dart';
 import 'package:dream_carz/widgets/custom_backcirclebutton.dart';
 
 import 'package:dream_carz/widgets/custom_loadingbutton.dart';
@@ -191,7 +192,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         BlocConsumer<SendOtpBloc, SendOtpState>(
                           listener: (context, state) {
                             if (state is SendOtpSuccessState) {
-                              CustomNavigation.pushReplaceWithTransition(
+                              if (state.accountType=="EXISTING") {
+                                          CustomNavigation.pushReplaceWithTransition(
                                 context,
                                 OtpVerificationPage(
                                   customerId: state.customerId,
@@ -206,6 +208,24 @@ class _LoginScreenState extends State<LoginScreen> {
                                   modelId: widget.modelId,
                                 ),
                               );
+                              }else{
+                                                             CustomNavigation.pushReplaceWithTransition(
+                                context,
+                                VerifyNewUserPage(
+                                  customerId: state.customerId,
+                                  mobileNumber: _mobileController.text,
+                                  loginfrom: widget.loginfrom,
+                                  pickupDate: widget.pickupDate,
+                                  pickupTime: widget.pickupTime,
+                                  dropDate: widget.dropDate,
+                                  dropTime: widget.dropTime,
+                                  cityId: widget.cityId,
+                                  kmId: widget.kmId,
+                                  modelId: widget.modelId,
+                                ),
+                              );
+                              }
+                    
                             } else if (state is SendOtpErrorState) {
                               CustomSnackbar.show(
                                 context,

@@ -19,8 +19,8 @@ class ScreenProfilpage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String?username;
-String?mobilenumber;
+//     String?username;
+// String?mobilenumber;
     return Scaffold(
       backgroundColor: Appcolors.kbackgroundcolor,
       appBar: AppBar(
@@ -64,8 +64,8 @@ String?mobilenumber;
                   );
                 }
                 if (state is FetchProfileSuccessState) {
-                  username=state.profile.fullName;
-                  mobilenumber=state.profile.mobileNumber;
+                  // username=state.profile.fullName;
+                  // mobilenumber=state.profile.mobileNumber;
                   return Container(
                     width: double.infinity,
                     padding: EdgeInsets.all(ResponsiveUtils.wp(6)),

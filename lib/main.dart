@@ -26,6 +26,7 @@ import 'package:dream_carz/presentation/blocs/upload_document_bloc/upload_docume
 import 'package:dream_carz/presentation/blocs/verify_otp_bloc/verify_otp_bloc.dart';
 
 
+
 import 'package:dream_carz/presentation/screens/sreen_splashpage/screen_splashpage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -148,8 +149,8 @@ class MyApp extends StatelessWidget {
           highlightColor: Colors.transparent,
           scaffoldBackgroundColor: Appcolors.kbackgroundcolor,
         ),
-        //home: PaymentSuccessPage(amount: 34344, transactionId: '3434334', bookingId: '33422352'),
-        home: SplashScreen(),
+       // home: VerifyNewUserPage(customerId: '344', mobileNumber: '99687854848', loginfrom: 'home')
+       home: SplashScreen(),
       ),
     );
   }

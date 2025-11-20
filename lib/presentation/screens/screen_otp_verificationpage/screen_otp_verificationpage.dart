@@ -4,12 +4,13 @@ import 'package:dream_carz/core/appconstants.dart';
 import 'package:dream_carz/core/colors.dart';
 import 'package:dream_carz/core/constants.dart';
 import 'package:dream_carz/core/responsiveutils.dart';
+import 'package:dream_carz/data/verify_otpmodel.dart';
 import 'package:dream_carz/domain/controllers/pushnotification_controller.dart';
 import 'package:dream_carz/presentation/blocs/resend_otp_bloc/resend_otp_bloc.dart';
 import 'package:dream_carz/presentation/blocs/verify_otp_bloc/verify_otp_bloc.dart';
 import 'package:dream_carz/presentation/screens/screen_bookingdetailspage/screen_bookingdetailpage.dart';
 import 'package:dream_carz/presentation/screens/screen_homepage/screen_homepage.dart';
-import 'package:dream_carz/presentation/screens/screen_profilepage/screen_profilpage.dart';
+
 import 'package:dream_carz/widgets/custom_backcirclebutton.dart';
 import 'package:dream_carz/widgets/custom_loadingbutton.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
@@ -320,8 +321,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                   if (_currentOtp.length == 6) {
                                     context.read<VerifyOtpBloc>().add(
                                       VerifyOtpButtonclickEvent(
-                                        customerId: widget.customerId,
-                                        otp: _currentOtp,
+                                      userdetails: VerifyOtpmodel(customerId:widget.customerId, otp:_currentOtp)
+                                     
                                       ),
                                     );
                                   } else {

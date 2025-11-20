@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
+import 'package:dream_carz/data/verify_otpmodel.dart';
 import 'package:dream_carz/domain/repositories/loginrepo.dart';
 
 import 'package:meta/meta.dart';
@@ -23,7 +24,7 @@ class VerifyOtpBloc extends Bloc<VerifyOtpEvent, VerifyOtpState> {
     try {
      
 
-      final response = await repository.verifyotp(customerId: event.customerId, otp:event.otp);
+      final response = await repository.verifyotp(userdetails: event.userdetails);
    
 
       log(response.message);
