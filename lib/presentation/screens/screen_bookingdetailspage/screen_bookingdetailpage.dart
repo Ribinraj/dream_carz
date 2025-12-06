@@ -13,10 +13,10 @@ import 'package:dream_carz/presentation/blocs/coupen_bloc/coupen_bloc.dart';
 import 'package:dream_carz/presentation/blocs/fetch_booking_overview_bloc/fetch_bookingoverview_bloc.dart';
 
 import 'package:dream_carz/presentation/screens/screen_bookingdetailspage/widgets/locationselection_widget.dart';
-import 'package:dream_carz/presentation/screens/screen_mydocuments/screen_mydocuments.dart';
+
 import 'package:dream_carz/presentation/screens/screen_paymentpage/screenpaymentpage.dart';
 import 'package:dream_carz/presentation/screens/screen_networkpage/screen_networkpage.dart';
-import 'package:dream_carz/presentation/screens/screen_paymentpages/screen_paymentsuccesspage.dart';
+
 
 import 'package:dream_carz/presentation/screens/screen_searchresultscreen.dart/widgets/customloading.dart';
 import 'package:dream_carz/widgets/custom_navigation.dart';
@@ -375,6 +375,7 @@ class _ScreenBookingdetailpageState extends State<ScreenBookingdetailpage> {
                     bookingTo: formatDateTime(toDateTime),
                     modelId: widget.modelId!,
                     cityId: int.parse(widget.cityId!),
+                    kmId: int.parse(widget.kmId!),
                     fulfillment: fulfillment,
                     couponCode: couponController.text.trim().isNotEmpty
                         ? couponController.text.trim()

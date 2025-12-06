@@ -3,6 +3,7 @@ class ConfirmBookingmodel {
   final String bookingTo;
   final int modelId;
   final int cityId;
+  final int kmId;
   final String fulfillment;
   final String? branchId;
   final String? couponCode;
@@ -17,6 +18,7 @@ class ConfirmBookingmodel {
     required this.bookingTo,
     required this.modelId,
     required this.cityId,
+    required this.kmId,
     required this.fulfillment,
     // optional fields
     this.branchId,
@@ -34,6 +36,7 @@ class ConfirmBookingmodel {
       'bookingTo': bookingTo,
       'modelId': modelId,
       'cityId': cityId,
+      'kmId':kmId,
       'fulfillment': fulfillment,
       if(branchId !=null)'branchId':branchId,
       if (couponCode != null) 'couponCode': couponCode,
@@ -51,6 +54,7 @@ class ConfirmBookingmodel {
       bookingTo: json['bookingTo'] ?? '',
       modelId: json['modelId'] ?? 0,
       cityId: json['cityId'] ?? 0,
+      kmId: json['kmId"'],
       fulfillment: json['fulfillment'] ?? '',
       branchId: json['branchId']??'',
       couponCode: json['couponCode'],

@@ -462,7 +462,8 @@ Future<void> _startpayment() async {
           _buildInfoRow(
             icon: Icons.directions_car,
             label: 'Vehicle',
-            value: 'Model ID: ${widget.bookingData.modelId}',
+            value: widget.bookingData.modelDetails?.modelName ?? "",
+
           ),
           ResponsiveSizedBox.height15,
 
@@ -477,8 +478,8 @@ Future<void> _startpayment() async {
           // Free Kilometers
           _buildInfoRow(
             icon: Icons.speed,
-            label: 'Free Kilometers',
-            value: '${widget.bookingData.freeKm ?? '0'} KM',
+            label: 'Kilometers Plan',
+            value: '${widget.bookingData.kmDetails?.kmLimit?? '0'} KM',
           ),
         ],
       ),
